@@ -19,13 +19,16 @@ public class MyImageView extends ImageView {
         this.text = text;
     }
 
+    // https://stackoverflow.com/questions/6756975/draw-multi-line-text-to-canvas
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        p.setTextSize(40.0f);
+        p.setTextSize(50.0f);
+        p.setFakeBoldText(true);
         // canvas.drawLine(0, 0, 200, 200, p);
-        canvas.drawText(text, 250, 220, p);
+        canvas.drawText(text, 220, 150, p);
 
     }
 

@@ -26,10 +26,11 @@ import static at.android.princesslea.R.drawable.floating_bubble;
 public class FloatingFaceBubbleService extends Service {
 
     private WindowManager windowManager;
-    private Date birth, offset;
+    private Date birth;
     private MyImageView floatingFaceBubble;
     private boolean mip = false;
     private Handler h = new Handler(Looper.getMainLooper());
+    private SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 
 /*    private Runnable mUpdateTimeTask = new Runnable() {
@@ -43,17 +44,12 @@ public class FloatingFaceBubbleService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        SimpleDateFormat offsetF = new SimpleDateFormat("yyyy-MM-dd");
         try {
-            // birth = ft.parse("2017-06-13 19:02:00");
-            offset = offsetF.parse("1970-01-01");
+            birth = formater.parse("2017-06-13 19:02:00");
         } catch (ParseException e) {
             birth = new Date();
-            offset = new Date();
             e.printStackTrace();
         }
-
 
         floatingFaceBubble = new MyImageView(this);
         // floatingFaceBubble.setText("hal");
@@ -73,50 +69,44 @@ public class FloatingFaceBubbleService extends Service {
         myParams.gravity = Gravity.TOP | Gravity.START;
         myParams.x = 0;
         myParams.y = 100;
+        myParams.height = 300;
+        myParams.width = 600;
 
         windowManager.addView(floatingFaceBubble, myParams);
 
         final int delay = 100;
         h.postDelayed(new Runnable() {
             public void run() {
-//                SimpleDateFormat out = new SimpleDateFormat ("yyyy-MM-dd HH:mm:ss");
-//                // String s = java.text.DateFormat.getTimeInstance().format(Calendar.getInstance().getTime());
-//                Date cur = new Date();
-//                // String s = "Princess Lea ist\n";
-//
-//                long l = cur.getTime() - birth.getTime();
-//
-//                Date outd = new Date();
+
                 String s = "";
-                SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                try {
-                    Date date1 = formater.parse("2017-06-13 19:02:00");
-                    Date date2 = new Date(); //formater.parse(dateInit);
 
+                // Date date1 = formater.parse("2017-06-13 19:02:00");
+                Date date2 = new Date(); //formater.parse(dateInit);
 
-                    long diffInMillisec = date1.getTime() - date2.getTime();
+                long diffInMillisec = date2.getTime() - birth.getTime();
 
-                    long diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillisec);
-                    long diffInHours = TimeUnit.MILLISECONDS.toHours(diffInMillisec) - 24 * diffInDays;
-                    long diffInMin = TimeUnit.MILLISECONDS.toMinutes(diffInMillisec) - 60*60 * diffInHours;
-                    long diffInSec = TimeUnit.MILLISECONDS.toSeconds(diffInMillisec) - 60 * diffInMin;
+                long diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillisec);
+                long diffInHours = TimeUnit.MILLISECONDS.toHours(diffInMillisec)
+                        - 24 * diffInDays;
+                long diffInMin = TimeUnit.MILLISECONDS.toMinutes(diffInMillisec)
+                        - (60 * diffInHours + 24 * diffInDays * 60);
+                long diffInSec = TimeUnit.MILLISECONDS.toSeconds(diffInMillisec)
+                        % 60;
 
-
-                    //s = substractDates(date2, date1, formater/*new SimpleDateFormat("HH:mm:ss")*/);
-                    long diff = date2.getTime() - date2.getTime();
+                    /*
+                    // formater = new SimpleDateFormat("HH:mm:ss")*//*);
+                    long diff = date2.getTime() - date1.getTime();
                     long seconds = diff / 1000;
                     long minutes = seconds / 60;
                     long hours = minutes / 60;
                     long days = hours / 24;
                     s = days + " " + hours + " " + minutes + " " + seconds;
+                    */
 
-                    s = diffInDays * -1 + "d " + diffInHours * -1 + "h " + diffInMin *-1 + "m " + diffInSec + "s";
-
-
-                } catch (ParseException e) {
-                    e.printStackTrace();
-                }
-
+                s = diffInDays + "d " +
+                        diffInHours + "h " +
+                        diffInMin + "m " +
+                        diffInSec + "s";
 
                 floatingFaceBubble.setText(s);
                 floatingFaceBubble.invalidate();
@@ -133,7 +123,7 @@ public class FloatingFaceBubbleService extends Service {
                 private int initialY;
                 private float initialTouchX;
                 private float initialTouchY;
-                private long touchStartTime = 0;
+                private long touchStartTime, touchEndTime = 0;
 
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
@@ -153,12 +143,15 @@ public class FloatingFaceBubbleService extends Service {
                             initialTouchY = event.getRawY();
                             break;
                         case MotionEvent.ACTION_UP:
-                            if (!mip) {
+                            touchEndTime = System.currentTimeMillis();
+                            if (touchEndTime - touchStartTime < 50/*ms*/) {
+                                //if (!mip) {
                                 windowManager.removeView(floatingFaceBubble);
                                 stopSelf();
                                 return false;
-                            } else
-                                mip = false;
+                            }
+                            //else
+                            //    mip = false;
                             break;
                         case MotionEvent.ACTION_MOVE:
                             mip = true;
