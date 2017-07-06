@@ -175,3 +175,9 @@ public class FloatingFaceBubbleService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 }
+/*
+arcs https://stackoverflow.com/questions/39206733/android-drawing-an-arc-inside-a-circle
+transparant box mulitline text https://stackoverflow.com/questions/6756975/draw-multi-line-text-to-canvas
+gesture double tap https://stackoverflow.com/questions/4804798/doubletap-in-android
+
+ */
