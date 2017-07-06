@@ -36,12 +36,20 @@ public class MyImageView extends ImageView {
 
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setColor(Color.WHITE);
-        p.setTextSize((int) (20 * scale));
+        p.setTextSize((int) (48));//  scale));
         p.setFakeBoldText(true);
-        p.setAlpha(210);
-        // canvas.drawLine(0, 0, 200, 200, p);
 
+        // p.setAlpha(210);
+        // canvas.drawLine(0, 0, 200, 200, p);
+        int row = 0;
         for (String line : text.split("\n")) {
+            row++;
+            if (row >= 2) {
+                if (row == 2)
+                    y-=9;
+                p.setTextSize(38);
+            }
+
             Rect bounds = new Rect();
             p.getTextBounds(line, 0, line.length(), bounds);
             x = (this.getWidth() - bounds.width()) / 2;
