@@ -69,8 +69,8 @@ public class FloatingFaceBubbleService extends Service {
         myParams.gravity = Gravity.TOP | Gravity.START;
         myParams.x = 0;
         myParams.y = 100;
-        myParams.height = 300;
-        myParams.width = 600;
+        myParams.height = 360;
+        myParams.width = 360;
 
         windowManager.addView(floatingFaceBubble, myParams);
 
@@ -78,7 +78,7 @@ public class FloatingFaceBubbleService extends Service {
         h.postDelayed(new Runnable() {
             public void run() {
 
-                String s = "";
+                String s = "Princess Lea\n";
 
                 // Date date1 = formater.parse("2017-06-13 19:02:00");
                 Date date2 = new Date(); //formater.parse(dateInit);
@@ -86,29 +86,37 @@ public class FloatingFaceBubbleService extends Service {
                 long diffInMillisec = date2.getTime() - birth.getTime();
 
                 long diffInDays = TimeUnit.MILLISECONDS.toDays(diffInMillisec);
-                long diffInHours = TimeUnit.MILLISECONDS.toHours(diffInMillisec)
-                        - 24 * diffInDays;
-                long diffInMin = TimeUnit.MILLISECONDS.toMinutes(diffInMillisec)
-                        - (60 * diffInHours + 24 * diffInDays * 60);
-                long diffInSec = TimeUnit.MILLISECONDS.toSeconds(diffInMillisec)
+                long diffInHours = TimeUnit.MILLISECONDS.toHours(diffInMillisec);
+                long diffInMin = TimeUnit.MILLISECONDS.toMinutes(diffInMillisec);
+                long diffInSec = TimeUnit.MILLISECONDS.toSeconds(diffInMillisec);
+
+                long days = TimeUnit.MILLISECONDS.toDays(diffInMillisec);
+                long month = (int)(days / 30);
+
+                days -= 30 * month;
+                // month = 0;
+                long hours = TimeUnit.MILLISECONDS.toHours(diffInMillisec)
+                        - 24 * days;
+                long min = TimeUnit.MILLISECONDS.toMinutes(diffInMillisec)
+                        - (60 * hours + 24 * days * 60);
+                long sec = TimeUnit.MILLISECONDS.toSeconds(diffInMillisec)
                         % 60;
 
-                    /*
-                    // formater = new SimpleDateFormat("HH:mm:ss")*//*);
-                    long diff = date2.getTime() - date1.getTime();
-                    long seconds = diff / 1000;
-                    long minutes = seconds / 60;
-                    long hours = minutes / 60;
-                    long days = hours / 24;
-                    s = days + " " + hours + " " + minutes + " " + seconds;
-                    */
 
-                s = diffInDays + "d " +
-                        diffInHours + "h " +
-                        diffInMin + "m " +
-                        diffInSec + "s";
+//                 s = days + " " + hours + " " + minutes + " " + seconds;
+//                s = diffInDays + "d " +
+//                        diffInHours + "h " +
+//                        diffInMin + "m " +
+//                        diffInSec + "s";
+                s += month + "m " +
+                        days + "d " +
+                        hours + "h \n" +
+                        min + "m " +
+                        sec + "s";
 
+                floatingFaceBubble.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 floatingFaceBubble.setText(s);
+
                 floatingFaceBubble.invalidate();
                 h.postDelayed(this, delay);
             }
@@ -124,16 +132,21 @@ public class FloatingFaceBubbleService extends Service {
                 private float initialTouchX;
                 private float initialTouchY;
                 private long touchStartTime, touchEndTime = 0;
+                boolean firstTouch = false;
+                long time = 0;
 
                 @Override
                 public boolean onTouch(View v, MotionEvent event) {
                     //remove face bubble on long press
-                    if (System.currentTimeMillis() - touchStartTime > ViewConfiguration.getLongPressTimeout() && initialTouchX == event.getX()) {
-                        windowManager.removeView(floatingFaceBubble);
-                        stopSelf();
-                        return false;
+//                    if (System.currentTimeMillis() - touchStartTime > ViewConfiguration.getLongPressTimeout() && initialTouchX == event.getX()) {
+//                        windowManager.removeView(floatingFaceBubble);
+//                        stopSelf();
+//                        return false;
+//
+//                    }
 
-                    }
+
+
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             touchStartTime = System.currentTimeMillis();
@@ -141,18 +154,26 @@ public class FloatingFaceBubbleService extends Service {
                             initialY = myParams.y;
                             initialTouchX = event.getRawX();
                             initialTouchY = event.getRawY();
-                            break;
-                        case MotionEvent.ACTION_UP:
-                            touchEndTime = System.currentTimeMillis();
-                            if (touchEndTime - touchStartTime < 50/*ms*/) {
-                                //if (!mip) {
+
+                            if(firstTouch && (System.currentTimeMillis() - time) <= 200) {
+                                //DOUBLE tap
+
+                                firstTouch = false;
                                 windowManager.removeView(floatingFaceBubble);
                                 stopSelf();
+                                return true; // event consumed
+
+                            } else {
+                                // SINGLE tap (nothing)
+                                firstTouch = true;
+                                time = System.currentTimeMillis();
                                 return false;
                             }
-                            //else
-                            //    mip = false;
-                            break;
+                            // break;
+                        case MotionEvent.ACTION_UP:
+                            touchEndTime = System.currentTimeMillis();
+                            return true;
+                            // break;
                         case MotionEvent.ACTION_MOVE:
                             mip = true;
                             myParams.x = initialX + (int) (event.getRawX() - initialTouchX);
