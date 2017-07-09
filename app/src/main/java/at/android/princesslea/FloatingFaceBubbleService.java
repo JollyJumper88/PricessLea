@@ -22,6 +22,8 @@ import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import static at.android.princesslea.R.drawable.floating_bubble;
+import static at.android.princesslea.R.drawable.floating_bubble_1_360x320;
+import static at.android.princesslea.R.drawable.floating_bubble_2_300x278;
 
 public class FloatingFaceBubbleService extends Service {
 
@@ -31,6 +33,9 @@ public class FloatingFaceBubbleService extends Service {
     private boolean mip = false;
     private Handler h = new Handler(Looper.getMainLooper());
     private SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+    // 1..Butterfly
+    // 2..Heart
+    public static int imageType = 2;
 
 
 /*    private Runnable mUpdateTimeTask = new Runnable() {
@@ -52,9 +57,17 @@ public class FloatingFaceBubbleService extends Service {
         }
 
         floatingFaceBubble = new MyImageView(this);
-        // floatingFaceBubble.setText("hal");
-        //a face floating bubble as imageView
-        floatingFaceBubble.setImageResource(floating_bubble);
+
+        // Round Image
+        // floatingFaceBubble.setImageResource(floating_bubble);
+        if (imageType == 1) {
+            // Butterfly Image
+            floatingFaceBubble.setImageResource(floating_bubble_1_360x320);
+
+        } else if (imageType == 2) {
+            // Heart Image
+            floatingFaceBubble.setImageResource(floating_bubble_2_300x278);
+        }
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         //here is all the science of params
@@ -69,16 +82,20 @@ public class FloatingFaceBubbleService extends Service {
         myParams.gravity = Gravity.TOP | Gravity.START;
         myParams.x = 0;
         myParams.y = 100;
-        myParams.height = 360;
-        myParams.width = 360;
+        if (imageType == 1) {
+            myParams.height = 360;
+            myParams.width = 360;
+        } else if (imageType == 2) {
+            myParams.height = 300;
+            myParams.width = 320;
+        }
 
         windowManager.addView(floatingFaceBubble, myParams);
 
-        final int delay = 100;
+        final int delay = 1000;
         h.postDelayed(new Runnable() {
             public void run() {
 
-                String s = "Princess Lea\n";
 
                 // Date date1 = formater.parse("2017-06-13 19:02:00");
                 Date date2 = new Date(); //formater.parse(dateInit);
@@ -91,7 +108,7 @@ public class FloatingFaceBubbleService extends Service {
                 long diffInSec = TimeUnit.MILLISECONDS.toSeconds(diffInMillisec);
 
                 long days = TimeUnit.MILLISECONDS.toDays(diffInMillisec);
-                long month = (int)(days / 30);
+                long month = (int) (days / 30);
 
                 days -= 30 * month;
                 // month = 0;
@@ -104,19 +121,25 @@ public class FloatingFaceBubbleService extends Service {
 
 
 //                 s = days + " " + hours + " " + minutes + " " + seconds;
-//                s = diffInDays + "d " +
-//                        diffInHours + "h " +
-//                        diffInMin + "m " +
-//                        diffInSec + "s";
+
+                // Round
+//                String s = "Princess Lea\n";
+//                s += month + "m " +
+//                        days + "d " +
+//                        hours + "h \n" +
+//                        min + "m " +
+//                        sec + "s";
+
+                // Butterfly
+                String s = "Lea\n";
                 s += month + "m " +
                         days + "d " +
                         hours + "h \n" +
                         min + "m " +
                         sec + "s";
 
-                floatingFaceBubble.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+                // floatingFaceBubble.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
                 floatingFaceBubble.setText(s);
-
                 floatingFaceBubble.invalidate();
                 h.postDelayed(this, delay);
             }
@@ -146,7 +169,6 @@ public class FloatingFaceBubbleService extends Service {
 //                    }
 
 
-
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN:
                             touchStartTime = System.currentTimeMillis();
@@ -155,7 +177,7 @@ public class FloatingFaceBubbleService extends Service {
                             initialTouchX = event.getRawX();
                             initialTouchY = event.getRawY();
 
-                            if(firstTouch && (System.currentTimeMillis() - time) <= 200) {
+                            if (firstTouch && (System.currentTimeMillis() - time) <= 200) {
                                 //DOUBLE tap
 
                                 firstTouch = false;
@@ -173,7 +195,7 @@ public class FloatingFaceBubbleService extends Service {
                         case MotionEvent.ACTION_UP:
                             touchEndTime = System.currentTimeMillis();
                             return true;
-                            // break;
+                        // break;
                         case MotionEvent.ACTION_MOVE:
                             mip = true;
                             myParams.x = initialX + (int) (event.getRawX() - initialTouchX);
