@@ -176,7 +176,7 @@ public class FloatingFaceBubbleService extends Service {
                             initialY = myParams.y;
                             initialTouchX = event.getRawX();
                             initialTouchY = event.getRawY();
-
+                            ViewConfiguration.getDoubleTapTimeout();
                             if (firstTouch && (System.currentTimeMillis() - time) <= 200) {
                                 //DOUBLE tap
 
@@ -194,6 +194,12 @@ public class FloatingFaceBubbleService extends Service {
                             // break;
                         case MotionEvent.ACTION_UP:
                             touchEndTime = System.currentTimeMillis();
+                            if ((touchEndTime - time) > ViewConfiguration.getLongPressTimeout()) {
+                                // LONG PRESS
+                                firstTouch = false;
+                                // do long tap shit here
+                                // return true; // event consumed
+                            }
                             return true;
                         // break;
                         case MotionEvent.ACTION_MOVE:
