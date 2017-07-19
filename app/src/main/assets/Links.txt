@@ -1,0 +1,14 @@
+https://stackoverflow.com/questions/6756975/draw-multi-line-text-to-canvas
+
+https://stackoverflow.com/questions/3624280/how-to-use-sharedpreferences-in-android-to-store-fetch-and-edit-values
+
+https://stackoverflow.com/questions/16867482/how-to-update-a-widget-periodically-say-after-every-5-seconds
+
+calclulate text size
+https://stackoverflow.com/questions/12166476/android-canvas-drawtext-set-font-size-from-width?rq=1
+https://stackoverflow.com/questions/4601758/draw-text-fitting-in-some-specified-rectangle
+
+
+arcs https://stackoverflow.com/questions/39206733/android-drawing-an-arc-inside-a-circle
+transparant box mulitline text https://stackoverflow.com/questions/6756975/draw-multi-line-text-to-canvas
+gesture double tap https://stackoverflow.com/questions/4804798/doubletap-in-android
