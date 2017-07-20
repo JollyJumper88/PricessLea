@@ -1,8 +1,12 @@
 package at.android.princesslea;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PixelFormat;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -36,6 +40,8 @@ public class FloatingFaceBubbleService extends Service {
     private DateTime birthDt, currDt;
     private boolean quitService = false;
 
+    private MyBroadcastReceiver mBroadcastReceiver;
+
     int month = 0, days = 0, hours = 0, min = 0, sec = 0, birthDay = 13, birthMinOfDay = 1142;
 
 /*    private Runnable mUpdateTimeTask = new Runnable() {
@@ -46,8 +52,14 @@ public class FloatingFaceBubbleService extends Service {
         }
     };*/
 
+
     public void onCreate() {
         super.onCreate();
+
+        if (mBroadcastReceiver == null)
+            mBroadcastReceiver = new MyBroadcastReceiver();
+        IntentFilter intentFilter = new IntentFilter("pref_broadcast");
+        registerReceiver(mBroadcastReceiver, intentFilter);
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         //here is all the science of params
@@ -109,15 +121,15 @@ public class FloatingFaceBubbleService extends Service {
                         days = currDt.minusMonths(1).dayOfMonth().withMaximumValue().getDayOfMonth();
                     }
                     // we add the days of  last month
-                    else if (days < 0 ) {
+                    else if (days < 0) {
                         days += currDt.minusMonths(1).dayOfMonth().withMaximumValue().getDayOfMonth() - 1;
                     }
                     // reduce because day not completed
                     else {
-                        days --;
+                        days--;
                     }
                 } else {
-                    if (days < 0 ) {
+                    if (days < 0) {
                         days += currDt.minusMonths(1).dayOfMonth().withMaximumValue().getDayOfMonth();
                     }
                 }
@@ -177,9 +189,15 @@ public class FloatingFaceBubbleService extends Service {
                             if (firstTouch && (System.currentTimeMillis() - time) <= ViewConfiguration.getDoubleTapTimeout()) {
                                 //DOUBLE tap
 
+                                Intent prefActivity = new Intent(getBaseContext(),
+                                        MyPreferenceActivity.class);
+                                startActivity(prefActivity);
+
+                                /*
                                 // trigger next image resource change and also set size via params object
                                 floatingFaceBubble.nextImage();
                                 windowManager.updateViewLayout(v, myParams);
+                                */
 
                                 firstTouch = false;
                                 return true; // event consumed
@@ -198,10 +216,13 @@ public class FloatingFaceBubbleService extends Service {
                             if (touchEndTime - touchStartTime > ViewConfiguration.getLongPressTimeout()
                                     && Math.abs(initialTouchX - event.getRawX()) <= dragThreshold) {
 
-                                // remove view and stop the service
-                                windowManager.removeView(floatingFaceBubble);
-                                stopSelf();
-                                quitService = true;
+//                                stopMyService();
+
+                                // trigger next image resource change and also set size via params object
+                                floatingFaceBubble.nextImage();
+                                windowManager.updateViewLayout(v, myParams);
+
+
 
                                 firstTouch = false;
                             }
@@ -222,10 +243,52 @@ public class FloatingFaceBubbleService extends Service {
         }
     }
 
+    private void stopMyService() {
+        // remove view and stop the service
+        windowManager.removeView(floatingFaceBubble);
+        stopSelf();
+        quitService = true;
+    }
+
 
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
+
+
+    @Override
+    public void onDestroy() {
+
+        if (mBroadcastReceiver != null)
+            unregisterReceiver(mBroadcastReceiver);
+
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: " + "DESTROY");
+    }
+
+    class MyBroadcastReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("a", "onReceive: " + "from broadcast receiver" + intent.getType());
+
+            //if (intent.getAction().equals("pref_broadcast")) {
+            Bundle extras = intent.getExtras();
+            if (extras != null) {
+                switch (extras.getString("action")) {
+                    case "exit":
+                        stopMyService();
+                        break;
+                    case "size1.5":
+                        floatingFaceBubble.setImageScale(15);
+
+                        // floatingFaceBubble.invalidate();
+                        windowManager.updateViewLayout(floatingFaceBubble, myParams);
+                        break;
+                }
+            }
+        }
+    }
 }
+

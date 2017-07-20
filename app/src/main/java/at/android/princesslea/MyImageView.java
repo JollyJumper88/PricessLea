@@ -21,6 +21,9 @@ public class MyImageView extends ImageView {
     private int imageType;
     private WindowManager.LayoutParams mLayoutParams;
 
+    private int imageScale = 10;
+
+
     public MyImageView(Context context, WindowManager.LayoutParams mLayoutParams) {
         super(context);
 
@@ -30,6 +33,15 @@ public class MyImageView extends ImageView {
         nextImage();
     }
 
+    /**
+     * Define scale of the bubble - 10, 15, 20
+     * @param imageScale
+     */
+    public void setImageScale(int imageScale) {
+        this.imageScale = imageScale;
+
+        resizeMyImage();
+    }
 
     public void nextImage() {
         imageType++;
@@ -37,24 +49,63 @@ public class MyImageView extends ImageView {
         switch (imageType %= 3) {
             case 0: // Round
                 setImageResource(floating_bubble_0);
-                mLayoutParams.width = 280;
-                mLayoutParams.height = 280;
+//                updateMyImageSize(28,28);
+//                mLayoutParams.width = 28 * imageScale;
+//                mLayoutParams.height = 28 *imageScale;
                 break;
             case 1: // Butterfly
                 setImageResource(floating_bubble_1_360x320);
-                mLayoutParams.width = 360;
-                mLayoutParams.height = 360;
+//                updateMyImageSize(36,36);
+//                mLayoutParams.width = 36 * imageScale;
+//                mLayoutParams.height = 36 * imageScale;
                 break;
             case 2: // Heart
                 setImageResource(floating_bubble_2_300x278);
-                mLayoutParams.width = 320;
-                mLayoutParams.height = 320;
+//                updateMyImageSize(32,32);
+//                mLayoutParams.width = 32 * imageScale;
+//                mLayoutParams.height = 32 * imageScale;
                 break;
             default:
                 break;
         }
+        resizeMyImage();
 
     }
+
+    private void resizeMyImage() {
+        switch (imageType) {
+            case 0: // Round
+
+//                updateMyImageSize(28,28);
+                mLayoutParams.width = 28 * imageScale;
+                mLayoutParams.height = 28 *imageScale;
+                break;
+            case 1: // Butterfly
+
+//                updateMyImageSize(36,36);
+                mLayoutParams.width = 36 * imageScale;
+                mLayoutParams.height = 36 * imageScale;
+                break;
+            case 2: // Heart
+
+//                updateMyImageSize(32,32);
+                mLayoutParams.width = 32 * imageScale;
+                mLayoutParams.height = 32 * imageScale;
+                break;
+            default:
+                break;
+        }
+    }
+
+//    private void updateMyImageSize(int width, int height) {
+//        if (width != 0) {
+//            mLayoutParams.width = width * imageScale;
+//            mLayoutParams.height = height * imageScale;
+//        } else {
+//            mLayoutParams.width *= imageScale;
+//            mLayoutParams.height *= imageScale;
+//        }
+//    }
 
     public void setText(String text) {
         this.text = text;
