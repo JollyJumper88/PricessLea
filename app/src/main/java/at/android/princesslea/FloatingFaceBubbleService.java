@@ -30,7 +30,7 @@ import java.util.Locale;
 
 public class FloatingFaceBubbleService extends Service {
 
-    private String TAG = "service";
+    private String TAG = "FaceBubbleService";
     private WindowManager windowManager;
     private WindowManager.LayoutParams myParams;
     private MyImageView floatingFaceBubble;
@@ -62,7 +62,7 @@ public class FloatingFaceBubbleService extends Service {
         registerReceiver(mBroadcastReceiver, intentFilter);
 
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        //here is all the science of params
+
         myParams = new WindowManager.LayoutParams(
                 LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT,
@@ -75,9 +75,6 @@ public class FloatingFaceBubbleService extends Service {
         myParams.gravity = Gravity.TOP | Gravity.START;
         myParams.x = 0;
         myParams.y = 100;
-//        myParams set in facebubble image
-//        myParams.height = 360;
-//        myParams.width = 360;
 
         windowManager.addView(floatingFaceBubble, myParams);
 
@@ -203,7 +200,7 @@ public class FloatingFaceBubbleService extends Service {
                                 return true; // event consumed
 
                             } else {
-                                // SINGLE tap (nothing)
+                                // SINGLE tap (do nothing)
                                 firstTouch = true;
                                 time = System.currentTimeMillis();
                                 return false;
@@ -212,20 +209,19 @@ public class FloatingFaceBubbleService extends Service {
                         case MotionEvent.ACTION_UP:
                             touchEndTime = System.currentTimeMillis();
 
-                            // LONG press
-                            if (touchEndTime - touchStartTime > ViewConfiguration.getLongPressTimeout()
-                                    && Math.abs(initialTouchX - event.getRawX()) <= dragThreshold) {
-
+//                             LONG press
+//                            if (touchEndTime - touchStartTime > ViewConfiguration.getLongPressTimeout()
+//                                    && Math.abs(initialTouchX - event.getRawX()) <= dragThreshold) {
+//
 //                                stopMyService();
-
-                                // trigger next image resource change and also set size via params object
-                                floatingFaceBubble.nextImage();
-                                windowManager.updateViewLayout(v, myParams);
-
-
-
-                                firstTouch = false;
-                            }
+//
+//                                // trigger next image resource change and also set size via params object
+//                                floatingFaceBubble.nextImage();
+//                                windowManager.updateViewLayout(v, myParams);
+//
+//
+//                                firstTouch = false;
+//                            }
                             return true;
                         // break;
                         case MotionEvent.ACTION_MOVE:
@@ -257,7 +253,6 @@ public class FloatingFaceBubbleService extends Service {
         throw new UnsupportedOperationException("Not yet implemented");
     }
 
-
     @Override
     public void onDestroy() {
 
@@ -271,24 +266,30 @@ public class FloatingFaceBubbleService extends Service {
     class MyBroadcastReceiver extends BroadcastReceiver {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("a", "onReceive: " + "from broadcast receiver" + intent.getType());
+            Log.d(TAG, "onReceive: " + "MyBroadcastReceiver" + intent.getAction());
 
             //if (intent.getAction().equals("pref_broadcast")) {
             Bundle extras = intent.getExtras();
             if (extras != null) {
-                switch (extras.getString("action")) {
-                    case "exit":
+                if (extras.getString("action") != null) {
+                    if (extras.getString("action").equalsIgnoreCase("exit")) {
                         stopMyService();
-                        break;
-                    case "size1.5":
-                        floatingFaceBubble.setImageScale(15);
-
-                        // floatingFaceBubble.invalidate();
-                        windowManager.updateViewLayout(floatingFaceBubble, myParams);
-                        break;
+                    } else if (extras.getString("action").equalsIgnoreCase("nextpicture")) {
+                        floatingFaceBubble.nextImage();
+                    }
+                } else if (extras.getInt("scale", -1) != -1) {
+                    floatingFaceBubble.setImageScale(extras.getInt("scale"));
+                    windowManager.updateViewLayout(floatingFaceBubble, myParams);
+                }
+//                else if (extras.getBoolean("service_switch") == false) {
+//                    stopMyService();
+//                }
+                else {
+                    Log.i(TAG, "onReceive: found data in bundle but was not handled.");
                 }
             }
         }
     }
 }
+
 

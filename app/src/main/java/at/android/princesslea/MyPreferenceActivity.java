@@ -40,77 +40,23 @@ public class MyPreferenceActivity extends PreferenceActivity {
     MyPreferenceFragment mpf;
 
     @Override
-    protected void onCreate(final Bundle savedInstanceState)
-    {
+    protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         mpf = new MyPreferenceFragment();
         getFragmentManager().beginTransaction().replace(android.R.id.content, mpf).commit();
     }
 
 
-
 /*
-    public static class MyPreferenceFragment extends PreferenceFragment
-    {
-        @Override
-        public void onCreate(final Bundle savedInstanceState)
-        {
-            super.onCreate(savedInstanceState);
-            addPreferencesFromResource(R.xml.pref_general);
-
-            // bindPreferenceSummaryToValue(findPreference("service_switch"));
-
-            findPreference("service_switch").setOnPreferenceChangeListener(listener);
-            findPreference("name").setOnPreferenceChangeListener(listener);
 
 
-            findPreference("exit").setOnPreferenceClickListener(clickListener);
-
-            findPreference("start").setOnPreferenceClickListener(clickListener);
-
-        }
-    }
-
-    public static Preference.OnPreferenceClickListener clickListener = new Preference.OnPreferenceClickListener() {
-        @Override
-        public boolean onPreferenceClick(Preference preference) {
-            switch (preference.getKey()) {
-                case "service_switch":
-                    break;
-                case "exit":
-                    Log.d(TAG, "aaaaaaaaaaaaaa");
-                    sendBroadcast(new Intent("abc"));
-                    //
-                    break;
-                case "start":
-                    break;
-            }
-            return false;
-        }
-
-
-    };
 
 
     public static Preference.OnPreferenceChangeListener listener = new Preference.OnPreferenceChangeListener() {
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
             String stringValue = value.toString();
-            Log.d(TAG, "onPreferenceChange: " + preference.getKey());
-//            if (preference.getKey().equalsIgnoreCase("service_switch")) {
-//
-//            }
-            switch (preference.getKey()) {
-                case "service_switch":
-                    break;
-                case "exit":
-                    Log.d(TAG, "aaaaaaaaaaaaaa");
-                    break;
-                case "start":
-                    break;
-            }
-
-
 //            if (preference instanceof ListPreference) {
 //                // For list preferences, look up the correct display value in
 //                // the preference's 'entries' list.
@@ -154,6 +100,7 @@ public class MyPreferenceActivity extends PreferenceActivity {
         }
     };
 */
+
     /**
      * Helper method to determine if the device has an extra-large screen. For
      * example, 10" tablets are extra-large.
@@ -183,8 +130,6 @@ public class MyPreferenceActivity extends PreferenceActivity {
 ////                        .getDefaultSharedPreferences(preference.getContext())
 ////                        .getString(preference.getKey(), ""));
 //    }
-
-
     @Override
     public boolean onMenuItemSelected(int featureId, MenuItem item) {
         int id = item.getItemId();

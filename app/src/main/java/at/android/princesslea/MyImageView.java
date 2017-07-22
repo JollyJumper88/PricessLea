@@ -18,18 +18,18 @@ import static at.android.princesslea.R.drawable.floating_bubble_2_300x278;
 public class MyImageView extends ImageView {
 
     private String text = "";
-    private int imageType;
+    private int imageType, imageScale;
     private WindowManager.LayoutParams mLayoutParams;
-
-    private int imageScale = 10;
-
+    private SharedPreferences preferences;
 
     public MyImageView(Context context, WindowManager.LayoutParams mLayoutParams) {
         super(context);
 
         this.mLayoutParams = mLayoutParams;
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
         imageType = preferences.getInt("imagetype", 2);
+//        imageScale = preferences.getInt("imagescale", 10);
+        imageScale = Integer.parseInt(preferences.getString("size_list", "10"));
         nextImage();
     }
 
@@ -44,30 +44,26 @@ public class MyImageView extends ImageView {
     }
 
     public void nextImage() {
+        // save last image type
+        preferences.edit().putInt("imagetype", imageType).apply();
+
         imageType++;
 
         switch (imageType %= 3) {
             case 0: // Round
                 setImageResource(floating_bubble_0);
-//                updateMyImageSize(28,28);
-//                mLayoutParams.width = 28 * imageScale;
-//                mLayoutParams.height = 28 *imageScale;
                 break;
             case 1: // Butterfly
                 setImageResource(floating_bubble_1_360x320);
-//                updateMyImageSize(36,36);
-//                mLayoutParams.width = 36 * imageScale;
-//                mLayoutParams.height = 36 * imageScale;
                 break;
             case 2: // Heart
                 setImageResource(floating_bubble_2_300x278);
-//                updateMyImageSize(32,32);
-//                mLayoutParams.width = 32 * imageScale;
-//                mLayoutParams.height = 32 * imageScale;
                 break;
             default:
                 break;
         }
+
+        // update the image
         resizeMyImage();
 
     }
@@ -75,20 +71,14 @@ public class MyImageView extends ImageView {
     private void resizeMyImage() {
         switch (imageType) {
             case 0: // Round
-
-//                updateMyImageSize(28,28);
                 mLayoutParams.width = 28 * imageScale;
                 mLayoutParams.height = 28 *imageScale;
                 break;
             case 1: // Butterfly
-
-//                updateMyImageSize(36,36);
                 mLayoutParams.width = 36 * imageScale;
                 mLayoutParams.height = 36 * imageScale;
                 break;
             case 2: // Heart
-
-//                updateMyImageSize(32,32);
                 mLayoutParams.width = 32 * imageScale;
                 mLayoutParams.height = 32 * imageScale;
                 break;
@@ -97,15 +87,6 @@ public class MyImageView extends ImageView {
         }
     }
 
-//    private void updateMyImageSize(int width, int height) {
-//        if (width != 0) {
-//            mLayoutParams.width = width * imageScale;
-//            mLayoutParams.height = height * imageScale;
-//        } else {
-//            mLayoutParams.width *= imageScale;
-//            mLayoutParams.height *= imageScale;
-//        }
-//    }
 
     public void setText(String text) {
         this.text = text;
@@ -221,12 +202,14 @@ public class MyImageView extends ImageView {
         //float scale = resources.getDisplayMetrics().density;
 
         int x;
-        int y = 180;
+//        int y = 180;
+        int y = 18 * imageScale;
 
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setTypeface(Typeface.createFromAsset(getContext().
                 getAssets(), "fonts/SouthernAire.ttf"));
-        p.setTextSize(68);
+        // p.setTextSize(68);
+        p.setTextSize(6.8f * imageScale);
         p.setColor(Color.WHITE);
         p.setFakeBoldText(true);
         text = "Princess " + text;
@@ -237,9 +220,11 @@ public class MyImageView extends ImageView {
             if (row >= 2) {
                 p.setTypeface(null);
                 if (row == 2) {
-                    y -= 30;
+                    // y -= 30;
+                    y -= 3 * imageScale;
                 }
-                p.setTextSize(32);
+                // p.setTextSize(32);
+                p.setTextSize(3.2f * imageScale);
             }
             // centered text
             Rect bounds = new Rect();

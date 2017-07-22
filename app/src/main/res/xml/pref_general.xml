@@ -1,13 +1,13 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--
+        <SwitchPreference
+            android:defaultValue="true"
+            android:enabled="false"
+            android:key="service_switch"
+            android:summary="@string/pref_service"
+            android:title="@string/pref_service_title" />
+            -->
 
-    <SwitchPreference
-        android:defaultValue="true"
-        android:key="service_switch"
-        android:summary="@string/pref_service"
-        android:title="@string/pref_service_title" />
-
-    <!-- NOTE: EditTextPreference accepts EditText attributes. -->
-    <!-- NOTE: EditTextPreference's summary should be set to its value by the activity code. -->
     <EditTextPreference
         android:capitalize="words"
         android:defaultValue="@string/pref_default_display_name"
@@ -18,9 +18,6 @@
         android:singleLine="true"
         android:title="@string/pref_title_display_name" />
 
-    <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
-         dismiss it. -->
-    <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
     <ListPreference
         android:defaultValue="1"
         android:entries="@array/pref_size_titles"
@@ -30,11 +27,13 @@
         android:positiveButtonText="@null"
         android:title="@string/pref_size" />
 
+    <Preference
+        android:key="nextpicture"
+        android:title="@string/pref_next"></Preference>
 
-    <Preference android:title="@string/pref_exit" android:key="exit">
-    </Preference>
+    <Preference
+        android:key="exit"
+        android:title="@string/pref_exit"></Preference>
 
-    <Preference android:title="@string/pref_start" android:key="start">
-    </Preference>
 
 </PreferenceScreen>
