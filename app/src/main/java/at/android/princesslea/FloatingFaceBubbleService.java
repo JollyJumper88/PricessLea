@@ -276,6 +276,7 @@ public class FloatingFaceBubbleService extends Service {
                         stopMyService();
                     } else if (extras.getString("action").equalsIgnoreCase("nextpicture")) {
                         floatingFaceBubble.nextImage();
+                        windowManager.updateViewLayout(floatingFaceBubble, myParams);
                     }
                 } else if (extras.getInt("scale", -1) != -1) {
                     floatingFaceBubble.setImageScale(extras.getInt("scale"));
