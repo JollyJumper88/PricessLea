@@ -7,33 +7,44 @@
             android:summary="@string/pref_service"
             android:title="@string/pref_service_title" />
             -->
+    <PreferenceCategory android:title="General">
+        <EditTextPreference
+            android:capitalize="words"
+            android:defaultValue="@string/pref_default_display_name"
+            android:inputType="textCapWords"
+            android:key="name"
+            android:maxLines="1"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="@string/pref_title_display_name" />
 
-    <EditTextPreference
-        android:capitalize="words"
-        android:defaultValue="@string/pref_default_display_name"
-        android:inputType="textCapWords"
-        android:key="name"
-        android:maxLines="1"
-        android:selectAllOnFocus="true"
-        android:singleLine="true"
-        android:title="@string/pref_title_display_name" />
-
-    <ListPreference
-        android:defaultValue="1"
-        android:entries="@array/pref_size_titles"
-        android:entryValues="@array/pref_size_values"
-        android:key="size_list"
-        android:negativeButtonText="@null"
-        android:positiveButtonText="@null"
-        android:title="@string/pref_size" />
-
-    <Preference
-        android:key="nextpicture"
-        android:title="@string/pref_next"></Preference>
-
-    <Preference
-        android:key="exit"
-        android:title="@string/pref_exit"></Preference>
+        <ListPreference
+            android:defaultValue="1"
+            android:entries="@array/pref_size_titles"
+            android:entryValues="@array/pref_size_values"
+            android:key="size_list"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_size" />
 
 
+        <Preference
+            android:key="nextpicture"
+            android:title="@string/pref_next"></Preference>
+
+        <Preference
+            android:key="exit"
+            android:title="@string/pref_exit"></Preference>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="More">
+        <Preference
+            android:key="dev"
+            android:title="About"></Preference>
+
+        <Preference
+            android:key="privpol"
+            android:title="Privacy Policy"></Preference>
+
+    </PreferenceCategory>
 </PreferenceScreen>

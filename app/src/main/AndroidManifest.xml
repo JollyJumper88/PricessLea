@@ -24,7 +24,7 @@
         <service
             android:name=".FloatingFaceBubbleService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
 
         <activity
             android:name=".MyPreferenceActivity"
@@ -34,6 +34,9 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="at.android.princesslea.MainActivity" />
         </activity>
+        <activity
+            android:name=".etc.PrivacyPolicy"
+            android:label="@string/title_activity_privacy_policy"></activity>
     </application>
 
 </manifest>

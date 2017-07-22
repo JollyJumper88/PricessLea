@@ -1,5 +1,7 @@
 package at.android.princesslea;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.ListPreference;
@@ -7,6 +9,8 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import at.android.princesslea.etc.PrivacyPolicy;
 
 
 public class MyPreferenceFragment extends PreferenceFragment {
@@ -26,6 +30,8 @@ public class MyPreferenceFragment extends PreferenceFragment {
         findPreference("exit").setOnPreferenceClickListener(clickListener);
 
         findPreference("nextpicture").setOnPreferenceClickListener(clickListener);
+        findPreference("dev").setOnPreferenceClickListener(clickListener);
+        findPreference("privpol").setOnPreferenceClickListener(clickListener);
 
         PreferenceManager.setDefaultValues(getContext(), R.xml.pref_general, false);
 
@@ -110,6 +116,13 @@ public class MyPreferenceFragment extends PreferenceFragment {
                     i.putExtra("action", "nextpicture");
                     getContext().sendBroadcast(i);
                     break;
+                case "dev":
+                    showDevDialog();
+                    break;
+                case "privpol":
+                    startActivity(new Intent(getContext(),
+                            PrivacyPolicy.class));
+                    break;
                 default:
                     Log.d(TAG, "onPreferenceClick: received event but was not handled.");
                     break;
@@ -117,4 +130,20 @@ public class MyPreferenceFragment extends PreferenceFragment {
             return false;
         }
     };
+
+    private void showDevDialog() {
+        AlertDialog.Builder aboutDialog = new AlertDialog.Builder(getContext());
+        aboutDialog.setTitle("About");
+        aboutDialog.setMessage("Princess Lea	(v0.1.0"
+                + ")\n\n(c) SK Mobile Development\nAll Rights Reserved");
+
+        aboutDialog.setPositiveButton("Ok",
+                new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.dismiss();
+                    }
+                });
+        aboutDialog.create().show();
+    }
 }
