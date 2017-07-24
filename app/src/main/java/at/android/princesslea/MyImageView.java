@@ -2,12 +2,17 @@ package at.android.princesslea;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
@@ -21,6 +26,7 @@ public class MyImageView extends ImageView {
     private int imageType, imageScale;
     private WindowManager.LayoutParams mLayoutParams;
     private SharedPreferences preferences;
+    private final String TAG = "MyImG";
 
     public MyImageView(Context context, WindowManager.LayoutParams mLayoutParams) {
         super(context);
@@ -28,7 +34,8 @@ public class MyImageView extends ImageView {
         this.mLayoutParams = mLayoutParams;
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
         imageType = preferences.getInt("imagetype", 2);
-//        imageScale = preferences.getInt("imagescale", 10);
+// remove again
+//        imageType = 1;
         imageScale = Integer.parseInt(preferences.getString("size_list", "10"));
         nextImage();
     }
@@ -46,8 +53,10 @@ public class MyImageView extends ImageView {
     public void nextImage() {
         // save last image type
         preferences.edit().putInt("imagetype", imageType).apply();
-
+        Log.d(TAG, "nextImage: ");
         imageType++;
+
+/*
 
         switch (imageType %= 3) {
             case 0: // Round
@@ -62,6 +71,39 @@ public class MyImageView extends ImageView {
             default:
                 break;
         }
+*/
+
+        Bitmap mask = null;
+        switch (imageType %= 4) {
+            case 0: // Heart
+                mask = BitmapFactory.decodeResource(getResources(),R.drawable.heart_mask);
+                break;
+            case 1: // Star
+                mask = BitmapFactory.decodeResource(getResources(),R.drawable.star_mask);
+                break;
+           case 2: // Star
+                mask = BitmapFactory.decodeResource(getResources(),R.drawable.flower_mask);
+                break;
+           case 3: // Star
+                mask = BitmapFactory.decodeResource(getResources(),R.drawable.flower2_mask);
+                break;
+            default:
+                break;
+        }
+
+        Bitmap original = BitmapFactory.decodeResource(getResources(),R.drawable.lea);
+        int edgeLength = 0;
+
+        original = Bitmap.createScaledBitmap(original, mask.getWidth(),mask.getHeight(), true);
+        Bitmap result = Bitmap.createBitmap(mask.getWidth(), mask.getHeight(), Bitmap.Config.ARGB_8888);
+
+        Canvas mCanvas = new Canvas(result);
+        Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
+        mCanvas.drawBitmap(original, 0, 0, null);
+        mCanvas.drawBitmap(mask, 0, 0, paint);
+        setImageBitmap(result);
+        setScaleType(ScaleType.FIT_XY);
 
         // update the image
         resizeMyImage();
@@ -69,6 +111,7 @@ public class MyImageView extends ImageView {
     }
 
     private void resizeMyImage() {
+        /*
         switch (imageType) {
             case 0: // Round
                 mLayoutParams.width = 28 * imageScale;
@@ -85,6 +128,18 @@ public class MyImageView extends ImageView {
             default:
                 break;
         }
+        */
+
+        mLayoutParams.width  = 30 * imageScale;
+        mLayoutParams.height = 30 * imageScale;
+
+    }
+
+    private void drawCustomShape() {
+
+
+
+
     }
 
 
@@ -99,6 +154,7 @@ public class MyImageView extends ImageView {
         //Resources resources = getContext().getResources();
         //float scale = resources.getDisplayMetrics().density;
 
+        /*
         switch (imageType) {
             case 0:
                 drawRoundImage(canvas);
@@ -112,6 +168,9 @@ public class MyImageView extends ImageView {
             default:
                 break;
         }
+        */
+
+        drawRoundImage(canvas);
 
     }
 
