@@ -15,6 +15,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.TextView;
 
 import static at.android.princesslea.R.drawable.floating_bubble_0;
 import static at.android.princesslea.R.drawable.floating_bubble_1_360x320;
@@ -23,6 +24,7 @@ import static at.android.princesslea.R.drawable.floating_bubble_2_300x278;
 public class MyImageView extends ImageView {
 
     private String text = "";
+    private String name = "";
     private int imageType, imageScale;
     private WindowManager.LayoutParams mLayoutParams;
     private SharedPreferences preferences;
@@ -31,13 +33,18 @@ public class MyImageView extends ImageView {
     public MyImageView(Context context, WindowManager.LayoutParams mLayoutParams) {
         super(context);
 
+        // params reference from service (windowmanager) to change the size
         this.mLayoutParams = mLayoutParams;
+
+        // Preferences
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
         imageType = preferences.getInt("imagetype", 2);
-// remove again
-//        imageType = 1;
         imageScale = Integer.parseInt(preferences.getString("size_list", "10"));
+        name = preferences.getString("name", "Put name here");
+
+
         nextImage();
+
     }
 
     /**
@@ -46,6 +53,7 @@ public class MyImageView extends ImageView {
      */
     public void setImageScale(int imageScale) {
         this.imageScale = imageScale;
+
 
         resizeMyImage();
     }
@@ -57,7 +65,6 @@ public class MyImageView extends ImageView {
         imageType++;
 
 /*
-
         switch (imageType %= 3) {
             case 0: // Round
                 setImageResource(floating_bubble_0);
@@ -81,10 +88,10 @@ public class MyImageView extends ImageView {
             case 1: // Star
                 mask = BitmapFactory.decodeResource(getResources(),R.drawable.star_mask);
                 break;
-           case 2: // Star
+           case 2: // Flower
                 mask = BitmapFactory.decodeResource(getResources(),R.drawable.flower_mask);
                 break;
-           case 3: // Star
+           case 3: // Flower2
                 mask = BitmapFactory.decodeResource(getResources(),R.drawable.flower2_mask);
                 break;
             default:
@@ -111,6 +118,9 @@ public class MyImageView extends ImageView {
     }
 
     private void resizeMyImage() {
+
+        mLayoutParams.width  = 30 * imageScale;
+        mLayoutParams.height = 30 * imageScale;
         /*
         switch (imageType) {
             case 0: // Round
@@ -129,16 +139,6 @@ public class MyImageView extends ImageView {
                 break;
         }
         */
-
-        mLayoutParams.width  = 30 * imageScale;
-        mLayoutParams.height = 30 * imageScale;
-
-    }
-
-    private void drawCustomShape() {
-
-
-
 
     }
 
@@ -170,8 +170,47 @@ public class MyImageView extends ImageView {
         }
         */
 
-        drawRoundImage(canvas);
+        drawTextOnImage(canvas);
 
+    }
+
+    private void drawTextOnImage(Canvas canvas) {
+        //Resources resources = getContext().getResources();
+        //float scale = resources.getDisplayMetrics().density;
+
+        int x;
+//        int y = 180;
+        int y = 18 * imageScale;
+
+        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+        p.setTypeface(Typeface.createFromAsset(getContext().
+                getAssets(), "fonts/SouthernAire.ttf"));
+        // p.setTextSize(68);
+        p.setTextSize(6.8f * imageScale);
+        p.setColor(Color.WHITE);
+        p.setFakeBoldText(true);
+        text = name + "\n" + text;
+
+        int row = 0;
+        for (String line : text.split("\n")) {
+            row++;
+            if (row >= 2) {
+                p.setTypeface(null);
+                if (row == 2) {
+                    // y -= 30;
+                    y -= 3 * imageScale;
+                }
+                // p.setTextSize(32);
+                p.setTextSize(3.2f * imageScale);
+            }
+            // centered text
+            Rect bounds = new Rect();
+            p.getTextBounds(line, 0, line.length(), bounds);
+            x = (this.getWidth() - bounds.width()) / 2;
+            // canvas.drawText(line, x, y, mLayoutParams);
+            drawFatText(line, x, y, p, canvas, 4);
+            y += p.descent() - p.ascent();
+        }
     }
 
     private void drawHeartImage(Canvas canvas) {

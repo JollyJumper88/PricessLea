@@ -18,6 +18,11 @@
             android:singleLine="true"
             android:title="@string/pref_title_display_name" />
 
+        <Preference
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:key="birthdatetime"
+            android:title="@string/pref_title_birth"></Preference>
         <ListPreference
             android:defaultValue="1"
             android:entries="@array/pref_size_titles"
@@ -31,6 +36,7 @@
         <Preference
             android:key="nextpicture"
             android:title="@string/pref_next"></Preference>
+
 
         <Preference
             android:key="exit"

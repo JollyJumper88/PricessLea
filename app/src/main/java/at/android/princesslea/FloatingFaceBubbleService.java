@@ -5,11 +5,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -17,6 +20,8 @@ import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import org.joda.time.DateTime;
 import org.joda.time.Interval;
@@ -42,7 +47,8 @@ public class FloatingFaceBubbleService extends Service {
 
     private MyBroadcastReceiver mBroadcastReceiver;
 
-    int month = 0, days = 0, hours = 0, min = 0, sec = 0, birthDay = 13, birthMinOfDay = 1142;
+    int month = 0, days = 0, hours = 0, min = 0, sec = 0, birthDay = 0/*13*/, birthMinOfDay = 0/*1142*/;
+    private SharedPreferences preferences;
 
 /*    private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
@@ -78,16 +84,44 @@ public class FloatingFaceBubbleService extends Service {
 
         windowManager.addView(floatingFaceBubble, myParams);
 
+
+        /*
+        LayoutParams myParams2 = new WindowManager.LayoutParams(
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.MATCH_PARENT,
+                LayoutParams.TYPE_PHONE,
+                LayoutParams.FLAG_NOT_FOCUSABLE,
+                PixelFormat.TRANSLUCENT);
+        TextView tv = new TextView(getApplicationContext());
+        tv.setTextSize(10);
+        tv.setTextAlignment(View.TEXT_ALIGNMENT_CENTER);
+        tv.setText("Princess Lea\n asbd");
+        tv.setTextColor(Color.WHITE);
+
+        windowManager.addView(tv, myParams2);
+        */
+
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+
+
         Date birth;
-        try {
-            birth = formater.parse("2017-06-13 19:02:00");
-            // birth = formater.parse("2017-03-17 15:02:00");
-        } catch (ParseException e) {
-            birth = new Date();
-            e.printStackTrace();
+        Long mills = preferences.getLong("birthdatetime", -1);
+        if (mills != -1) {
+            setBirthDayInfoByMills(mills);
+        } else {
+            try {
+                birth = formater.parse("2017-06-13 19:02:00");
+                // birth = formater.parse("2017-03-17 15:02:00");
+                birthDt = new DateTime(birth);
+                birthDay = 13;
+                birthMinOfDay = 1142;
+            } catch (ParseException e) {
+                birth = new Date();
+                birthDt = new DateTime(birth);
+                e.printStackTrace();
+            }
         }
 
-        birthDt = new DateTime(birth);
 
         final int delay = 1000;
         h.postDelayed(new Runnable() {
@@ -141,8 +175,7 @@ public class FloatingFaceBubbleService extends Service {
                 // sec = diffSecond.minus(diffMinute.toStandardSeconds()).negated().getSeconds();
                 sec = period.getSeconds();
 
-                String s = "Lea\n" +
-                        month + "m " +
+                String s = month + "m " +
                         days + "d " +
                         hours + "h \n" +
                         min + "m " +
@@ -209,19 +242,21 @@ public class FloatingFaceBubbleService extends Service {
                         case MotionEvent.ACTION_UP:
                             touchEndTime = System.currentTimeMillis();
 
-//                             LONG press
-//                            if (touchEndTime - touchStartTime > ViewConfiguration.getLongPressTimeout()
-//                                    && Math.abs(initialTouchX - event.getRawX()) <= dragThreshold) {
-//
-//                                stopMyService();
-//
-//                                // trigger next image resource change and also set size via params object
-//                                floatingFaceBubble.nextImage();
-//                                windowManager.updateViewLayout(v, myParams);
-//
-//
-//                                firstTouch = false;
-//                            }
+                            // LONG press
+                            /*
+                            if (touchEndTime - touchStartTime > ViewConfiguration.getLongPressTimeout()
+                                    && Math.abs(initialTouchX - event.getRawX()) <= dragThreshold) {
+
+                                stopMyService();
+
+                                // trigger next image resource change and also set size via params object
+                                floatingFaceBubble.nextImage();
+                                windowManager.updateViewLayout(v, myParams);
+
+
+                                firstTouch = false;
+                            }
+                            */
                             return true;
                         // break;
                         case MotionEvent.ACTION_MOVE:
@@ -244,6 +279,19 @@ public class FloatingFaceBubbleService extends Service {
         windowManager.removeView(floatingFaceBubble);
         stopSelf();
         quitService = true;
+    }
+
+    private void setBirthDayInfoByMills(Long mills) {
+        birthDt = new DateTime(mills);
+        if (birthDt.isBeforeNow()) {
+            birthDay = birthDt.getDayOfMonth();
+            birthMinOfDay = birthDt.getMinuteOfDay();
+            Log.d(TAG, "setBirthDayInfoByMills: " + birthDay + " " + birthMinOfDay);
+        } else {
+            Toast.makeText(this, "Birthday must be set before now!", Toast.LENGTH_SHORT).show();
+            birthDt = new DateTime();
+        }
+
     }
 
 
@@ -281,6 +329,15 @@ public class FloatingFaceBubbleService extends Service {
                 } else if (extras.getInt("scale", -1) != -1) {
                     floatingFaceBubble.setImageScale(extras.getInt("scale"));
                     windowManager.updateViewLayout(floatingFaceBubble, myParams);
+                } else if (extras.getLong("birthdatetime", -1) != -1) {
+                    preferences.edit().putLong("birthdatetime", extras.getLong("birthdatetime")).apply();
+                    Long mills = extras.getLong("birthdatetime");
+                    // Date x = new Date(mills);
+                    setBirthDayInfoByMills(mills);
+                    // birthDt = new DateTime(x);
+                    // Log.d(TAG, "XXXXX " + birthDt.toString());
+                    //DateTime test = new DateTime(extras.getLong("birthdatetime"));
+                    //Log.d(TAG, "onReceive: "+ test.toString());
                 }
 //                else if (extras.getBoolean("service_switch") == false) {
 //                    stopMyService();
@@ -291,6 +348,7 @@ public class FloatingFaceBubbleService extends Service {
             }
         }
     }
+
 }
 
 
