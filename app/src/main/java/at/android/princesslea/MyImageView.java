@@ -1,5 +1,6 @@
 package at.android.princesslea;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
@@ -21,6 +22,7 @@ import static at.android.princesslea.R.drawable.floating_bubble_0;
 import static at.android.princesslea.R.drawable.floating_bubble_1_360x320;
 import static at.android.princesslea.R.drawable.floating_bubble_2_300x278;
 
+@SuppressLint("AppCompatCustomView")
 public class MyImageView extends ImageView {
 
     private String text = "";
@@ -29,6 +31,7 @@ public class MyImageView extends ImageView {
     private WindowManager.LayoutParams mLayoutParams;
     private SharedPreferences preferences;
     private final String TAG = "MyImG";
+    private Bitmap original = null;
 
     public MyImageView(Context context, WindowManager.LayoutParams mLayoutParams) {
         super(context);
@@ -49,6 +52,7 @@ public class MyImageView extends ImageView {
 
     /**
      * Define scale of the bubble - 10, 15, 20
+     *
      * @param imageScale
      */
     public void setImageScale(int imageScale) {
@@ -63,6 +67,7 @@ public class MyImageView extends ImageView {
         preferences.edit().putInt("imagetype", imageType).apply();
         Log.d(TAG, "nextImage: ");
         imageType++;
+        setMyImage(null);
 
 /*
         switch (imageType %= 3) {
@@ -79,29 +84,38 @@ public class MyImageView extends ImageView {
                 break;
         }
 */
+    }
 
+    public void setMyImage(Bitmap img) {
         Bitmap mask = null;
         switch (imageType %= 4) {
             case 0: // Heart
-                mask = BitmapFactory.decodeResource(getResources(),R.drawable.heart_mask);
+                mask = BitmapFactory.decodeResource(getResources(), R.drawable.heart_mask);
                 break;
             case 1: // Star
-                mask = BitmapFactory.decodeResource(getResources(),R.drawable.star_mask);
+                mask = BitmapFactory.decodeResource(getResources(), R.drawable.star_mask);
                 break;
-           case 2: // Flower
-                mask = BitmapFactory.decodeResource(getResources(),R.drawable.flower_mask);
+            case 2: // Flower
+                mask = BitmapFactory.decodeResource(getResources(), R.drawable.flower_mask);
                 break;
-           case 3: // Flower2
-                mask = BitmapFactory.decodeResource(getResources(),R.drawable.flower2_mask);
+            case 3: // Flower2
+                mask = BitmapFactory.decodeResource(getResources(), R.drawable.flower2_mask);
                 break;
             default:
                 break;
         }
 
-        Bitmap original = BitmapFactory.decodeResource(getResources(),R.drawable.lea);
+
+        if (original == null) {
+            original = BitmapFactory.decodeResource(getResources(), R.drawable.lea);
+        } else if (img != null){
+            original = img;
+        }
+
+
         int edgeLength = 0;
 
-        original = Bitmap.createScaledBitmap(original, mask.getWidth(),mask.getHeight(), true);
+        original = Bitmap.createScaledBitmap(original, mask.getWidth(), mask.getHeight(), true);
         Bitmap result = Bitmap.createBitmap(mask.getWidth(), mask.getHeight(), Bitmap.Config.ARGB_8888);
 
         Canvas mCanvas = new Canvas(result);
@@ -119,7 +133,7 @@ public class MyImageView extends ImageView {
 
     private void resizeMyImage() {
 
-        mLayoutParams.width  = 30 * imageScale;
+        mLayoutParams.width = 30 * imageScale;
         mLayoutParams.height = 30 * imageScale;
         /*
         switch (imageType) {
@@ -180,7 +194,7 @@ public class MyImageView extends ImageView {
 
         int x;
 //        int y = 180;
-        int y = 18 * imageScale;
+        int y = 19 * imageScale;
 
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         p.setTypeface(Typeface.createFromAsset(getContext().
@@ -198,7 +212,7 @@ public class MyImageView extends ImageView {
                 p.setTypeface(null);
                 if (row == 2) {
                     // y -= 30;
-                    y -= 3 * imageScale;
+                    y -= 4 * imageScale;
                 }
                 // p.setTextSize(32);
                 p.setTextSize(3.2f * imageScale);

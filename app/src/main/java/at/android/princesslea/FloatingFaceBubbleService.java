@@ -6,12 +6,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
@@ -28,6 +32,9 @@ import org.joda.time.Interval;
 import org.joda.time.Months;
 import org.joda.time.Period;
 
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -295,6 +302,13 @@ public class FloatingFaceBubbleService extends Service {
     }
 
 
+    private void choosePicFromGallery() {
+        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
+        photoPickerIntent.setType("image/*");
+//        startActivityforResult();
+    }
+
+
     @Override
     public IBinder onBind(Intent intent) {
         // TODO: Return the communication channel to the service.
@@ -326,13 +340,16 @@ public class FloatingFaceBubbleService extends Service {
                         floatingFaceBubble.nextImage();
                         windowManager.updateViewLayout(floatingFaceBubble, myParams);
                     }
+                } else if (extras.getString("choosepic") != null) {
+                    Log.d(TAG, "JAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA: " + extras.getString("choosepic"));
+                    setImageToBubbleFromUri(extras.getString("choosepic"));
+
                 } else if (extras.getInt("scale", -1) != -1) {
                     floatingFaceBubble.setImageScale(extras.getInt("scale"));
                     windowManager.updateViewLayout(floatingFaceBubble, myParams);
                 } else if (extras.getLong("birthdatetime", -1) != -1) {
                     preferences.edit().putLong("birthdatetime", extras.getLong("birthdatetime")).apply();
                     Long mills = extras.getLong("birthdatetime");
-                    // Date x = new Date(mills);
                     setBirthDayInfoByMills(mills);
                     // birthDt = new DateTime(x);
                     // Log.d(TAG, "XXXXX " + birthDt.toString());
@@ -347,6 +364,33 @@ public class FloatingFaceBubbleService extends Service {
                 }
             }
         }
+    }
+
+    private void setImageToBubbleFromUri(String selectedImageUriString) {
+        Uri selectedImageUri = Uri.parse(selectedImageUriString);
+        try {
+
+            ParcelFileDescriptor parcelFileDescriptor = getContentResolver().openFileDescriptor(selectedImageUri, "r");
+            FileDescriptor fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+
+            Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+            parcelFileDescriptor.close();
+            //floatingFaceBubble.setImageBitmap(image);
+            floatingFaceBubble.setMyImage(image);
+
+            //fullImageView.setImageBitmap(image);
+        } catch (FileNotFoundException e)
+        {
+            e.printStackTrace();
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+//                editor = sharedpreferences.edit();
+//                editor.putString("imageUri", imageUri);
+//                editor.commit();
+//                editor.remove("AvailImagePath").commit();
     }
 
 }

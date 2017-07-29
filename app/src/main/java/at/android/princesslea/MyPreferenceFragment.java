@@ -1,5 +1,6 @@
 package at.android.princesslea;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
@@ -7,7 +8,12 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.AssetFileDescriptor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.ParcelFileDescriptor;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -16,8 +22,13 @@ import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
 
+import com.theartofdev.edmodo.cropper.CropImage;
+
 import org.joda.time.DateTime;
 
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -25,6 +36,8 @@ import at.android.princesslea.etc.PrivacyPolicy;
 
 
 public class MyPreferenceFragment extends PreferenceFragment {
+    private static final int RESULT_PICK_IMAGE = 99;
+    private static final int RESULT_CROP_IMAGE = 88;
     String TAG = "MyPreferenceFragment";
     Context context;
     private SharedPreferences preferences;
@@ -43,6 +56,7 @@ public class MyPreferenceFragment extends PreferenceFragment {
         findPreference("exit").setOnPreferenceClickListener(clickListener);
 
         findPreference("nextpicture").setOnPreferenceClickListener(clickListener);
+        findPreference("choosepic").setOnPreferenceClickListener(clickListener);
         findPreference("birthdatetime").setOnPreferenceClickListener(clickListener);
         findPreference("dev").setOnPreferenceClickListener(clickListener);
         findPreference("privpol").setOnPreferenceClickListener(clickListener);
@@ -139,6 +153,17 @@ public class MyPreferenceFragment extends PreferenceFragment {
                     getActivity().finish();
 
                     break;
+                case "choosepic":
+
+
+                    Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                    intent.setType("image/*");
+                    intent.setAction(Intent.ACTION_GET_CONTENT);
+
+                    startActivityForResult(Intent.createChooser(intent,
+                            "Select Picture"), RESULT_PICK_IMAGE);
+
+                    break;
                 case "nextpicture":
                     i = new Intent("pref_broadcast");
                     i.putExtra("action", "nextpicture");
@@ -161,6 +186,56 @@ public class MyPreferenceFragment extends PreferenceFragment {
             return false;
         }
     };
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        Log.d(TAG, "onActivityResult: " + requestCode);
+
+        if (resultCode == Activity.RESULT_OK) {
+            // choose picture
+            if (data != null) {
+                switch (requestCode) {
+                    case RESULT_PICK_IMAGE:
+
+                        Uri selectedImageUri = data.getData();
+//                        Intent CropIntent = new Intent("com.android.camera.action.CROP");
+//                        CropIntent.setDataAndType(selectedImageUri, "image/*");
+//                        CropIntent.putExtra("crop", "true");
+//                        CropIntent.putExtra("outputX", 180);
+//                        CropIntent.putExtra("outputY", 180);
+//                        CropIntent.putExtra("aspectX", 3);
+//                        CropIntent.putExtra("aspectY", 4);
+//                        CropIntent.putExtra("scaleUpIfNeeded", true);
+//                        CropIntent.putExtra("return-data", true);
+//                        startActivityForResult(CropIntent, RESULT_CROP_IMAGE);
+
+                        CropImage.activity(selectedImageUri).start(getContext(), this);
+                        break;
+                    case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
+                        CropImage.ActivityResult result = CropImage.getActivityResult(data);
+                        //if (resultCode == RESULT_OK) {
+                        Uri resultUri = result.getUri();
+
+                        //} else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
+                        //    Exception error = result.getError();
+                        //}
+                        Intent i = new Intent("pref_broadcast");
+                        i.putExtra("choosepic", resultUri.toString());
+                        getContext().sendBroadcast(i);
+                        break;
+
+//                    case RESULT_CROP_IMAGE:
+//                        Uri selectedImageUri2 = data.getData();
+
+//                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+    }
 
     private void showDateTimePicker() {
         Date value = new Date();

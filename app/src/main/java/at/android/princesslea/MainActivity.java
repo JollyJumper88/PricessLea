@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -77,6 +78,9 @@ public class MainActivity extends Activity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         /* check if received result code
          is equal our requested code for draw permission  */
+
+
+
         if (requestCode == REQUEST_CODE) {
             if (Settings.canDrawOverlays(this)) {
                 Intent intent = new Intent(MainActivity.this, FloatingFaceBubbleService.class);
@@ -105,4 +109,7 @@ public class MainActivity extends Activity {
         }
         return super.onOptionsItemSelected(item);
     }
+
+
+
 }

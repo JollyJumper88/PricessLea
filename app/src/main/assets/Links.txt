@@ -1,3 +1,18 @@
+SLIDER:
+https://stackoverflow.com/questions/1974193/slider-on-my-preferencescreen
+
+CACHING:
+https://stackoverflow.com/questions/6927177/android-use-cache-for-saving-images
+https://stackoverflow.com/questions/7540386/android-saving-and-loading-a-bitmap-in-cache-from-different-activities
+
+LICENCE:
+https://softwareengineering.stackexchange.com/questions/284773/what-to-keep-in-mind-when-releasing-an-app-which-uses-libraries-licensed-under-t
+
+CROPPING:
+https://commonsware.com/blog/2013/01/23/no-android-does-not-have-crop-intent.html
+https://github.com/ArthurHub/Android-Image-Cropper
+ or https://github.com/lvillani/android-cropimage
+
 https://stackoverflow.com/questions/6756975/draw-multi-line-text-to-canvas
 
 https://stackoverflow.com/questions/3624280/how-to-use-sharedpreferences-in-android-to-store-fetch-and-edit-values

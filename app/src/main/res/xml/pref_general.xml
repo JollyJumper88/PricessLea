@@ -23,8 +23,9 @@
             android:layout_height="wrap_content"
             android:key="birthdatetime"
             android:title="@string/pref_title_birth"></Preference>
+
         <ListPreference
-            android:defaultValue="1"
+            android:defaultValue="10"
             android:entries="@array/pref_size_titles"
             android:entryValues="@array/pref_size_values"
             android:key="size_list"
@@ -32,12 +33,17 @@
             android:positiveButtonText="@null"
             android:title="@string/pref_size" />
 
-
         <Preference
             android:key="nextpicture"
             android:title="@string/pref_next"></Preference>
 
 
+        <Preference
+            android:id="@+id/preference"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:key="choosepic"
+            android:title="@string/choosepic"></Preference>
         <Preference
             android:key="exit"
             android:title="@string/pref_exit"></Preference>
