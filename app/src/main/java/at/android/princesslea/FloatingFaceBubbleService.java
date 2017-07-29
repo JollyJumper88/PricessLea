@@ -146,7 +146,7 @@ public class FloatingFaceBubbleService extends Service {
                 days = currDay - birthDay;
 
                 // day not fully completed
-                if (currMinOfDay < birthMinOfDay) {
+                if (currMinOfDay <= birthMinOfDay) {
                     // if birthday we take the last day of the last month
                     if (days == 0) {
                         days = currDt.minusMonths(1).dayOfMonth().withMaximumValue().getDayOfMonth();
