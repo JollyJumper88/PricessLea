@@ -11,83 +11,72 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.Typeface;
+import android.net.Uri;
+import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.TextView;
+import android.widget.Toast;
 
-import static at.android.princesslea.R.drawable.floating_bubble_0;
-import static at.android.princesslea.R.drawable.floating_bubble_1_360x320;
-import static at.android.princesslea.R.drawable.floating_bubble_2_300x278;
+import java.io.FileDescriptor;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 
 @SuppressLint("AppCompatCustomView")
 public class MyImageView extends ImageView {
 
     private String text = "";
-    private String name = "";
-    private int imageType, imageScale;
+    private String imgUri;
+    private int imageType;
+    private int imageScale;
+
+    private Bitmap mask = null;
+    private Bitmap image = null;
+
     private WindowManager.LayoutParams mLayoutParams;
     private SharedPreferences preferences;
-    private final String TAG = "MyImG";
-    private Bitmap original = null;
+    // private final String TAG = "MyImG";
+    private Context context;
 
     public MyImageView(Context context, WindowManager.LayoutParams mLayoutParams) {
         super(context);
 
+        this.context = context;
+
         // params reference from service (windowmanager) to change the size
         this.mLayoutParams = mLayoutParams;
 
-        // Preferences
+        loadPreferences();
+
+        updateMask();
+
+        if (imgUri != null)
+            setImageFromUri(imgUri);
+        else
+            setImageFromBitmap(null);
+
+
+    }
+
+    private void loadPreferences() {
+
         preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        imageType = preferences.getInt("imagetype", 2);
+        imageType = preferences.getInt("imagetype", 0);
         imageScale = Integer.parseInt(preferences.getString("size_list", "10"));
-        name = preferences.getString("name", "Put name here");
-
-
-        nextImage();
+        imgUri = preferences.getString("imguri", null);
 
     }
 
-    /**
-     * Define scale of the bubble - 10, 15, 20
-     *
-     * @param imageScale
-     */
-    public void setImageScale(int imageScale) {
-        this.imageScale = imageScale;
-
-
-        resizeMyImage();
-    }
-
-    public void nextImage() {
-        // save last image type
-        preferences.edit().putInt("imagetype", imageType).apply();
-        Log.d(TAG, "nextImage: ");
+    public void nextMask() {
+        // increase and save last image type
         imageType++;
-        setMyImage(null);
+        preferences.edit().putInt("imagetype", imageType).apply();
 
-/*
-        switch (imageType %= 3) {
-            case 0: // Round
-                setImageResource(floating_bubble_0);
-                break;
-            case 1: // Butterfly
-                setImageResource(floating_bubble_1_360x320);
-                break;
-            case 2: // Heart
-                setImageResource(floating_bubble_2_300x278);
-                break;
-            default:
-                break;
-        }
-*/
+        updateMask();
+        setImageFromBitmap(null);
     }
 
-    public void setMyImage(Bitmap img) {
-        Bitmap mask = null;
+    private void updateMask() {
         switch (imageType %= 4) {
             case 0: // Heart
                 mask = BitmapFactory.decodeResource(getResources(), R.drawable.heart_mask);
@@ -104,30 +93,69 @@ public class MyImageView extends ImageView {
             default:
                 break;
         }
+    }
+
+    public void setImageScale(int imageScale) {
+        // Define scale of the bubble - 10, 15, 20
+        this.imageScale = imageScale;
+
+        resizeMyImage();
+    }
 
 
-        if (original == null) {
-            original = BitmapFactory.decodeResource(getResources(), R.drawable.lea);
-        } else if (img != null){
-            original = img;
+    public void setImageFromBitmap(Bitmap img) {
+
+        //call UpdateMask first! - Member mask must not be null
+        assert mask != null;
+
+        if (img != null) { // use new image
+            image = img;
+        } else if (image == null) { // use default
+            image = BitmapFactory.decodeResource(getResources(), R.drawable.lea);
         }
+        // else - use current
 
-
-        int edgeLength = 0;
-
-        original = Bitmap.createScaledBitmap(original, mask.getWidth(), mask.getHeight(), true);
+        image = Bitmap.createScaledBitmap(image, mask.getWidth(), mask.getHeight(), true);
         Bitmap result = Bitmap.createBitmap(mask.getWidth(), mask.getHeight(), Bitmap.Config.ARGB_8888);
 
         Canvas mCanvas = new Canvas(result);
         Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
         paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_IN));
-        mCanvas.drawBitmap(original, 0, 0, null);
+        mCanvas.drawBitmap(image, 0, 0, null);
         mCanvas.drawBitmap(mask, 0, 0, paint);
         setImageBitmap(result);
         setScaleType(ScaleType.FIT_XY);
 
-        // update the image
+        // update the size
         resizeMyImage();
+
+    }
+
+    public void setImageFromUri(String selectedImageUriString) {
+        Uri selectedImageUri = Uri.parse(selectedImageUriString);
+        try {
+            ParcelFileDescriptor parcelFileDescriptor = context.getContentResolver().openFileDescriptor(selectedImageUri, "r");
+            FileDescriptor fileDescriptor;
+            if (parcelFileDescriptor != null) {
+                fileDescriptor = parcelFileDescriptor.getFileDescriptor();
+                Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+                parcelFileDescriptor.close();
+
+                setImageFromBitmap(image);
+            } else {
+                Toast.makeText(context, "Error loading image from cache", Toast.LENGTH_SHORT).show();
+            }
+
+
+
+        } catch (FileNotFoundException e) {
+            Toast.makeText(context, "Image was deleted from cache", Toast.LENGTH_SHORT).show();
+            setImageFromBitmap(null);
+            e.printStackTrace();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 
     }
 
@@ -135,24 +163,6 @@ public class MyImageView extends ImageView {
 
         mLayoutParams.width = 30 * imageScale;
         mLayoutParams.height = 30 * imageScale;
-        /*
-        switch (imageType) {
-            case 0: // Round
-                mLayoutParams.width = 28 * imageScale;
-                mLayoutParams.height = 28 *imageScale;
-                break;
-            case 1: // Butterfly
-                mLayoutParams.width = 36 * imageScale;
-                mLayoutParams.height = 36 * imageScale;
-                break;
-            case 2: // Heart
-                mLayoutParams.width = 32 * imageScale;
-                mLayoutParams.height = 32 * imageScale;
-                break;
-            default:
-                break;
-        }
-        */
 
     }
 
@@ -168,65 +178,81 @@ public class MyImageView extends ImageView {
         //Resources resources = getContext().getResources();
         //float scale = resources.getDisplayMetrics().density;
 
-        /*
-        switch (imageType) {
-            case 0:
-                drawRoundImage(canvas);
-                break;
-            case 1:
-                drawButterflyImage(canvas);
-                break;
-            case 2:
-                drawHeartImage(canvas);
-                break;
-            default:
-                break;
-        }
-        */
-
         drawTextOnImage(canvas);
 
     }
 
-    private void drawTextOnImage(Canvas canvas) {
+    private void drawTextOnImage(Canvas canvas/*, byte textformat*/) {
         //Resources resources = getContext().getResources();
         //float scale = resources.getDisplayMetrics().density;
+        //p.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "fonts/SouthernAire.ttf"));
 
         int x;
-//        int y = 180;
-        int y = 19 * imageScale;
+        int y = 19 * imageScale; // 190
+        int y_offsetCorrection;
+
+        Rect bounds = new Rect();
+
+        int row = 1;
+        String[] lines = text.split("\n");
 
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-        p.setTypeface(Typeface.createFromAsset(getContext().
-                getAssets(), "fonts/SouthernAire.ttf"));
-        // p.setTextSize(68);
-        p.setTextSize(6.8f * imageScale);
-        p.setColor(Color.WHITE);
-        p.setFakeBoldText(true);
-        text = name + "\n" + text;
 
-        int row = 0;
-        for (String line : text.split("\n")) {
-            row++;
-            if (row >= 2) {
-                p.setTypeface(null);
-                if (row == 2) {
-                    // y -= 30;
-                    y -= 4 * imageScale;
-                }
-                // p.setTextSize(32);
+        for (String line : lines) {
+            if (line.startsWith("name=")) {
+                line = line.replace("name=", "");
+                p.setTextSize(4.5f * imageScale);//68
+                y_offsetCorrection = (int) (1.6f * imageScale);
+            } else {
                 p.setTextSize(3.2f * imageScale);
+                y_offsetCorrection = 0;
             }
+
+            // centered text
+            p.getTextBounds(line, 0, line.length(), bounds);
+            x = (this.getWidth() - bounds.width()) / 2;
+            drawFatText(line, x, y, p, canvas, 4);
+            y += p.descent() - p.ascent() - y_offsetCorrection;
+
+            row++;
+        }
+
+/*        for (String line : lines) {
+            p.setTextSize(3.2f * imageScale);
+            // if (count > 2) {
+            if (row == 1) {
+                p.setTextSize(4.5f * imageScale);//68
+            } else if (row == 2) {
+                // gap between first and second row
+                y -= 1.6f * imageScale;
+            }
+            //}
             // centered text
             Rect bounds = new Rect();
             p.getTextBounds(line, 0, line.length(), bounds);
             x = (this.getWidth() - bounds.width()) / 2;
-            // canvas.drawText(line, x, y, mLayoutParams);
             drawFatText(line, x, y, p, canvas, 4);
             y += p.descent() - p.ascent();
+
+            row++;
         }
+*/
     }
 
+    private void drawFatText(String line, int x, int y, Paint p, Canvas canvas, int stroke) {
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(stroke);
+        p.setColor(Color.BLACK);
+        canvas.drawText(line, x, y, p);
+        p.setStyle(Paint.Style.FILL);
+        p.setColor(Color.WHITE);
+        canvas.drawText(line, x, y, p);
+    }
+
+
+    /////////////////////////////////////////////////////////////////////////////////////////
+
+/*
     private void drawHeartImage(Canvas canvas) {
         int x_init = -75;
         int x;
@@ -347,14 +373,5 @@ public class MyImageView extends ImageView {
             y += p.descent() - p.ascent();
         }
     }
-
-    private void drawFatText(String line, int x, int y, Paint p, Canvas canvas, int stroke) {
-        p.setStyle(Paint.Style.STROKE);
-        p.setStrokeWidth(stroke);
-        p.setColor(Color.BLACK);
-        canvas.drawText(line, x, y, p);
-        p.setStyle(Paint.Style.FILL);
-        p.setColor(Color.WHITE);
-        canvas.drawText(line, x, y, p);
-    }
+*/
 }

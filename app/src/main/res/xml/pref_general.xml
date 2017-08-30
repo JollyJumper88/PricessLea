@@ -33,8 +33,26 @@
             android:positiveButtonText="@null"
             android:title="@string/pref_size" />
 
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/pref_textformat"
+            android:entryValues="@array/pref_textformat_values"
+            android:key="textformat"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_textformat" />
+
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/pref_timeformat"
+            android:entryValues="@array/pref_timeformat_values"
+            android:key="timeformat"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_timeformat" />
+
         <Preference
-            android:key="nextpicture"
+            android:key="nextmask"
             android:title="@string/pref_next"></Preference>
 
 

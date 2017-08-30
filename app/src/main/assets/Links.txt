@@ -1,3 +1,10 @@
+getResources().getIdentifier( "yuri" , "raw" , getPackageName() );
+
+
+CLEAR CACHE
+https://stackoverflow.com/questions/23908189/clear-cache-in-android-application-programmatically
+
+
 SLIDER:
 https://stackoverflow.com/questions/1974193/slider-on-my-preferencescreen
 
@@ -10,6 +17,8 @@ https://softwareengineering.stackexchange.com/questions/284773/what-to-keep-in-m
 
 CROPPING:
 https://commonsware.com/blog/2013/01/23/no-android-does-not-have-crop-intent.html
+
+
 https://github.com/ArthurHub/Android-Image-Cropper
  or https://github.com/lvillani/android-cropimage
 

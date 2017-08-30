@@ -14,6 +14,7 @@ import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.ParcelFileDescriptor;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
@@ -37,13 +38,14 @@ import at.android.princesslea.etc.PrivacyPolicy;
 
 public class MyPreferenceFragment extends PreferenceFragment {
     private static final int RESULT_PICK_IMAGE = 99;
-    private static final int RESULT_CROP_IMAGE = 88;
+
     String TAG = "MyPreferenceFragment";
     Context context;
     private SharedPreferences preferences;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         context = getContext();
         addPreferencesFromResource(R.xml.pref_general);
@@ -51,11 +53,13 @@ public class MyPreferenceFragment extends PreferenceFragment {
         // bindPreferenceSummaryToValue(findPreference("service_switch"));
 
         //findPreference("service_switch").setOnPreferenceChangeListener(listener);
-//        findPreference("name").setOnPreferenceChangeListener(listener);
+        findPreference("name").setOnPreferenceChangeListener(listener);
         findPreference("size_list").setOnPreferenceChangeListener(listener);
-        findPreference("exit").setOnPreferenceClickListener(clickListener);
+        findPreference("timeformat").setOnPreferenceChangeListener(listener);
+        findPreference("textformat").setOnPreferenceChangeListener(listener);
 
-        findPreference("nextpicture").setOnPreferenceClickListener(clickListener);
+        findPreference("exit").setOnPreferenceClickListener(clickListener);
+        findPreference("nextmask").setOnPreferenceClickListener(clickListener);
         findPreference("choosepic").setOnPreferenceClickListener(clickListener);
         findPreference("birthdatetime").setOnPreferenceClickListener(clickListener);
         findPreference("dev").setOnPreferenceClickListener(clickListener);
@@ -119,6 +123,18 @@ public class MyPreferenceFragment extends PreferenceFragment {
                     i.putExtra("scale", Integer.parseInt(stringValue));
                     getContext().sendBroadcast(i);
                     break;
+                case "name":
+                    i = new Intent("pref_broadcast");
+                    i.putExtra("name", stringValue);
+                    getContext().sendBroadcast(i);
+                    break;
+
+                case "textformat":
+                    i = new Intent("pref_broadcast");
+                    i.putExtra("action", "textformat");
+                    getContext().sendBroadcast(i);
+                    break;
+
                 default:
                     Log.d(TAG, "onPreferenceChange: received event but was not handled.");
                     break;
@@ -133,6 +149,9 @@ public class MyPreferenceFragment extends PreferenceFragment {
                         index >= 0
                                 ? listPreference.getEntries()[index]
                                 : null);
+            } else if (preference instanceof EditTextPreference) {
+                EditTextPreference etp = (EditTextPreference) preference;
+                etp.setSummary(stringValue);
             }
 
             // return True to update the state of the Preference with the new value.
@@ -154,8 +173,6 @@ public class MyPreferenceFragment extends PreferenceFragment {
 
                     break;
                 case "choosepic":
-
-
                     Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     intent.setType("image/*");
                     intent.setAction(Intent.ACTION_GET_CONTENT);
@@ -164,9 +181,9 @@ public class MyPreferenceFragment extends PreferenceFragment {
                             "Select Picture"), RESULT_PICK_IMAGE);
 
                     break;
-                case "nextpicture":
+                case "nextmask":
                     i = new Intent("pref_broadcast");
-                    i.putExtra("action", "nextpicture");
+                    i.putExtra("action", "nextmask");
                     getContext().sendBroadcast(i);
                     break;
                 case "dev":
@@ -193,27 +210,23 @@ public class MyPreferenceFragment extends PreferenceFragment {
 
         Log.d(TAG, "onActivityResult: " + requestCode);
 
+        // TODO: Handle Result NOT OK
         if (resultCode == Activity.RESULT_OK) {
             // choose picture
             if (data != null) {
                 switch (requestCode) {
                     case RESULT_PICK_IMAGE:
-
+                        /*
+                        Intent CropIntent = new Intent("com.android.camera.action.CROP");
+                        CropIntent.setDataAndType(selectedImageUri, "image*//*");
+                        startActivityForResult(CropIntent, RESULT_CROP_IMAGE);
+                        */
                         Uri selectedImageUri = data.getData();
-//                        Intent CropIntent = new Intent("com.android.camera.action.CROP");
-//                        CropIntent.setDataAndType(selectedImageUri, "image/*");
-//                        CropIntent.putExtra("crop", "true");
-//                        CropIntent.putExtra("outputX", 180);
-//                        CropIntent.putExtra("outputY", 180);
-//                        CropIntent.putExtra("aspectX", 3);
-//                        CropIntent.putExtra("aspectY", 4);
-//                        CropIntent.putExtra("scaleUpIfNeeded", true);
-//                        CropIntent.putExtra("return-data", true);
-//                        startActivityForResult(CropIntent, RESULT_CROP_IMAGE);
-
-                        CropImage.activity(selectedImageUri).start(getContext(), this);
+                        CropImage.activity(selectedImageUri).setFixAspectRatio(true).start(getContext(), this);
                         break;
+
                     case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
+
                         CropImage.ActivityResult result = CropImage.getActivityResult(data);
                         //if (resultCode == RESULT_OK) {
                         Uri resultUri = result.getUri();

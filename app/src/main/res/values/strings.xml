@@ -5,7 +5,7 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_settings">Settings</string>
 
-    <string name="pref_next">Next Picture</string>
+    <string name="pref_next">Next Mask</string>
     <string name="pref_exit">Exit</string>
 
     <string name="pref_header_general">General</string>
@@ -32,7 +32,6 @@
     </string-array>
 
 
-    <!-- Example settings for Data & Sync -->
     <string name="pref_header_data_sync">Data &amp; sync</string>
 
     <string name="pref_title_sync_frequency">Sync frequency</string>
@@ -66,9 +65,9 @@
     </string-array>
 
     <string-array name="multi_select_list_preference_default_value" />
-    <string name="pref_title_system_sync_settings">System sync settings</string>
 
-    <!-- Example settings for Notifications -->
+
+    <string name="pref_title_system_sync_settings">System sync settings</string>
     <string name="pref_header_notifications">Notifications</string>
     <string name="pref_title_new_message_notifications">New message notifications</string>
     <string name="pref_title_ringtone">Ringtone</string>
@@ -77,4 +76,36 @@
     <string name="title_activity_privacy_policy">PrivacyPolicy</string>
     <string name="pref_title_birth">Birth Date</string>
     <string name="choosepic">Choose Picture</string>
+
+
+    <string name="pref_textformat">Text Format</string>
+    <string-array name="pref_textformat_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+    <string-array name="pref_textformat" >
+        <item>Name and Time</item>
+        <item>Name only</item>
+        <item>Time only</item>
+        <item>No Text</item>
+    </string-array>
+
+
+    <string name="pref_timeformat">Time Format</string>
+    <string-array name="pref_timeformat_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+    <string-array name="pref_timeformat">
+        <item>Full</item>
+        <item>Weeks</item>
+        <item>Month</item>
+        <item>Years and Month</item>
+    </string-array>
+
+
 </resources>
