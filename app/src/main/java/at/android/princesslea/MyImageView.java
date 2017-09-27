@@ -27,14 +27,13 @@ public class MyImageView extends ImageView {
 
     private String text = "";
     private String imgUri;
-    private int imageType;
+    private String maskName;
     private int imageScale;
 
     private Bitmap mask = null;
     private Bitmap image = null;
 
     private WindowManager.LayoutParams mLayoutParams;
-    private SharedPreferences preferences;
     // private final String TAG = "MyImG";
     private Context context;
 
@@ -48,6 +47,8 @@ public class MyImageView extends ImageView {
 
         loadPreferences();
 
+        // createDrawablesHashtable();
+
         updateMask();
 
         if (imgUri != null)
@@ -57,42 +58,62 @@ public class MyImageView extends ImageView {
 
 
     }
+    /*
+    private void createDrawablesHashtable() {
+        Field[] drawables = R.drawable.class.getFields();
+        drawablesHashtable = new Hashtable<Integer, String>();
+        int index = 0;
+        for (Field f : drawables) {
+            //if the drawable name contains "pic" in the filename...
+            if (f.getName().startsWith("mask_")) {
+                drawablesHashtable.put(index, f.getName());
+                index++;
+            }
+        }
+        maskCount = index;
+        Log.d(TAG, "createDrawablesHashtable: Masks found = " + maskCount);
+    }
+    */
 
     private void loadPreferences() {
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
-        preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        imageType = preferences.getInt("imagetype", 0);
         imageScale = Integer.parseInt(preferences.getString("size_list", "10"));
         imgUri = preferences.getString("imguri", null);
+        maskName = preferences.getString("mask_list", "star");
 
     }
-
+    /*
     public void nextMask() {
         // increase and save last image type
         imageType++;
+        imageType %= maskCount;
         preferences.edit().putInt("imagetype", imageType).apply();
+
+        updateMask();
+        setImageFromBitmap(null);
+    }
+    */
+
+    public void setMaskByName(String mask) {
+        this.maskName = mask;
 
         updateMask();
         setImageFromBitmap(null);
     }
 
     private void updateMask() {
+
+        mask = BitmapFactory.decodeResource(getResources(),
+                getResources().getIdentifier(maskName, "drawable", context.getPackageName()));
+        /*
         switch (imageType %= 4) {
             case 0: // Heart
                 mask = BitmapFactory.decodeResource(getResources(), R.drawable.heart_mask);
                 break;
-            case 1: // Star
-                mask = BitmapFactory.decodeResource(getResources(), R.drawable.star_mask);
-                break;
-            case 2: // Flower
-                mask = BitmapFactory.decodeResource(getResources(), R.drawable.flower_mask);
-                break;
-            case 3: // Flower2
-                mask = BitmapFactory.decodeResource(getResources(), R.drawable.flower2_mask);
-                break;
             default:
                 break;
-        }
+        }*/
     }
 
     public void setImageScale(int imageScale) {
@@ -103,7 +124,7 @@ public class MyImageView extends ImageView {
     }
 
 
-    public void setImageFromBitmap(Bitmap img) {
+    public void setImageFromBitmap(Bitmap img/*null -> use current image (update mask)*/) {
 
         //call UpdateMask first! - Member mask must not be null
         assert mask != null;
@@ -143,13 +164,12 @@ public class MyImageView extends ImageView {
 
                 setImageFromBitmap(image);
             } else {
-                Toast.makeText(context, "Error loading image from cache", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, R.string.errorcache1, Toast.LENGTH_SHORT).show();
             }
 
 
-
         } catch (FileNotFoundException e) {
-            Toast.makeText(context, "Image was deleted from cache", Toast.LENGTH_SHORT).show();
+            Toast.makeText(context, R.string.errorcache2, Toast.LENGTH_SHORT).show();
             setImageFromBitmap(null);
             e.printStackTrace();
 
@@ -193,7 +213,6 @@ public class MyImageView extends ImageView {
 
         Rect bounds = new Rect();
 
-        int row = 1;
         String[] lines = text.split("\n");
 
         Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -214,29 +233,7 @@ public class MyImageView extends ImageView {
             drawFatText(line, x, y, p, canvas, 4);
             y += p.descent() - p.ascent() - y_offsetCorrection;
 
-            row++;
         }
-
-/*        for (String line : lines) {
-            p.setTextSize(3.2f * imageScale);
-            // if (count > 2) {
-            if (row == 1) {
-                p.setTextSize(4.5f * imageScale);//68
-            } else if (row == 2) {
-                // gap between first and second row
-                y -= 1.6f * imageScale;
-            }
-            //}
-            // centered text
-            Rect bounds = new Rect();
-            p.getTextBounds(line, 0, line.length(), bounds);
-            x = (this.getWidth() - bounds.width()) / 2;
-            drawFatText(line, x, y, p, canvas, 4);
-            y += p.descent() - p.ascent();
-
-            row++;
-        }
-*/
     }
 
     private void drawFatText(String line, int x, int y, Paint p, Canvas canvas, int stroke) {

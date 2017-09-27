@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="pref_size_titles">
+        <item>X-Small</item>
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+        <item>X-Large</item>
+    </string-array>
+    <string-array name="pref_size_values">
+        <item>10</item>
+        <item>12</item>
+        <item>14</item>
+        <item>16</item>
+        <item>18</item>
+    </string-array>
+
+
+    <string-array name="pref_textformat_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
+    <string-array name="pref_textformat" >
+        <item>Name and Time</item>
+        <item>Name only</item>
+        <item>Time only</item>
+        <item>No Text</item>
+    </string-array>
+
+
+    <string-array name="pref_mask_values">
+        <item>star</item>
+        <item>heart</item>
+        <item>star2</item>
+        <item>heart2</item>
+        <item>flower</item>
+        <item>flower2</item>
+        <item>flower3</item>
+        <item>butterfly</item>
+        <item>butterfly2</item>
+        <item>bee</item>
+        <item>devil</item>
+        <item>devilheart</item>
+        <item>crown</item>
+        <item>princess</item>
+        <item>circle</item>
+        <item>cat</item>
+        <item>cat2</item>
+        <item>diamond</item>
+        <item>plant</item>
+        <item>tortoise</item>
+        <item>dinosaur</item>
+        <item>horse</item>
+        <item>angel</item>
+    </string-array>
+    <string-array name="pref_mask">
+        <item>Stern</item>
+        <item>Heart</item>
+        <item>Star 2</item>
+        <item>Heart 2</item>
+        <item>Flower</item>
+        <item>Flower 2</item>
+        <item>Flower 3</item>
+        <item>Butterfly</item>
+        <item>Butterfly2</item>
+        <item>Bee</item>
+        <item>Devil</item>
+        <item>Devil 2</item>
+        <item>Crown</item>
+        <item>Princess</item>
+        <item>Circle</item>
+        <item>Cat</item>
+        <item>Cat 2</item>
+        <item>Diamond</item>
+        <item>Plant</item>
+        <item>Tortoise</item>
+        <item>Dinosaur</item>
+        <item>Horse</item>
+        <item>Angel</item>
+    </string-array>
+</resources>

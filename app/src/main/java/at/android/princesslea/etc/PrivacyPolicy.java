@@ -2,7 +2,6 @@ package at.android.princesslea.etc;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.view.View;
 import android.webkit.WebView;
 
 import at.android.princesslea.R;
@@ -13,6 +12,8 @@ public class PrivacyPolicy extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_privacy_policy);
+
+        // this.setTitle("Privacy Policy");
 
         WebView webview = (WebView) findViewById(R.id.wv1);
         //webview.getSettings().setJavaScriptEnabled(true);

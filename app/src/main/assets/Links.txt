@@ -1,4 +1,6 @@
-getResources().getIdentifier( "yuri" , "raw" , getPackageName() );
+// TRANSLATION of Resources
+https://stackoverflow.com/questions/6293044/add-value-from-string-to-my-array-xml?answertab=oldest#tab-top
+
 
 
 CLEAR CACHE

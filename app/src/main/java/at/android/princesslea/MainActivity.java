@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -17,7 +16,7 @@ public class MainActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+//        setContentView(R.layout.activity_main);
 
 
         checkDrawOverlayPermission();
@@ -26,15 +25,6 @@ public class MainActivity extends Activity {
             Intent intent = new Intent(MainActivity.this, FloatingFaceBubbleService.class);
             startService(intent);
         }
-
-/*        final int delay = 100;
-        h.postDelayed(new Runnable() {
-            public void run() {
-                String s = java.text.DateFormat.getTimeInstance().format(Calendar.getInstance().getTime());
-                tv.setText(s);
-                h.postDelayed(this, delay);
-            }
-        }, delay);*/
 
         finish();
     }

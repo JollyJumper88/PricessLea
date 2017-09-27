@@ -116,14 +116,13 @@ public class FloatingFaceBubbleService extends Service {
 
         // Load Preferences
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        name = preferences.getString("name", "Put name here");
+        name = preferences.getString("name", getString(R.string.putnamehere));
         textformat = (byte) Integer.parseInt(preferences.getString("textformat", "0"));
-
-        // Load BirthDate from Preferences
-        Date birth;
         Long mills = preferences.getLong("birthdatetime", -1);
 
-        if (mills != -1) {
+
+        Date birth;
+        if (mills != -1) { // found in preferences
             setBirthDayInfoByMills(mills);
         } else {
             try {
@@ -335,7 +334,7 @@ public class FloatingFaceBubbleService extends Service {
             birthMinOfDay = birthDt.getMinuteOfDay();
             Log.d(TAG, "setBirthDayInfoByMills: " + birthDay + " " + birthMinOfDay);
         } else {
-            Toast.makeText(this, "Birthday must be set before now!", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.birthdaybeforenow, Toast.LENGTH_SHORT).show();
             birthDt = new DateTime();
         }
 
@@ -377,11 +376,11 @@ public class FloatingFaceBubbleService extends Service {
                     try {
                         if ("exit".equalsIgnoreCase(extras.getString("action"))) {
                             stopMyService();
-
+                        /*
                         } else if ("nextmask".equalsIgnoreCase(extras.getString("action"))) {
                             floatingFaceBubble.nextMask();
                             windowManager.updateViewLayout(floatingFaceBubble, myParams);
-
+                        */
                         } else if ("textformat".equalsIgnoreCase(extras.getString("action"))) {
                             textformat = (byte) Integer.parseInt(preferences.getString("textformat", "0"));
 
@@ -392,6 +391,10 @@ public class FloatingFaceBubbleService extends Service {
                 } else if (extras.getString("choosepic") != null) {
                     preferences.edit().putString("imguri", extras.getString("choosepic")).apply();
                     floatingFaceBubble.setImageFromUri(extras.getString("choosepic"));
+
+                } else if (extras.getString("mask") != null) {
+                    floatingFaceBubble.setMaskByName(extras.getString("mask"));
+                    windowManager.updateViewLayout(floatingFaceBubble, myParams);
 
                 } else if (extras.getString("name") != null) {
                     name = extras.getString("name");
@@ -406,8 +409,8 @@ public class FloatingFaceBubbleService extends Service {
                     setBirthDayInfoByMills(mills);
                     // birthDt = new DateTime(x);
                     // Log.d(TAG, "XXXXX " + birthDt.toString());
-                    //DateTime test = new DateTime(extras.getLong("birthdatetime"));
-                    //Log.d(TAG, "onReceive: "+ test.toString());
+                    //DateTime activity_privacy_policy = new DateTime(extras.getLong("birthdatetime"));
+                    //Log.d(TAG, "onReceive: "+ activity_privacy_policy.toString());
                 }
 //                else if (extras.getBoolean("service_switch") == false) {
 //                    stopMyService();

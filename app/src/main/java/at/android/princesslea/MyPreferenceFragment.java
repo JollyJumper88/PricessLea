@@ -8,12 +8,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.AssetFileDescriptor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.ParcelFileDescriptor;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.Preference;
@@ -27,9 +23,6 @@ import com.theartofdev.edmodo.cropper.CropImage;
 
 import org.joda.time.DateTime;
 
-import java.io.FileDescriptor;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -41,25 +34,23 @@ public class MyPreferenceFragment extends PreferenceFragment {
 
     String TAG = "MyPreferenceFragment";
     Context context;
-    private SharedPreferences preferences;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+
         context = getContext();
         addPreferencesFromResource(R.xml.pref_general);
 
-        // bindPreferenceSummaryToValue(findPreference("service_switch"));
 
         //findPreference("service_switch").setOnPreferenceChangeListener(listener);
         findPreference("name").setOnPreferenceChangeListener(listener);
         findPreference("size_list").setOnPreferenceChangeListener(listener);
-        findPreference("timeformat").setOnPreferenceChangeListener(listener);
         findPreference("textformat").setOnPreferenceChangeListener(listener);
+        findPreference("mask_list").setOnPreferenceChangeListener(listener);
 
         findPreference("exit").setOnPreferenceClickListener(clickListener);
-        findPreference("nextmask").setOnPreferenceClickListener(clickListener);
         findPreference("choosepic").setOnPreferenceClickListener(clickListener);
         findPreference("birthdatetime").setOnPreferenceClickListener(clickListener);
         findPreference("dev").setOnPreferenceClickListener(clickListener);
@@ -73,11 +64,28 @@ public class MyPreferenceFragment extends PreferenceFragment {
     @Override
     public void onResume() {
         super.onResume();
-        preferences = PreferenceManager.getDefaultSharedPreferences(context);
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         // summary Size of Bubble
         ListPreference listPreference = (ListPreference) findPreference("size_list");
         int index = listPreference.findIndexOfValue(listPreference.getValue());
+        listPreference.setSummary(
+                index >= 0
+                        ? listPreference.getEntries()[index]
+                        : null);
+
+        // summary Mask
+        listPreference = (ListPreference) findPreference("mask_list");
+        index = listPreference.findIndexOfValue(listPreference.getValue());
+        listPreference.setSummary(
+                index >= 0
+                        ? listPreference.getEntries()[index]
+                        : null);
+
+        // summary Text Format
+        listPreference = (ListPreference) findPreference("textformat");
+        index = listPreference.findIndexOfValue(listPreference.getValue());
         listPreference.setSummary(
                 index >= 0
                         ? listPreference.getEntries()[index]
@@ -109,18 +117,15 @@ public class MyPreferenceFragment extends PreferenceFragment {
 
                 case "service_switch":
 //                    if (Boolean.parseBoolean(stringValue)) {
-//                        Intent intent = new Intent(getContext(), FloatingFaceBubbleService.class);
-//                        getActivity().startService(intent);
-//                    }
-//                    else {
-//                        i = new Intent("pref_broadcast");
-//                        i.putExtra("service_switch", false);
-//                        getContext().sendBroadcast(i);
-//                    }
                     break;
                 case "size_list":
                     i = new Intent("pref_broadcast");
                     i.putExtra("scale", Integer.parseInt(stringValue));
+                    getContext().sendBroadcast(i);
+                    break;
+                case "mask_list":
+                    i = new Intent("pref_broadcast");
+                    i.putExtra("mask", stringValue);
                     getContext().sendBroadcast(i);
                     break;
                 case "name":
@@ -178,14 +183,16 @@ public class MyPreferenceFragment extends PreferenceFragment {
                     intent.setAction(Intent.ACTION_GET_CONTENT);
 
                     startActivityForResult(Intent.createChooser(intent,
-                            "Select Picture"), RESULT_PICK_IMAGE);
+                            getString(R.string.selectpicture)), RESULT_PICK_IMAGE);
 
                     break;
+                /*
                 case "nextmask":
                     i = new Intent("pref_broadcast");
                     i.putExtra("action", "nextmask");
                     getContext().sendBroadcast(i);
                     break;
+                */
                 case "dev":
                     showDevDialog();
                     break;
@@ -239,10 +246,6 @@ public class MyPreferenceFragment extends PreferenceFragment {
                         getContext().sendBroadcast(i);
                         break;
 
-//                    case RESULT_CROP_IMAGE:
-//                        Uri selectedImageUri2 = data.getData();
-
-//                        break;
                     default:
                         break;
                 }
@@ -287,9 +290,8 @@ public class MyPreferenceFragment extends PreferenceFragment {
 
     private void showDevDialog() {
         AlertDialog.Builder aboutDialog = new AlertDialog.Builder(getContext());
-        aboutDialog.setTitle("About");
-        aboutDialog.setMessage("Princess Lea (v0.1.0"
-                + ")\n\n(c) SK Mobile Development\nAll Rights Reserved");
+        aboutDialog.setTitle(R.string.about);
+        aboutDialog.setMessage("Princess Lea (v0.1.0)\n\n\u00A9 SK Mobile Development\nAll Rights Reserved");
 
         aboutDialog.setPositiveButton("Ok",
                 new DialogInterface.OnClickListener() {
