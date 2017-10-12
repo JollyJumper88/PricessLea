@@ -1,4 +1,4 @@
-package at.android.princesslea;
+package at.android.lovebubble;
 
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -26,8 +26,6 @@ import org.joda.time.DateTime;
 
 import java.util.Calendar;
 import java.util.Date;
-
-import at.android.princesslea.etc.PrivacyPolicy;
 
 
 public class MyPreferenceFragment extends PreferenceFragment {

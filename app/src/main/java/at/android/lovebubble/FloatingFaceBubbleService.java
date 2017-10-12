@@ -1,4 +1,4 @@
-package at.android.princesslea;
+package at.android.lovebubble;
 
 import android.app.Service;
 import android.content.BroadcastReceiver;

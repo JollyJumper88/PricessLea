@@ -1,4 +1,4 @@
-package at.android.princesslea;
+package at.android.lovebubble;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

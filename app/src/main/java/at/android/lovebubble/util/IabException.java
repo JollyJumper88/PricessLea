@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package at.android.princesslea.util;
+package at.android.lovebubble.util;
 
 /**
  * Exception thrown when something went wrong with in-app billing.

@@ -1,31 +1,21 @@
-package at.android.princesslea;
+package at.android.lovebubble;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.TextUtils;
 import android.util.Log;
-import android.view.View;
-import android.widget.ImageView;
 
-import com.android.billingclient.api.BillingClient;
-
-import at.android.princesslea.util.IabBroadcastReceiver;
-import at.android.princesslea.util.IabBroadcastReceiver.IabBroadcastListener;
-import at.android.princesslea.util.IabHelper;
-import at.android.princesslea.util.IabHelper.IabAsyncInProgressException;
-import at.android.princesslea.util.IabResult;
-import at.android.princesslea.util.Inventory;
-import at.android.princesslea.util.Purchase;
-
-import java.util.ArrayList;
-import java.util.List;
+import at.android.lovebubble.util.IabBroadcastReceiver;
+import at.android.lovebubble.util.IabBroadcastReceiver.IabBroadcastListener;
+import at.android.lovebubble.util.IabHelper;
+import at.android.lovebubble.util.IabHelper.IabAsyncInProgressException;
+import at.android.lovebubble.util.IabResult;
+import at.android.lovebubble.util.Inventory;
+import at.android.lovebubble.util.Purchase;
 
 public class Donate extends Activity implements IabBroadcastListener,
         OnClickListener {

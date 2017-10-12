@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package at.android.princesslea.util;
+package at.android.lovebubble.util;
 
 /**
  * Represents the result of an in-app billing operation.

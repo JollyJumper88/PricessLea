@@ -1,10 +1,10 @@
-package at.android.princesslea.etc;
+package at.android.lovebubble.etc;
 
 import android.os.Bundle;
 import android.app.Activity;
 import android.webkit.WebView;
 
-import at.android.princesslea.R;
+import at.android.lovebubble.R;
 
 public class PrivacyPolicy extends Activity {
 

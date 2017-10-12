@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package at.android.princesslea.util;
+package at.android.lovebubble.util;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
