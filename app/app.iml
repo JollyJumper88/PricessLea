@@ -105,6 +105,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="exifinterface-25.3.1" level="project" />
     <orderEntry type="library" exported="" name="android-image-cropper-2.4.7" level="project" />
+    <orderEntry type="library" exported="" name="billing-1.0" level="project" />
     <orderEntry type="library" exported="" name="support-core-ui-25.3.1" level="project" />
     <orderEntry type="library" exported="" name="support-v4-25.3.1" level="project" />
     <orderEntry type="library" exported="" name="support-media-compat-25.3.1" level="project" />
