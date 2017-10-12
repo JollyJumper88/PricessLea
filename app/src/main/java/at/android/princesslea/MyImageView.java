@@ -99,7 +99,8 @@ public class MyImageView extends ImageView {
         this.maskName = mask;
 
         updateMask();
-        setImageFromBitmap(null);
+
+        setImageFromBitmap(null);/*null -> use current image (update mask)*/
     }
 
     private void updateMask() {

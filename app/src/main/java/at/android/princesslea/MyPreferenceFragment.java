@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
@@ -43,21 +44,36 @@ public class MyPreferenceFragment extends PreferenceFragment {
         context = getContext();
         addPreferencesFromResource(R.xml.pref_general);
 
+        //general
+        findPreference("guide").setOnPreferenceChangeListener(listener);
+        findPreference("donate").setOnPreferenceChangeListener(listener);
+        findPreference("exit").setOnPreferenceClickListener(clickListener);
 
-        //findPreference("service_switch").setOnPreferenceChangeListener(listener);
+        //name
+        findPreference("switch_name").setOnPreferenceChangeListener(listener);
         findPreference("name").setOnPreferenceChangeListener(listener);
-        findPreference("size_list").setOnPreferenceChangeListener(listener);
+
+        //Date Time
+        findPreference("switch_time").setOnPreferenceChangeListener(listener);
+        findPreference("birthdatetime").setOnPreferenceClickListener(clickListener);
         findPreference("textformat").setOnPreferenceChangeListener(listener);
+
+        //Picture and Shape
+        findPreference("choosepic").setOnPreferenceClickListener(clickListener);
+        findPreference("size_list").setOnPreferenceChangeListener(listener);
         findPreference("mask_list").setOnPreferenceChangeListener(listener);
 
-        findPreference("exit").setOnPreferenceClickListener(clickListener);
-        findPreference("choosepic").setOnPreferenceClickListener(clickListener);
-        findPreference("birthdatetime").setOnPreferenceClickListener(clickListener);
-        findPreference("dev").setOnPreferenceClickListener(clickListener);
+        //support
+        findPreference("help").setOnPreferenceClickListener(clickListener);
+        findPreference("contact").setOnPreferenceClickListener(clickListener);
+        findPreference("rate").setOnPreferenceClickListener(clickListener);
+
+        //more
+        findPreference("about").setOnPreferenceClickListener(clickListener);
         findPreference("privpol").setOnPreferenceClickListener(clickListener);
+        findPreference("libraries").setOnPreferenceClickListener(clickListener);
 
         PreferenceManager.setDefaultValues(getContext(), R.xml.pref_general, false);
-
 
     }
 
@@ -115,8 +131,11 @@ public class MyPreferenceFragment extends PreferenceFragment {
 
             switch (preference.getKey()) {
 
-                case "service_switch":
-//                    if (Boolean.parseBoolean(stringValue)) {
+                case "switch_time":
+                case "switch_name":
+                    i = new Intent("pref_broadcast");
+                    i.putExtra("action", "switch_datetime");
+                    getContext().sendBroadcast(i);
                     break;
                 case "size_list":
                     i = new Intent("pref_broadcast");
@@ -133,13 +152,11 @@ public class MyPreferenceFragment extends PreferenceFragment {
                     i.putExtra("name", stringValue);
                     getContext().sendBroadcast(i);
                     break;
-
                 case "textformat":
                     i = new Intent("pref_broadcast");
                     i.putExtra("action", "textformat");
                     getContext().sendBroadcast(i);
                     break;
-
                 default:
                     Log.d(TAG, "onPreferenceChange: received event but was not handled.");
                     break;
@@ -169,13 +186,15 @@ public class MyPreferenceFragment extends PreferenceFragment {
         public boolean onPreferenceClick(Preference preference) {
             Intent i;
             switch (preference.getKey()) {
+                case "donate":
+                    startActivity(new Intent(context, Donate.class));
+                    break;
                 case "exit":
                     i = new Intent("pref_broadcast");
                     i.putExtra("action", "exit");
                     getContext().sendBroadcast(i);
 
                     getActivity().finish();
-
                     break;
                 case "choosepic":
                     Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
@@ -184,24 +203,38 @@ public class MyPreferenceFragment extends PreferenceFragment {
 
                     startActivityForResult(Intent.createChooser(intent,
                             getString(R.string.selectpicture)), RESULT_PICK_IMAGE);
-
-                    break;
-                /*
-                case "nextmask":
-                    i = new Intent("pref_broadcast");
-                    i.putExtra("action", "nextmask");
-                    getContext().sendBroadcast(i);
-                    break;
-                */
-                case "dev":
-                    showDevDialog();
-                    break;
-                case "privpol":
-                    startActivity(new Intent(getContext(),
-                            PrivacyPolicy.class));
                     break;
                 case "birthdatetime":
                     showDateTimePicker();
+                    break;
+
+                //support
+                case "help":
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://skmobiledev.wordpress.com/love-bubble/user-manual/")));
+                    break;
+                case "contact":
+                    Intent emailIntent = new Intent(Intent.ACTION_SEND);
+                    // emailIntent.setType("plain/text");
+                    emailIntent.setType("message/rfc822");
+                    emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"action.jackson187@gmail.com"});
+                    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, context.getPackageName());
+                    startActivity(Intent.createChooser(emailIntent, getString(R.string.send_mail)));
+                    break;
+                case "rate":
+                    String uri = "market://details?id=at.android.chooxe";
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uri)));
+                    break;
+
+                //help
+                case "about":
+                    showDevDialog();
+                    break;
+                case "privpol":
+                    //startActivity(new Intent(getContext(), PrivacyPolicy.class));
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://skmobiledev.wordpress.com/love-bubble/privacy-policy/")));
+                    break;
+                case "libraries":
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://skmobiledev.wordpress.com/love-bubble/open-source-libraries/")));
                     break;
                 default:
                     Log.d(TAG, "onPreferenceClick: received event but was not handled. Received=" + preference.getKey());
@@ -289,9 +322,22 @@ public class MyPreferenceFragment extends PreferenceFragment {
     }
 
     private void showDevDialog() {
+        int year = new DateTime().getYear();
+        String versionName = "";
+        int versionCode = 0;
+
+        try {
+            versionName = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionName;
+            versionCode = context.getPackageManager().getPackageInfo(context.getPackageName(), 0).versionCode;
+        } catch (PackageManager.NameNotFoundException e) {
+            e.printStackTrace();
+        }
+
         AlertDialog.Builder aboutDialog = new AlertDialog.Builder(getContext());
+
         aboutDialog.setTitle(R.string.about);
-        aboutDialog.setMessage("Princess Lea (v0.1.0)\n\n\u00A9 SK Mobile Development\nAll Rights Reserved");
+        aboutDialog.setMessage(getString(R.string.app_name) + " " + versionName + " (" + versionCode + ")" +
+                "\n\n\u00A9 SK Mobile Development 2011-" + year + "\nAll Rights Reserved.");
 
         aboutDialog.setPositiveButton("Ok",
                 new DialogInterface.OnClickListener() {

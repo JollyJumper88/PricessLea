@@ -35,9 +35,12 @@ public class FloatingFaceBubbleService extends Service {
 
     private String TAG = "FaceBubbleService";
     private String name = "";
+    private String bubbleText = "";
     // private String format = "";
 
     private byte textformat = 0/*, timeformat = 0*/;
+
+    private boolean switch_time, switch_name;
 
     private WindowManager windowManager;
     private WindowManager.LayoutParams myParams;
@@ -50,8 +53,8 @@ public class FloatingFaceBubbleService extends Service {
     private SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.GERMANY);
     private DateTime birthDt, currDt;
 
-    private boolean quitService = false;
-    private int delay = 1000;
+    // private boolean stopService = false;
+    private int delay;
 
     private MyBroadcastReceiver mBroadcastReceiver;
 
@@ -87,6 +90,7 @@ public class FloatingFaceBubbleService extends Service {
         myParams.gravity = Gravity.TOP | Gravity.START;
         myParams.x = 0;
         myParams.y = 100;
+
         floatingFaceBubble = new MyImageView(this, myParams);
 
 
@@ -119,7 +123,8 @@ public class FloatingFaceBubbleService extends Service {
         name = preferences.getString("name", getString(R.string.putnamehere));
         textformat = (byte) Integer.parseInt(preferences.getString("textformat", "0"));
         Long mills = preferences.getLong("birthdatetime", -1);
-
+        switch_time = preferences.getBoolean("switch_time", true);
+        switch_name = preferences.getBoolean("switch_name", true);
 
         Date birth;
         if (mills != -1) { // found in preferences
@@ -127,7 +132,6 @@ public class FloatingFaceBubbleService extends Service {
         } else {
             try {
                 birth = formater.parse("2017-06-13 19:02:00");
-                // birth = formater.parse("2017-03-17 15:02:00");
                 birthDt = new DateTime(birth);
                 birthDay = 13;
                 birthMinOfDay = 1142;
@@ -138,23 +142,22 @@ public class FloatingFaceBubbleService extends Service {
             }
         }
 
+        postDelayed();
+
+        addTouchListener();
+
+    }
+
+    private void postDelayed() {
 
         h.postDelayed(new Runnable() {
             public void run() {
-                // textformat
-                //<item>0 Name and Time</item>
-                //<item>1 Name only</item>
-                //<item>2 Time only</item>
-                //<item>3 No Text</item>
-                // timeformat
-                //<item>0 Full</item>
-                //<item>1 Weeks</item>
-                //<item>2 Month</item>
-                //<item>3 Years and Month</item>
 
-                delay = 1000;
+                Log.d(TAG, "run: Post DELAYED  :" + new DateTime());
 
-                if (textformat == 0 || textformat == 2) {
+                if (switch_time) { /*Name and Time || Time only*/
+
+                    delay = 1000;
 
                     currDt = new DateTime();
 
@@ -204,39 +207,40 @@ public class FloatingFaceBubbleService extends Service {
                     // sec = diffSecond.minus(diffMinute.toStandardSeconds()).negated().getSeconds();
                     sec = period.getSeconds();
 
-                    String s = "";
-                    if (textformat == 0) {
-
-                        s = "name=" + name;
+                    if (switch_name) { /*Name and Time*/
+                        bubbleText = "name=" + name;
+                    } else {
+                        bubbleText = "";
                     }
-                    s += "\n" + month + "m " +
+                    bubbleText += "\n" + month + "m " +
                             days + "d " +
                             hours + "h \n" +
                             min + "m " +
                             sec + "s";
 
-                    // Log.d(TAG, "run: " + s);
-                    // String s = String.format(format, "%1$s");
-
-                    //textView.setText(s);
-                    floatingFaceBubble.setText(s);
+                    floatingFaceBubble.setText(bubbleText);
                     floatingFaceBubble.invalidate();
 
-                } else if (textformat == 1) { // Name only
+                } else if (switch_name) { /*Name only*/
+                    delay = 60000;
                     floatingFaceBubble.setText("\n" + "name=" + name + "\n");
                     floatingFaceBubble.invalidate();
 
-                } else { // nothing / emtpy
+                } else { // emtpy
+                    delay = 60000;
                     floatingFaceBubble.setText("");
                     floatingFaceBubble.invalidate();
                 }
 
-                if (!quitService)
-                    h.postDelayed(this, delay);
+
+                // if (!stopService)
+                h.postDelayed(this, delay);
+
             }
         }, 100);
+    }
 
-
+    private void addTouchListener() {
         try {
             //for moving the picture on touch and slide
             floatingFaceBubble.setOnTouchListener(new View.OnTouchListener() {
@@ -266,11 +270,7 @@ public class FloatingFaceBubbleService extends Service {
                                         MyPreferenceActivity.class);
                                 startActivity(prefActivity);
 
-                                /*
-                                // trigger next image resource change and also set size via params object
-                                floatingFaceBubble.nextMask();
-                                windowManager.updateViewLayout(v, myParams);
-                                */
+                                // Toast.makeText(getApplicationContext(), "Hit the Back Button to close the Settings View.", Toast.LENGTH_SHORT).show();
 
                                 firstTouch = false;
                                 return true; // event consumed
@@ -291,12 +291,6 @@ public class FloatingFaceBubbleService extends Service {
                                     && Math.abs(initialTouchX - event.getRawX()) <= dragThreshold) {
 
                                 stopMyService();
-
-                                // trigger next image resource change and also set size via params object
-                                floatingFaceBubble.nextMask();
-                                windowManager.updateViewLayout(v, myParams);
-
-
                                 firstTouch = false;
                             }
                             */
@@ -321,8 +315,13 @@ public class FloatingFaceBubbleService extends Service {
         // remove view and stop the service
         windowManager.removeView(floatingFaceBubble);
         // windowManager.removeView(layout);
+
+        //Todo: check this part here if we can remove the stopservice member
+        h.removeCallbacksAndMessages(null);
+
         stopSelf();
-        quitService = true;
+
+        // stopService = true;
 
         Log.d(TAG, "stopMyService: " + "stopMyService");
     }
@@ -359,8 +358,13 @@ public class FloatingFaceBubbleService extends Service {
         if (mBroadcastReceiver != null)
             unregisterReceiver(mBroadcastReceiver);
 
-        super.onDestroy();
+
+        //Todo:
+        h.removeCallbacksAndMessages(null);
+
         Log.d(TAG, "onDestroy: " + "DESTROY");
+
+        super.onDestroy();
     }
 
     class MyBroadcastReceiver extends BroadcastReceiver {
@@ -376,13 +380,19 @@ public class FloatingFaceBubbleService extends Service {
                     try {
                         if ("exit".equalsIgnoreCase(extras.getString("action"))) {
                             stopMyService();
-                        /*
-                        } else if ("nextmask".equalsIgnoreCase(extras.getString("action"))) {
-                            floatingFaceBubble.nextMask();
-                            windowManager.updateViewLayout(floatingFaceBubble, myParams);
-                        */
+
                         } else if ("textformat".equalsIgnoreCase(extras.getString("action"))) {
                             textformat = (byte) Integer.parseInt(preferences.getString("textformat", "0"));
+
+                            h.removeCallbacksAndMessages(null);
+                            postDelayed();
+
+                        } else if ("switch_datetime".equalsIgnoreCase(extras.getString("action"))) {
+                            switch_time = preferences.getBoolean("switch_time", true);
+                            switch_name = preferences.getBoolean("switch_name", true);
+
+                            h.removeCallbacksAndMessages(null);
+                            postDelayed();
 
                         }
                     } catch (NullPointerException e) {
@@ -398,6 +408,9 @@ public class FloatingFaceBubbleService extends Service {
 
                 } else if (extras.getString("name") != null) {
                     name = extras.getString("name");
+
+                    h.removeCallbacksAndMessages(null);
+                    postDelayed();
 
                 } else if (extras.getInt("scale", -1) != -1) {
                     floatingFaceBubble.setImageScale(extras.getInt("scale"));

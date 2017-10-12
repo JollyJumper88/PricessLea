@@ -1,28 +1,76 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-    <!--
+
+
+    <PreferenceCategory android:title="General">
+        <Preference
+            android:key="guide"
+            android:summary="@string/unmonitoredapp"
+            android:title="Guides for Samsung Devices"/>
+        <Preference
+            android:key="donate"
+            android:summary="donut please"
+            android:title="wo sind die kohlen"/>
+        <Preference
+            android:key="exit"
+            android:summary="This will stop the application and remove the bubble from your screen"
+            android:title="@string/pref_exit"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Name">
         <SwitchPreference
             android:defaultValue="true"
-            android:enabled="false"
-            android:key="service_switch"
-            android:summary="@string/pref_service"
-            android:title="@string/pref_service_title" />
-            -->
-    <PreferenceCategory android:title="General">
+            android:enabled="true"
+            android:key="switch_name"
+            android:summary="Show the name on the Bubble"
+            android:title="Name"/>
+
         <EditTextPreference
             android:capitalize="words"
             android:defaultValue="@string/pref_default_display_name"
+            android:dependency="switch_name"
             android:inputType="textCapWords"
             android:key="name"
             android:maxLines="1"
             android:selectAllOnFocus="true"
             android:singleLine="true"
-            android:title="@string/pref_title_display_name" />
+            android:title="@string/pref_title_display_name"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Date and Time">
+        <SwitchPreference
+            android:defaultValue="true"
+            android:enabled="true"
+            android:key="switch_time"
+            android:summary="Show the tiem on the Bubble"
+            android:title="Time"
+            android:layout_height="match_parent"
+            android:layout_width="match_parent"/>
 
         <Preference
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:dependency="switch_time"
             android:key="birthdatetime"
             android:title="@string/pref_title_birth"/>
+
+        <ListPreference
+            android:defaultValue="0"
+            android:dependency="switch_time"
+            android:entries="@array/pref_textformat"
+            android:entryValues="@array/pref_textformat_values"
+            android:key="textformat"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_textformat_title"/>
+    </PreferenceCategory>
+
+    <PreferenceCategory android:title="Picture and Shape">
+        <Preference
+            android:id="@+id/preference"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:key="choosepic"
+            android:title="@string/choosepic"/>
 
         <ListPreference
             android:defaultValue="10"
@@ -31,16 +79,7 @@
             android:key="size_list"
             android:negativeButtonText="@null"
             android:positiveButtonText="@null"
-            android:title="@string/pref_size" />
-
-        <ListPreference
-            android:defaultValue="0"
-            android:entries="@array/pref_textformat"
-            android:entryValues="@array/pref_textformat_values"
-            android:key="textformat"
-            android:negativeButtonText="@null"
-            android:positiveButtonText="@null"
-            android:title="@string/pref_textformat_title"/>
+            android:title="@string/pref_size"/>
 
         <ListPreference
             android:defaultValue="@string/pref_mask_default"
@@ -50,32 +89,29 @@
             android:negativeButtonText="@null"
             android:positiveButtonText="@null"
             android:title="@string/pref_mask_title"/>
+    </PreferenceCategory>
 
+    <PreferenceCategory android:title="@string/support">
         <Preference
-            android:key="nextmask"
-            android:title="@string/pref_next"/>
-
+            android:key="help"
+            android:title="@string/help"/>
         <Preference
-            android:id="@+id/preference"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:key="choosepic"
-            android:title="@string/choosepic"/>
-
+            android:key="contact"
+            android:title="@string/contact_dev"/>
         <Preference
-            android:key="exit"
-            android:title="@string/pref_exit"/>
-
+            android:key="rate"
+            android:title="@string/rate_app"/>
     </PreferenceCategory>
 
     <PreferenceCategory android:title="@string/more">
         <Preference
-            android:key="dev"
+            android:key="about"
             android:title="@string/about"/>
-
         <Preference
             android:key="privpol"
-            android:title="Privacy Policy"/>
-
+            android:title="@string/title_activity_privacy_policy"/>
+        <Preference
+            android:key="libraries"
+            android:title="@string/title_activity_libraries"/>
     </PreferenceCategory>
 </PreferenceScreen>

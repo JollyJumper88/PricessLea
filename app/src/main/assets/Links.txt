@@ -1,3 +1,10 @@
+INAPP Billing:
+http://www.techotopia.com/index.php/An_Android_Studio_Google_Play_In-app_Billing_Tutorial
+https://abeshthakur.wordpress.com/2013/11/01/using-googles-in-app-billing-to-add-a-donate-feature-in-your-android-app/
+https://www.google.at/search?q=android+in+app+1+day+demo+version&spell=1&sa=X&ved=0ahUKEwjetvS45ePWAhWiCMAKHaQhB5oQvwUIJCgA&biw=1435&bih=936
+
+
+
 // TRANSLATION of Resources
 https://stackoverflow.com/questions/6293044/add-value-from-string-to-my-array-xml?answertab=oldest#tab-top
 

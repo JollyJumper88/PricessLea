@@ -24,10 +24,10 @@
         <item>3</item>
     </string-array>
     <string-array name="pref_textformat" >
-        <item>Name and Time</item>
-        <item>Name only</item>
-        <item>Time only</item>
-        <item>No Text</item>
+        <item>Detailed</item>
+        <item>Months</item>
+        <item>Weeks</item>
+        <item>Year and Month</item>
     </string-array>
 
 
