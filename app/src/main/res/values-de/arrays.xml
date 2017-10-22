@@ -17,17 +17,17 @@
     </string-array>
 
 
-    <string-array name="pref_textformat_values">
+    <string-array name="pref_timeformat_values">
         <item>0</item>
         <item>1</item>
         <item>2</item>
         <item>3</item>
     </string-array>
-    <string-array name="pref_textformat" >
-        <item>Name and Time</item>
-        <item>Name only</item>
-        <item>Time only</item>
-        <item>No Text</item>
+    <string-array name="pref_timeformat" >
+        <item>Detailed</item>
+        <item>Weeks</item>
+        <item>Months</item>
+        <item>Year and Month</item>
     </string-array>
 
 

@@ -54,7 +54,7 @@ public class MyPreferenceFragment extends PreferenceFragment {
         //Date Time
         findPreference("switch_time").setOnPreferenceChangeListener(listener);
         findPreference("birthdatetime").setOnPreferenceClickListener(clickListener);
-        findPreference("textformat").setOnPreferenceChangeListener(listener);
+        findPreference("timeformat").setOnPreferenceChangeListener(listener);
 
         //Picture and Shape
         findPreference("choosepic").setOnPreferenceClickListener(clickListener);
@@ -98,7 +98,7 @@ public class MyPreferenceFragment extends PreferenceFragment {
                         : null);
 
         // summary Text Format
-        listPreference = (ListPreference) findPreference("textformat");
+        listPreference = (ListPreference) findPreference("timeformat");
         index = listPreference.findIndexOfValue(listPreference.getValue());
         listPreference.setSummary(
                 index >= 0
@@ -150,9 +150,9 @@ public class MyPreferenceFragment extends PreferenceFragment {
                     i.putExtra("name", stringValue);
                     getContext().sendBroadcast(i);
                     break;
-                case "textformat":
+                case "timeformat":
                     i = new Intent("pref_broadcast");
-                    i.putExtra("action", "textformat");
+                    i.putExtra("action", "timeformat");
                     getContext().sendBroadcast(i);
                     break;
                 default:

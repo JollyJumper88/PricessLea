@@ -38,7 +38,7 @@ public class FloatingFaceBubbleService extends Service {
     private String bubbleText = "";
     // private String format = "";
 
-    private byte textformat = 0/*, timeformat = 0*/;
+    private int timeformat = 0;
 
     private boolean switch_time, switch_name;
 
@@ -207,16 +207,36 @@ public class FloatingFaceBubbleService extends Service {
                     // sec = diffSecond.minus(diffMinute.toStandardSeconds()).negated().getSeconds();
                     sec = period.getSeconds();
 
+
                     if (switch_name) { /*Name and Time*/
                         bubbleText = "name=" + name;
                     } else {
                         bubbleText = "";
                     }
-                    bubbleText += "\n" + month + "m " +
-                            days + "d " +
-                            hours + "h \n" +
-                            min + "m " +
-                            sec + "s";
+
+                    if (timeformat == 0) {
+                        bubbleText += "\n" + month + "m " +
+                                days + "d " +
+                                hours + "h \n" +
+                                min + "m " +
+                                sec + "s";
+
+                    } else if(timeformat == 1) {
+                        delay = 60000;
+                        Weeks diffWeeks = Weeks.weeksBetween(currDt, birthDt);
+                        int weeks = diffWeeks.negated().getWeeks();
+                        //period.getWeeks();
+                        bubbleText += "\n" + weeks + " Weeks";
+
+                    } else if(timeformat == 2) {
+                        delay = 60000;
+                        bubbleText += "\n" + month + " Months";
+
+                    }else if(timeformat == 3) {
+                        delay = 60000;
+                        bubbleText += "\n" + month/12 + " Years" + "\n"
+                                            + month%12 + " Months";
+                    }
 
                     floatingFaceBubble.setText(bubbleText);
                     floatingFaceBubble.invalidate();
@@ -358,7 +378,6 @@ public class FloatingFaceBubbleService extends Service {
         if (mBroadcastReceiver != null)
             unregisterReceiver(mBroadcastReceiver);
 
-
         //Todo:
         h.removeCallbacksAndMessages(null);
 
@@ -381,8 +400,8 @@ public class FloatingFaceBubbleService extends Service {
                         if ("exit".equalsIgnoreCase(extras.getString("action"))) {
                             stopMyService();
 
-                        } else if ("textformat".equalsIgnoreCase(extras.getString("action"))) {
-                            textformat = (byte) Integer.parseInt(preferences.getString("textformat", "0"));
+                        } else if ("timeformat".equalsIgnoreCase(extras.getString("action"))) {
+                            timeformat = Integer.parseInt(preferences.getString("timeformat", "0"));
 
                             h.removeCallbacksAndMessages(null);
                             postDelayed();

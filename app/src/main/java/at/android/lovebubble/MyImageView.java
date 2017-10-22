@@ -203,7 +203,7 @@ public class MyImageView extends ImageView {
 
     }
 
-    private void drawTextOnImage(Canvas canvas/*, byte textformat*/) {
+    private void drawTextOnImage(Canvas canvas) {
         //Resources resources = getContext().getResources();
         //float scale = resources.getDisplayMetrics().density;
         //p.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "fonts/SouthernAire.ttf"));
