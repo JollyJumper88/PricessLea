@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 
 import at.android.lovebubble.util.IabBroadcastReceiver;
 import at.android.lovebubble.util.IabBroadcastReceiver.IabBroadcastListener;
@@ -17,21 +18,19 @@ import at.android.lovebubble.util.IabResult;
 import at.android.lovebubble.util.Inventory;
 import at.android.lovebubble.util.Purchase;
 
-public class Donate extends Activity implements IabBroadcastListener,
-        OnClickListener {
+public class Donate extends Activity implements
+        IabBroadcastListener, View.OnClickListener {
 
     static final String TAG = "Donate";
 
     // Does the user have the premium upgrade?
     boolean mIsPremium = false;
 
-    // Tracks the currently owned infinite gas SKU, and the options in the Manage dialog
-    String mInfiniteGasSku = "";
-    String mFirstChoiceSku = "";
-    String mSecondChoiceSku = "";
-
     // SKUs for our products: the premium upgrade (non-consumable) and gas (consumable)
-    static final String SKU_PREMIUM = "premium";
+    //static final String SKU_PREMIUM = "premium";
+    static final String SKU_S = "donate_small";
+    static final String SKU_M = "donate_medium";
+    static final String SKU_L = "donate_large";
 
     // (arbitrary) request code for the purchase flow
     static final int RC_REQUEST = 10001;
@@ -48,6 +47,11 @@ public class Donate extends Activity implements IabBroadcastListener,
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_donate);
 
+        findViewById(R.id.small).setOnClickListener(this);
+        findViewById(R.id.medium).setOnClickListener(this);
+        findViewById(R.id.large).setOnClickListener(this);
+
+        // TODO: fix key
         String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuELbZCKGx6cY7+ajWXGlvAKLZMOeAeOThGd+eJRTxSSXzWhWk0O6byojkgtBeFC09S25rZi4riYbIHr3lkmCHMH8FewhIurLiAJoTeM4w5k4cCUkH1y2BZdHSgq0OKq/W8lfIMTM9JoCGd493hgV9PIsoasLArfahVygB9ZPXP0xHJIjrFcKN5eoqHGVpCLneMdMVdEqL4/RrHpX9tJD+S3fMxs+puxLznsO34bW8NPcgtkdsRB9aXeMz92DHSTxj92XmNtXBCds+adYCGq18sQGc6K3VdCzI4sD7DOalDneFjLD9T4+1QJ7yVRQ1j8uFhqs+ogGZbdxwJ8o09szAQIDAQAB";
 
         mHelper = new IabHelper(this, base64EncodedPublicKey);
@@ -111,9 +115,9 @@ public class Donate extends Activity implements IabBroadcastListener,
              * the developer payload to see if it's correct! See
              * verifyDeveloperPayload().
              */
-
+            // TODO: check items we own and reflect on the button
             // Do we have the premium upgrade?
-            Purchase premiumPurchase = inventory.getPurchase(SKU_PREMIUM);
+            Purchase premiumPurchase = inventory.getPurchase(SKU_S);
             mIsPremium = (premiumPurchase != null && verifyDeveloperPayload(premiumPurchase));
             Log.d(TAG, "User is " + (mIsPremium ? "PREMIUM" : "NOT PREMIUM"));
 
@@ -138,8 +142,25 @@ public class Donate extends Activity implements IabBroadcastListener,
 
 
     @Override
-    public void onClick(DialogInterface dialog, int id) {
-        if (id == 0 /* First choice item */) {
+    public void onClick(View view) {
+    //public void onClick(DialogInterface dialog, int id) {
+
+        String SKU = "";
+
+        switch (view.getId()) {
+            case R.id.small:
+                SKU = SKU_S;
+                break;
+            case R.id.medium:
+                SKU = SKU_M;
+                break;
+            case R.id.large:
+                SKU = SKU_L;
+                break;
+            default:
+                Log.d(TAG, "onClick: id not handled but received.");
+        }
+        if (!SKU.equals("")) {
             Log.d(TAG, "Upgrade button clicked; launching purchase flow for upgrade.");
             setWaitScreen(true);
 
@@ -149,7 +170,7 @@ public class Donate extends Activity implements IabBroadcastListener,
             String payload = "";
 
             try {
-                mHelper.launchPurchaseFlow(this, SKU_PREMIUM, RC_REQUEST,
+                mHelper.launchPurchaseFlow(this, SKU, RC_REQUEST,
                         mPurchaseFinishedListener, payload);
             } catch (IabAsyncInProgressException e) {
                 complain("Error launching purchase flow. Another async operation in progress.");
@@ -158,7 +179,7 @@ public class Donate extends Activity implements IabBroadcastListener,
 
         } else  {
             // There are only four buttons, this should not happen
-            Log.e(TAG, "Unknown button clicked in subscription dialog: " + id);
+            Log.e(TAG, "Unknown button clicked in subscription dialog: ");
         }
     }
 
@@ -232,7 +253,7 @@ public class Donate extends Activity implements IabBroadcastListener,
 
             Log.d(TAG, "Purchase successful.");
 
-            if (purchase.getSku().equals(SKU_PREMIUM)) {
+            if (purchase.getSku().equals(SKU_S)) {
                 // bought the premium upgrade!
                 Log.d(TAG, "Purchase is premium upgrade. Congratulating user.");
                 alert("Thank you for upgrading to premium!");
@@ -277,6 +298,7 @@ public class Donate extends Activity implements IabBroadcastListener,
     void setWaitScreen(boolean set) {
 //        findViewById(R.id.screen_main).setVisibility(set ? View.GONE : View.VISIBLE);
 //        findViewById(R.id.screen_wait).setVisibility(set ? View.VISIBLE : View.GONE);
+        findViewById(R.id.wait).setVisibility(set ? View.VISIBLE : View.INVISIBLE);
     }
 
 
@@ -292,4 +314,6 @@ public class Donate extends Activity implements IabBroadcastListener,
         Log.d(TAG, "Showing alert dialog: " + message);
         bld.create().show();
     }
+
+
 }

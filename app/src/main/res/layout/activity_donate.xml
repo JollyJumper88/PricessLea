@@ -6,8 +6,27 @@
                 android:paddingLeft="@dimen/activity_horizontal_margin"
                 android:paddingRight="@dimen/activity_horizontal_margin"
                 android:paddingTop="@dimen/activity_vertical_margin"
+                android:background="@android:color/holo_blue_light"
                 tools:context=".Donate">
 
+
+    <TextView
+        android:id="@+id/wait"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:text="WAIT..."
+        android:visibility="invisible"
+        tools:text="wait text"/>
+
+    <TextView
+        android:id="@+id/textViewS"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/wait"
+        android:layout_centerHorizontal="true"
+        android:text="Coffee Break"/>
 
     <Button
         android:id="@+id/small"
@@ -15,6 +34,43 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="72dp"
+        android:layout_marginTop="50dp"
         android:text="Small"/>
+
+    <TextView
+        android:id="@+id/textViewM"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/small"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="Money for Lunch"/>
+
+    <Button
+        android:id="@+id/medium"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="Medium"
+        android:layout_below="@+id/textViewM"
+        android:layout_alignStart="@+id/textViewS"/>
+
+    <TextView
+        android:id="@+id/textViewL"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/medium"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="20dp"
+        android:text="You just have it.."/>
+
+    <Button
+        android:id="@+id/large"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Large"
+        android:layout_below="@+id/textViewL"
+        android:layout_alignStart="@+id/medium"
+        android:layout_marginTop="28dp"/>
+
 </RelativeLayout>
