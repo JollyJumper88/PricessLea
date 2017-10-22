@@ -25,6 +25,7 @@ import org.joda.time.DateTime;
 import org.joda.time.Interval;
 import org.joda.time.Months;
 import org.joda.time.Period;
+import org.joda.time.Weeks;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -45,8 +46,6 @@ public class FloatingFaceBubbleService extends Service {
     private WindowManager windowManager;
     private WindowManager.LayoutParams myParams;
     private MyImageView floatingFaceBubble;
-    //private RelativeLayout layout;
-    //private TextView textView;
 
     private Handler h = new Handler(Looper.getMainLooper());
 
@@ -80,6 +79,17 @@ public class FloatingFaceBubbleService extends Service {
         registerReceiver(mBroadcastReceiver, intentFilter);
 
 
+        // Load Preferences
+        preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        name = preferences.getString("name", getString(R.string.putnamehere));
+        timeformat = Integer.parseInt(preferences.getString("timeformat", "0"));
+        Long mills = preferences.getLong("birthdatetime", -1);
+        switch_time = preferences.getBoolean("switch_time", true);
+        switch_name = preferences.getBoolean("switch_name", true);
+        int posX = preferences.getInt("posX", 0);
+        int posY = preferences.getInt("posY", 100);
+
+
         // Floating Bubble
         myParams = new WindowManager.LayoutParams(
                 LayoutParams.WRAP_CONTENT,
@@ -88,8 +98,8 @@ public class FloatingFaceBubbleService extends Service {
                 LayoutParams.FLAG_NOT_FOCUSABLE,
                 PixelFormat.TRANSLUCENT);
         myParams.gravity = Gravity.TOP | Gravity.START;
-        myParams.x = 0;
-        myParams.y = 100;
+        myParams.x = posX;
+        myParams.y = posY;
 
         floatingFaceBubble = new MyImageView(this, myParams);
 
@@ -117,14 +127,6 @@ public class FloatingFaceBubbleService extends Service {
         // windowManager.addView(layout, myParams);
         windowManager.addView(floatingFaceBubble, myParams);
 
-
-        // Load Preferences
-        preferences = PreferenceManager.getDefaultSharedPreferences(this);
-        name = preferences.getString("name", getString(R.string.putnamehere));
-        textformat = (byte) Integer.parseInt(preferences.getString("textformat", "0"));
-        Long mills = preferences.getLong("birthdatetime", -1);
-        switch_time = preferences.getBoolean("switch_time", true);
-        switch_name = preferences.getBoolean("switch_name", true);
 
         Date birth;
         if (mills != -1) { // found in preferences
@@ -160,6 +162,7 @@ public class FloatingFaceBubbleService extends Service {
                     delay = 1000;
 
                     currDt = new DateTime();
+
 
                     Interval interval = new Interval(birthDt, currDt);
                     Period period = interval.toPeriod();
@@ -290,8 +293,6 @@ public class FloatingFaceBubbleService extends Service {
                                         MyPreferenceActivity.class);
                                 startActivity(prefActivity);
 
-                                // Toast.makeText(getApplicationContext(), "Hit the Back Button to close the Settings View.", Toast.LENGTH_SHORT).show();
-
                                 firstTouch = false;
                                 return true; // event consumed
 
@@ -332,6 +333,10 @@ public class FloatingFaceBubbleService extends Service {
     }
 
     private void stopMyService() {
+        // Save last Bubble position
+        preferences.edit().putInt("posX", myParams.x).apply();
+        preferences.edit().putInt("posY", myParams.y).apply();
+
         // remove view and stop the service
         windowManager.removeView(floatingFaceBubble);
         // windowManager.removeView(layout);
