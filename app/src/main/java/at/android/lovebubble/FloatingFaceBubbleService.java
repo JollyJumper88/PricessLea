@@ -418,6 +418,12 @@ public class FloatingFaceBubbleService extends Service {
                             h.removeCallbacksAndMessages(null);
                             postDelayed();
 
+                        } else if ("updateYoffset".equalsIgnoreCase(extras.getString("action"))) {
+                            floatingFaceBubble.updateYoffset();
+
+                            h.removeCallbacksAndMessages(null);
+                            postDelayed();
+
                         }
                     } catch (NullPointerException e) {
                         Log.e(TAG, "onReceive: ", e);

@@ -26,16 +26,21 @@
     <string name="help">Help</string>
     <string name="send_mail">Send Email</string>
     <string name="unmonitoredapp"><![CDATA[To prevent the app stop itself go to: System Settings->Device Maintenance > Battery > Unmonitored app > Add apps > check Love Bubble]]></string>
+    <string name="showtimeonbubblesummery_switch">Show the time on the Bubble</string>
     <string name="title_activity_donate">Donate</string>
     <string name="doubleTapSettings">Double-Tap the Bubble to open the Settings menu.</string>
-    <string name="grantPermission">Love Bubble needs permission to draw over other app. Please grant and hit the BACK button.</string>
-    <string name="gotIt">Got it!</string>
-    <string name="grantPermissionButton">Grant Permission</string>
-    <string name="successDoubleTapForSettings">Your Love Bubble was created in the top left corner!\nDrag it around to change it\'s position and Double-Tap it to configure your Bubble.</string>
-    <string name="status_step1">Step 1 of 2</string>
-    <string name="status_step2">Step 2 of 2</string>
     <string name="textviewTitleWelcome">Welcome to Love Bubble!</string>
     <string name="main_title_success">Success!</string>
-    <string name="showtimeonbubblesummery_switch">Show the time on the Bubble</string>
+    <string name="grantPermission">Love Bubble needs permission to draw over other applications. This is just to create the floating Bubble. Please grant this permission and hit the BACK button when finished.</string>
+    <string name="grantPermissionButton">Grant Permission</string>
+    <string name="successDoubleTapForSettings">Your Love Bubble was created in the top left corner!\nDrag it around to change it\'s position and Double-Tap it to configure your Bubble.</string>
+    <string name="gotIt">Got it!</string>
+    <string name="status_step1">Step 1 of 2</string>
+    <string name="status_step2">Step 2 of 2</string>
+
+    <string name="settings_dialog_message">Gap between the top of the bubble to the text</string>
+    <string name="settings_summary">Current gap is $1</string>
+    <string name="settings_unit"></string>
+    <string name="settings_title">Text Offset</string>
 
 </resources>

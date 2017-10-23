@@ -2,13 +2,15 @@
                 xmlns:tools="http://schemas.android.com/tools"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:paddingBottom="@dimen/activity_vertical_margin"
-                android:paddingLeft="@dimen/activity_horizontal_margin"
-                android:paddingRight="@dimen/activity_horizontal_margin"
-                android:paddingTop="@dimen/activity_vertical_margin"
                 android:background="@android:color/holo_blue_light"
                 tools:context=".Donate">
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="match_parent"
+        android:layout_height="230dp"
+        android:scaleType="center"
+        android:src="@drawable/lea"/>
 
     <TextView
         android:id="@+id/wait"
@@ -24,53 +26,52 @@
         android:id="@+id/textViewS"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/wait"
-        android:layout_centerHorizontal="true"
-        android:text="Coffee Break"/>
+        android:text="Coffee Break"
+        android:layout_marginTop="14dp"
+        android:layout_below="@+id/imageView"
+        android:layout_centerHorizontal="true"/>
 
     <Button
         android:id="@+id/small"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="50dp"
-        android:text="Small"/>
+        android:text="Small"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"/>
 
     <TextView
         android:id="@+id/textViewM"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:text="Money for Lunch"
         android:layout_below="@+id/small"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:text="Money for Lunch"/>
+        android:layout_marginTop="17dp"/>
 
     <Button
         android:id="@+id/medium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
         android:text="Medium"
-        android:layout_below="@+id/textViewM"
+        android:layout_above="@+id/textViewL"
         android:layout_alignStart="@+id/textViewS"/>
 
     <TextView
         android:id="@+id/textViewL"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@+id/medium"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="20dp"
-        android:text="You just have it.."/>
+        android:text="You just have it.."
+        android:layout_above="@+id/large"
+        android:layout_alignStart="@+id/small"
+        android:layout_marginBottom="33dp"/>
 
     <Button
         android:id="@+id/large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Large"
-        android:layout_below="@+id/textViewL"
+        android:layout_alignParentBottom="true"
         android:layout_alignStart="@+id/medium"
-        android:layout_marginTop="28dp"/>
+        android:layout_marginBottom="56dp"/>
 
 </RelativeLayout>

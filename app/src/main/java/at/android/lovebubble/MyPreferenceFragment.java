@@ -27,12 +27,16 @@ import org.joda.time.DateTime;
 import java.util.Calendar;
 import java.util.Date;
 
+import at.android.lovebubble.etc.SeekBarPreference;
+
 
 public class MyPreferenceFragment extends PreferenceFragment {
     private static final int RESULT_PICK_IMAGE = 99;
 
     String TAG = "MyPreferenceFragment";
     Context context;
+
+    private SeekBarPreference seekBarPrefYoffset;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -43,23 +47,26 @@ public class MyPreferenceFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.pref_general);
 
         //general
-        findPreference("guide").setOnPreferenceChangeListener(listener);
-        findPreference("donate").setOnPreferenceChangeListener(listener);
+        findPreference("guide").setOnPreferenceChangeListener(changeListener);
+        findPreference("donate").setOnPreferenceClickListener(clickListener);
         findPreference("exit").setOnPreferenceClickListener(clickListener);
 
+        seekBarPrefYoffset = (SeekBarPreference) this.findPreference("y_offset");
+        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(sharedPrefChangeListener);
+
         //name
-        findPreference("switch_name").setOnPreferenceChangeListener(listener);
-        findPreference("name").setOnPreferenceChangeListener(listener);
+        findPreference("switch_name").setOnPreferenceChangeListener(changeListener);
+        findPreference("name").setOnPreferenceChangeListener(changeListener);
 
         //Date Time
-        findPreference("switch_time").setOnPreferenceChangeListener(listener);
+        findPreference("switch_time").setOnPreferenceChangeListener(changeListener);
         findPreference("birthdatetime").setOnPreferenceClickListener(clickListener);
-        findPreference("timeformat").setOnPreferenceChangeListener(listener);
+        findPreference("timeformat").setOnPreferenceChangeListener(changeListener);
 
         //Picture and Shape
         findPreference("choosepic").setOnPreferenceClickListener(clickListener);
-        findPreference("size_list").setOnPreferenceChangeListener(listener);
-        findPreference("mask_list").setOnPreferenceChangeListener(listener);
+        findPreference("size_list").setOnPreferenceChangeListener(changeListener);
+        findPreference("mask_list").setOnPreferenceChangeListener(changeListener);
 
         //support
         findPreference("help").setOnPreferenceClickListener(clickListener);
@@ -117,10 +124,28 @@ public class MyPreferenceFragment extends PreferenceFragment {
             findPreference("name").setSummary(name);
         }
 
+        // summary seekbar
+        int value = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("y_offset", 50);
+        seekBarPrefYoffset.setSummary(this.getString(R.string.settings_summary).replace("$1", "" + value));
+
     }
 
 
-    Preference.OnPreferenceChangeListener listener = new Preference.OnPreferenceChangeListener() {
+    SharedPreferences.OnSharedPreferenceChangeListener sharedPrefChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+        @Override
+        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
+            // Set seekbar summary :
+            int value = PreferenceManager.getDefaultSharedPreferences(context).getInt("y_offset", 50);
+            seekBarPrefYoffset.setSummary(context.getString(R.string.settings_summary).replace("$1", "" + value));
+
+            Intent i = new Intent("pref_broadcast");
+            i.putExtra("action", "updateYoffset");
+            getContext().sendBroadcast(i);
+        }
+    };
+
+
+    Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
         // SAMPLE CODE: https://stackoverflow.com/questions/6148952/how-to-get-selected-text-and-value-android-listpreference
         @Override
         public boolean onPreferenceChange(Preference preference, Object value) {
@@ -211,15 +236,25 @@ public class MyPreferenceFragment extends PreferenceFragment {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://skmobiledev.wordpress.com/love-bubble/user-manual/")));
                     break;
                 case "contact":
+                    /*
                     Intent emailIntent = new Intent(Intent.ACTION_SEND);
                     // emailIntent.setType("plain/text");
-                    emailIntent.setType("message/rfc822");
+                    // emailIntent.setType("message/rfc822");
+                    emailIntent.setType("vnd.android.cursor.item/email");
                     emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"action.jackson187@gmail.com"});
                     emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, context.getPackageName());
+                    // emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "My email content");
                     startActivity(Intent.createChooser(emailIntent, getString(R.string.send_mail)));
+                    */
+
+                    Intent emailIntent = new Intent(Intent.ACTION_VIEW);
+                    Uri data = Uri.parse("mailto:action.jackson187@gmail.com?subject=" + context.getPackageName()); // + "&body=");
+                    emailIntent.setData(data);
+                    startActivity(emailIntent);
+
                     break;
                 case "rate":
-                    String uri = "market://details?id=at.android.chooxe";
+                    String uri = "market://details?id=" + context.getPackageName();
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uri)));
                     break;
 

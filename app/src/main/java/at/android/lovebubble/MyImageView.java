@@ -29,12 +29,14 @@ public class MyImageView extends ImageView {
     private String imgUri;
     private String maskName;
     private int imageScale;
+    private int y_offset;
+    private final int DEFAULT_Y_OFFSET = 0;
 
     private Bitmap mask = null;
     private Bitmap image = null;
 
     private WindowManager.LayoutParams mLayoutParams;
-    // private final String TAG = "MyImG";
+    private final String TAG = "MyImG";
     private Context context;
 
     public MyImageView(Context context, WindowManager.LayoutParams mLayoutParams) {
@@ -46,8 +48,6 @@ public class MyImageView extends ImageView {
         this.mLayoutParams = mLayoutParams;
 
         loadPreferences();
-
-        // createDrawablesHashtable();
 
         updateMask();
 
@@ -81,6 +81,7 @@ public class MyImageView extends ImageView {
         imageScale = Integer.parseInt(preferences.getString("size_list", "10"));
         imgUri = preferences.getString("imguri", null);
         maskName = preferences.getString("mask_list", "star");
+        y_offset = PreferenceManager.getDefaultSharedPreferences(context).getInt("y_offset", DEFAULT_Y_OFFSET);
 
     }
     /*
@@ -115,6 +116,10 @@ public class MyImageView extends ImageView {
             default:
                 break;
         }*/
+    }
+
+    public void updateYoffset() {
+        y_offset = PreferenceManager.getDefaultSharedPreferences(context).getInt("y_offset", DEFAULT_Y_OFFSET);
     }
 
     public void setImageScale(int imageScale) {
@@ -209,7 +214,7 @@ public class MyImageView extends ImageView {
         //p.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "fonts/SouthernAire.ttf"));
 
         int x;
-        int y = 19 * imageScale; // 190
+        int y = 19 * imageScale + y_offset; // 190
         int y_offsetCorrection;
 
         Rect bounds = new Rect();

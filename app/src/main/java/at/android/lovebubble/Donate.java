@@ -52,7 +52,7 @@ public class Donate extends Activity implements
         findViewById(R.id.large).setOnClickListener(this);
 
         // TODO: fix key
-        String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuELbZCKGx6cY7+ajWXGlvAKLZMOeAeOThGd+eJRTxSSXzWhWk0O6byojkgtBeFC09S25rZi4riYbIHr3lkmCHMH8FewhIurLiAJoTeM4w5k4cCUkH1y2BZdHSgq0OKq/W8lfIMTM9JoCGd493hgV9PIsoasLArfahVygB9ZPXP0xHJIjrFcKN5eoqHGVpCLneMdMVdEqL4/RrHpX9tJD+S3fMxs+puxLznsO34bW8NPcgtkdsRB9aXeMz92DHSTxj92XmNtXBCds+adYCGq18sQGc6K3VdCzI4sD7DOalDneFjLD9T4+1QJ7yVRQ1j8uFhqs+ogGZbdxwJ8o09szAQIDAQAB";
+        String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyUcEwzLryQxS0MCTN6tBpiJ0HM2EGTq/KZgIiz2xT/GkDY6AvHQ+mBhhRRDg++WKO6PKSpyy38heFTYhGxKUvxd/2NGZM12AXani8SGuqFLKbcHH8zOZvqgyz875fYnSFlEMxTV8TNZ342ov0Q/6/h37hZgQCR0PJbd+P7GiV9NX5W5QlnO0yuGjawgyzBNbcQfPhHjJLYF2iv4rHVnSnGH9CGJWzB3NFyPsql5SR3SCO27qOKCXdylsY1iTs/qdeBAvItyCd3XABGmc8IEA9cZa54X3YwkwJUvBTr9Zyp+qHqxC4/QtEbdUJPee9KlSCe4YDNDPx2lq9KO53LhXQQIDAQAB";
 
         mHelper = new IabHelper(this, base64EncodedPublicKey);
 
