@@ -30,7 +30,7 @@ public class MyImageView extends ImageView {
     private String maskName;
     private int imageScale;
     private int y_offset;
-    private final int DEFAULT_Y_OFFSET = 0;
+    public static final int DEFAULT_Y_OFFSET = 0;
 
     private Bitmap mask = null;
     private Bitmap image = null;

@@ -125,7 +125,7 @@ public class MyPreferenceFragment extends PreferenceFragment {
         }
 
         // summary seekbar
-        int value = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("y_offset", 50);
+        int value = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("y_offset", MyImageView.DEFAULT_Y_OFFSET);
         seekBarPrefYoffset.setSummary(this.getString(R.string.settings_summary).replace("$1", "" + value));
 
     }
@@ -135,7 +135,7 @@ public class MyPreferenceFragment extends PreferenceFragment {
         @Override
         public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
             // Set seekbar summary :
-            int value = PreferenceManager.getDefaultSharedPreferences(context).getInt("y_offset", 50);
+            int value = PreferenceManager.getDefaultSharedPreferences(context).getInt("y_offset", MyImageView.DEFAULT_Y_OFFSET);
             seekBarPrefYoffset.setSummary(context.getString(R.string.settings_summary).replace("$1", "" + value));
 
             Intent i = new Intent("pref_broadcast");
@@ -233,7 +233,7 @@ public class MyPreferenceFragment extends PreferenceFragment {
 
                 //support
                 case "help":
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://skmobiledev.wordpress.com/love-bubble/user-manual/")));
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://skmobiledev.wordpress.com/lovebubble/user-manual/")));
                     break;
                 case "contact":
                     /*
@@ -264,10 +264,10 @@ public class MyPreferenceFragment extends PreferenceFragment {
                     break;
                 case "privpol":
                     //startActivity(new Intent(getContext(), PrivacyPolicy.class));
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://skmobiledev.wordpress.com/love-bubble/privacy-policy/")));
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://skmobiledev.wordpress.com/lovebubble/privacy-policy/")));
                     break;
                 case "libraries":
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://skmobiledev.wordpress.com/love-bubble/open-source-libraries/")));
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://skmobiledev.wordpress.com/lovebubble/open-source-libraries/")));
                     break;
                 default:
                     Log.d(TAG, "onPreferenceClick: received event but was not handled. Received=" + preference.getKey());

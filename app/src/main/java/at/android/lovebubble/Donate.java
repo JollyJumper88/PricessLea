@@ -2,8 +2,6 @@ package at.android.lovebubble;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -52,10 +50,10 @@ public class Donate extends Activity implements
         findViewById(R.id.large).setOnClickListener(this);
 
         // TODO: fix key
-        String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyUcEwzLryQxS0MCTN6tBpiJ0HM2EGTq/KZgIiz2xT/GkDY6AvHQ+mBhhRRDg++WKO6PKSpyy38heFTYhGxKUvxd/2NGZM12AXani8SGuqFLKbcHH8zOZvqgyz875fYnSFlEMxTV8TNZ342ov0Q/6/h37hZgQCR0PJbd+P7GiV9NX5W5QlnO0yuGjawgyzBNbcQfPhHjJLYF2iv4rHVnSnGH9CGJWzB3NFyPsql5SR3SCO27qOKCXdylsY1iTs/qdeBAvItyCd3XABGmc8IEA9cZa54X3YwkwJUvBTr9Zyp+qHqxC4/QtEbdUJPee9KlSCe4YDNDPx2lq9KO53LhXQQIDAQAB";
+        String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjfD4xypeFFHh7Hn0GdoF5HrHIHCIEH2FZ+q7dJXx3iURNIirDoIRKRhV6jteYN7/BHjvD6CFAtfbTizoIRPzlJhdEBPgwxqT8vu5mFqh7IjQxT0u+zQ0cxMZ8GFPsVGFpK7K0lO5HWc/Qcr0qLWZXuVE4Yc9cAVq12m2HF95tlG+n+obnmqidYSlbg7E3G7EaB3xykXlm+Pfb3m+mPdtlGoCltgtJb5Eq178Y345bF5/Ky4Z5/UlQna9g/yBT2F2yohWe5MA4IeptJdSj1y9n7HAi8erxUJm9/+P/3ioMhICJ3yiEKOB/9nxcSbYa47IGYqyen6pgkO+3EVTJke6GQIDAQAB";
 
         mHelper = new IabHelper(this, base64EncodedPublicKey);
-
+        // Todo: disable here
         mHelper.enableDebugLogging(true);
 
         Log.d(TAG, "Starting setup.");

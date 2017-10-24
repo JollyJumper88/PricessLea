@@ -12,6 +12,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.preference.PreferenceManager;
+import android.support.annotation.IntDef;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -68,6 +69,12 @@ public class FloatingFaceBubbleService extends Service {
         }
     };*/
 
+    /*
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        return Service.START_STICKY;
+    }
+    */
 
     public void onCreate() {
         super.onCreate();

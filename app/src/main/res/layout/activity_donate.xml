@@ -8,9 +8,9 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="match_parent"
-        android:layout_height="230dp"
-        android:scaleType="center"
-        android:src="@drawable/lea"/>
+        android:layout_height="200dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/funktionsgrafik"/>
 
     <TextView
         android:id="@+id/wait"
@@ -27,7 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Coffee Break"
-        android:layout_marginTop="14dp"
+        android:layout_marginTop="20dp"
         android:layout_below="@+id/imageView"
         android:layout_centerHorizontal="true"/>
 
@@ -36,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Small"
-        android:layout_centerVertical="true"
+        android:layout_below="@+id/textViewS"
         android:layout_centerHorizontal="true"/>
 
     <TextView
@@ -46,32 +46,32 @@
         android:text="Money for Lunch"
         android:layout_below="@+id/small"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="17dp"/>
+        android:layout_marginTop="20dp"/>
 
     <Button
         android:id="@+id/medium"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Medium"
-        android:layout_above="@+id/textViewL"
-        android:layout_alignStart="@+id/textViewS"/>
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/textViewM"/>
 
     <TextView
         android:id="@+id/textViewL"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="You just have it.."
-        android:layout_above="@+id/large"
-        android:layout_alignStart="@+id/small"
-        android:layout_marginBottom="33dp"/>
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/medium"
+        android:layout_marginTop="20dp"/>
 
     <Button
         android:id="@+id/large"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Large"
-        android:layout_alignParentBottom="true"
-        android:layout_alignStart="@+id/medium"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@+id/textViewL"
         android:layout_marginBottom="56dp"/>
 
 </RelativeLayout>

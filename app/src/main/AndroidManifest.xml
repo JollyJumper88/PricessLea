@@ -52,7 +52,6 @@
         <activity
             android:name="at.android.lovebubble.Donate"
             android:label="@string/title_activity_donate"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar"
             android:parentActivityName="at.android.lovebubble.MyPreferenceActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
