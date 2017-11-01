@@ -15,6 +15,7 @@ import at.android.lovebubble.util.IabHelper.IabAsyncInProgressException;
 import at.android.lovebubble.util.IabResult;
 import at.android.lovebubble.util.Inventory;
 import at.android.lovebubble.util.Purchase;
+import at.android.lovebubble.util.SkuDetails;
 
 public class Donate extends Activity implements
         IabBroadcastListener, View.OnClickListener {
@@ -22,15 +23,18 @@ public class Donate extends Activity implements
     static final String TAG = "Donate";
 
     // Does the user have the premium upgrade?
-    boolean mIsPremium = false;
+    boolean boughtS2 = false;
 
     // SKUs for our products: the premium upgrade (non-consumable) and gas (consumable)
     //static final String SKU_PREMIUM = "premium";
     static final String SKU_S = "donate_small";
     static final String SKU_M = "donate_medium";
     static final String SKU_L = "donate_large";
+    static final String SKU_purchased = "android.test.purchased";
+    static final String SKU_canceled = "android.test.canceled";
+//            "android.test.refunded";
+//            "android.test.item_unavailable";
 
-    // (arbitrary) request code for the purchase flow
     static final int RC_REQUEST = 10001;
 
     // The helper object
@@ -43,17 +47,19 @@ public class Donate extends Activity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_donate);
 
         findViewById(R.id.small).setOnClickListener(this);
         findViewById(R.id.medium).setOnClickListener(this);
         findViewById(R.id.large).setOnClickListener(this);
 
-        // TODO: fix key
-        String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjfD4xypeFFHh7Hn0GdoF5HrHIHCIEH2FZ+q7dJXx3iURNIirDoIRKRhV6jteYN7/BHjvD6CFAtfbTizoIRPzlJhdEBPgwxqT8vu5mFqh7IjQxT0u+zQ0cxMZ8GFPsVGFpK7K0lO5HWc/Qcr0qLWZXuVE4Yc9cAVq12m2HF95tlG+n+obnmqidYSlbg7E3G7EaB3xykXlm+Pfb3m+mPdtlGoCltgtJb5Eq178Y345bF5/Ky4Z5/UlQna9g/yBT2F2yohWe5MA4IeptJdSj1y9n7HAi8erxUJm9/+P/3ioMhICJ3yiEKOB/9nxcSbYa47IGYqyen6pgkO+3EVTJke6GQIDAQAB";
+        String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjfD4xypeFFHh7Hn0GdoF5HrHIHCIEH2FZ+q7dJXx3iURNIirDoIRKRhV6jteYN7/BHjvD6CFAtfbTizoI";
+        String part2 = "RPzlJhdEBPgwxqT8vu5mFqh7IjQxT0u+zQ0cxMZ8GFPsVGFpK7K0lO5HWc/Qcr0qLWZXuVE4Yc9cAVq12m2HF95tlG+n+obnmqidYSlbg7E3G7EaB3xykXlm+Pfb3m+mPdtlGoCltgtJb5Eq178Y3";
+        String part3 = "45bF5/Ky4Z5/UlQna9g/yBT2F2yohWe5MA4IeptJdSj1y9n7HAi8erxUJm9/+P/3ioMhICJ3yiEKOB/9nxcSbYa47IGYqyen6pgkO+3EVTJke6GQIDAQAB";
 
-        mHelper = new IabHelper(this, base64EncodedPublicKey);
-        // Todo: disable here
+        mHelper = new IabHelper(this, base64EncodedPublicKey + part2 + part3);
+
         mHelper.enableDebugLogging(true);
 
         Log.d(TAG, "Starting setup.");
@@ -62,6 +68,7 @@ public class Donate extends Activity implements
                 Log.d(TAG, "Setup finished.");
 
                 if (!result.isSuccess()) {
+                    // TODO: unavailable-disable donation?
                     // Oh noes, there was a problem.
                     complain("Problem setting up in-app billing: " + result);
                     return;
@@ -70,6 +77,7 @@ public class Donate extends Activity implements
                 // Have we been disposed of in the meantime? If so, quit.
                 if (mHelper == null) return;
 
+                // Todo: ?? hää? do I need this receiver? where to call getPurchaes -> query finished?
                 // Important: Dynamically register for broadcast messages about updated purchases.
                 // We register the receiver here instead of as a <receiver> in the Manifest
                 // because we always call getPurchases() at startup, so therefore we can ignore
@@ -108,16 +116,30 @@ public class Donate extends Activity implements
 
             Log.d(TAG, "Query inventory was successful.");
 
+            // how to get the price
+            // https://stackoverflow.com/questions/16502765/in-app-billing-getprice-android
+
             /*
              * Check for items we own. Notice that for each purchase, we check
              * the developer payload to see if it's correct! See
              * verifyDeveloperPayload().
              */
             // TODO: check items we own and reflect on the button
-            // Do we have the premium upgrade?
-            Purchase premiumPurchase = inventory.getPurchase(SKU_S);
-            mIsPremium = (premiumPurchase != null && verifyDeveloperPayload(premiumPurchase));
-            Log.d(TAG, "User is " + (mIsPremium ? "PREMIUM" : "NOT PREMIUM"));
+
+            Purchase purchaseS = inventory.getPurchase(SKU_S); // returns null if no purchase
+            boolean boughtS = inventory.hasPurchase(SKU_S);
+            SkuDetails detailsS = inventory.getSkuDetails(SKU_S);
+            boughtS2 = (purchaseS != null && verifyDeveloperPayload(purchaseS));
+            // Log.d(TAG, "User is " + (boughtS2 ? "purchaseS" : "NOT purchaseS"));
+
+
+
+            alert("Small: Query inventory: bought1=" + boughtS + " bought2=" + boughtS2 + " price=" + detailsS.getPrice()
+                    + " title=" + detailsS.getTitle());
+
+
+
+            // alert(boughtS2 ? "purchaseS" : "NOT purchaseS");
 
 
             updateUi();
@@ -138,10 +160,9 @@ public class Donate extends Activity implements
     }
 
 
-
     @Override
     public void onClick(View view) {
-    //public void onClick(DialogInterface dialog, int id) {
+        //public void onClick(DialogInterface dialog, int id) {
 
         String SKU = "";
 
@@ -151,9 +172,11 @@ public class Donate extends Activity implements
                 break;
             case R.id.medium:
                 SKU = SKU_M;
+                SKU = SKU_purchased;
                 break;
             case R.id.large:
                 SKU = SKU_L;
+                SKU = SKU_canceled;
                 break;
             default:
                 Log.d(TAG, "onClick: id not handled but received.");
@@ -162,21 +185,20 @@ public class Donate extends Activity implements
             Log.d(TAG, "Upgrade button clicked; launching purchase flow for upgrade.");
             setWaitScreen(true);
 
-        /* TODO: for security, generate your payload here for verification. See the comments on
-         *        verifyDeveloperPayload() for more info. Since this is a SAMPLE, we just use
-         *        an empty string, but on a production app you should carefully generate this. */
-            String payload = "";
+            /* for security, generate your payload here for verification. See the comments on
+            *  verifyDeveloperPayload() for more info. Since this is a SAMPLE, we just use
+            *  an empty string, but on a production app you should carefully generate this. */
+            String payload = "Princess Lea is a character of Star Wars and also my daughter";
 
             try {
-                mHelper.launchPurchaseFlow(this, SKU, RC_REQUEST,
-                        mPurchaseFinishedListener, payload);
+                mHelper.launchPurchaseFlow(this, SKU, RC_REQUEST, mPurchaseFinishedListener, payload);
+
             } catch (IabAsyncInProgressException e) {
                 complain("Error launching purchase flow. Another async operation in progress.");
                 setWaitScreen(false);
             }
 
-        } else  {
-            // There are only four buttons, this should not happen
+        } else {
             Log.e(TAG, "Unknown button clicked in subscription dialog: ");
         }
     }
@@ -226,8 +248,10 @@ public class Donate extends Activity implements
          * Using your own server to store and verify developer payloads across app
          * installations is recommended.
          */
-
-        return true;
+        if (payload.contains("Star Wars"))
+            return true;
+        else
+            return false;
     }
 
     // Callback for when a purchase is finished
@@ -239,12 +263,12 @@ public class Donate extends Activity implements
             if (mHelper == null) return;
 
             if (result.isFailure()) {
-                complain("Error purchasing: " + result);
+                complain("Finished listener: Error purchasing: " + result);
                 setWaitScreen(false);
                 return;
             }
             if (!verifyDeveloperPayload(purchase)) {
-                complain("Error purchasing. Authenticity verification failed.");
+                complain("Finished listener: Error purchasing. Authenticity verification failed. (Payload)");
                 setWaitScreen(false);
                 return;
             }
@@ -253,10 +277,15 @@ public class Donate extends Activity implements
 
             if (purchase.getSku().equals(SKU_S)) {
                 // bought the premium upgrade!
-                Log.d(TAG, "Purchase is premium upgrade. Congratulating user.");
-                alert("Thank you for upgrading to premium!");
-                mIsPremium = true;
+                Log.d(TAG, "PThank you for buying SKU_S");
+                alert("Thank you for buying SKU_S");
+                boughtS2 = true;
                 updateUi();
+                setWaitScreen(false);
+            }
+            if (purchase.getSku().equals((SKU_M))) {
+
+                alert("Thank you for buying SKU_M");
                 setWaitScreen(false);
             }
 
@@ -267,10 +296,10 @@ public class Donate extends Activity implements
     // updates UI to reflect model
     public void updateUi() {
 //        // update the car color to reflect premium status or lack thereof
-//        ((ImageView)findViewById(R.id.free_or_premium)).setImageResource(mIsPremium ? R.drawable.premium : R.drawable.free);
+//        ((ImageView)findViewById(R.id.free_or_premium)).setImageResource(boughtS2 ? R.drawable.premium : R.drawable.free);
 //
 //        // "Upgrade" button is only visible if the user is not premium
-//        findViewById(R.id.upgrade_button).setVisibility(mIsPremium ? View.GONE : View.VISIBLE);
+//        findViewById(R.id.upgrade_button).setVisibility(boughtS2 ? View.GONE : View.VISIBLE);
 //
 //        ImageView infiniteGasButton = (ImageView) findViewById(R.id.infinite_gas_button);
 //        if (mSubscribedToInfiniteGas) {

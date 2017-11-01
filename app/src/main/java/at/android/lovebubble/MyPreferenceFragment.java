@@ -381,4 +381,51 @@ public class MyPreferenceFragment extends PreferenceFragment {
                 });
         aboutDialog.create().show();
     }
+
+    private void showDonationRequestDialog() {
+        // Todo: donation done not show dialog again
+        long lastDonReq = preferences.getLong("lastDonReq", -1);
+        long currentMills = new DateTime().getMillis();
+
+        if (lastDonReq == -1) { // never requested
+            preferences.edit().putLong("lastDonReq", currentMills).apply();
+
+        } else if (currentMills - lastDonReq > 60 * 60 * 1000) {
+            preferences.edit().putLong("lastDonReq", currentMills).apply();
+
+            AlertDialog.Builder bld = new AlertDialog.Builder(context);
+            bld.setMessage(R.string.donationDialogMessage);
+            bld.setPositiveButton(R.string.Donate, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    startActivity(new Intent(context, Donate.class));
+                    dialog.dismiss();
+                }
+            });
+
+            if (!preferences.getBoolean("ratedOnPlayStore", false)) // not rated yet
+                bld.setNeutralButton(R.string.rate, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int i) {
+                        preferences.edit().putBoolean("ratedOnPlayStore", true).apply();
+
+                        String uri = "market://details?id=" + context.getPackageName();
+                        try {
+                            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uri)));
+                        } catch (ActivityNotFoundException e) {
+                            Toast.makeText(context, getString(R.string.playStoreNotFound), Toast.LENGTH_SHORT).show();
+                        }
+                        dialog.dismiss();
+                    }
+                });
+            bld.setNegativeButton(R.string.NoThanks, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int i) {
+                    dialog.dismiss();
+                }
+            });
+            bld.create().show();
+        }
+
+    }
 }
