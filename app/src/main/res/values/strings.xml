@@ -65,5 +65,6 @@
     <string name="rate">Rate App</string>
     <string name="donationDialogMessage">Love Bubble is FREE! Please consider a Donation to keep this project alive. A rating on the Google Play Store would also help me a lot.</string>
     <string name="playStoreNotFound">Google Play store not found.</string>
+    <string name="google_play_in_app_purchase_in_progress">Google Play In-App purchase in progress...</string>
 
 </resources>

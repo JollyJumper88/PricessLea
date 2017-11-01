@@ -9,3 +9,5 @@
 .externalNativeBuild
 /.idea/misc.xml
 /app/app.iml
+/app/build.gradle
+/app/app.iml

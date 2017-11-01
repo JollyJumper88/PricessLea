@@ -18,9 +18,9 @@
         android:layout_height="wrap_content"
         android:layout_alignParentStart="true"
         android:layout_alignParentTop="true"
-        android:text="WAIT..."
+        android:text="@string/google_play_in_app_purchase_in_progress"
         android:visibility="invisible"
-        tools:text="wait text"/>
+        tools:text="wait text" />
 
     <TextView
         android:id="@+id/textViewS"

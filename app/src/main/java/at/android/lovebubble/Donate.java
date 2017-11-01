@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 
 import at.android.lovebubble.util.IabBroadcastReceiver;
 import at.android.lovebubble.util.IabBroadcastReceiver.IabBroadcastListener;
@@ -23,7 +24,9 @@ public class Donate extends Activity implements
     static final String TAG = "Donate";
 
     // Does the user have the premium upgrade?
-    boolean boughtS2 = false;
+    boolean boughtS = false;
+    boolean boughtM = false;
+    boolean boughtL = false;
 
     // SKUs for our products: the premium upgrade (non-consumable) and gas (consumable)
     //static final String SKU_PREMIUM = "premium";
@@ -127,20 +130,19 @@ public class Donate extends Activity implements
             // TODO: check items we own and reflect on the button
 
             Purchase purchaseS = inventory.getPurchase(SKU_S); // returns null if no purchase
-            boolean boughtS = inventory.hasPurchase(SKU_S);
-            SkuDetails detailsS = inventory.getSkuDetails(SKU_S);
-            boughtS2 = (purchaseS != null && verifyDeveloperPayload(purchaseS));
+            Purchase purchaseM = inventory.getPurchase(SKU_M); // returns null if no purchase
+            Purchase purchaseL = inventory.getPurchase(SKU_L); // returns null if no purchase
+            //boolean boughtS = inventory.hasPurchase(SKU_S);
+
+            // SkuDetails detailsS = inventory.getSkuDetails(SKU_S); // returns null if no purchase
+            // Log.d(TAG, "onQueryInventoryFinished: "+ detailsS.toString());
+
+            boughtS = (purchaseS != null && verifyDeveloperPayload(purchaseS));
+            boughtM = (purchaseM != null && verifyDeveloperPayload(purchaseM));
+            boughtL = (purchaseL != null && verifyDeveloperPayload(purchaseL));
+
             // Log.d(TAG, "User is " + (boughtS2 ? "purchaseS" : "NOT purchaseS"));
-
-
-
-            alert("Small: Query inventory: bought1=" + boughtS + " bought2=" + boughtS2 + " price=" + detailsS.getPrice()
-                    + " title=" + detailsS.getTitle());
-
-
-
-            // alert(boughtS2 ? "purchaseS" : "NOT purchaseS");
-
+            // alert(boughtS ? "purchaseS" : "NOT purchaseS");
 
             updateUi();
             setWaitScreen(false);
@@ -172,11 +174,11 @@ public class Donate extends Activity implements
                 break;
             case R.id.medium:
                 SKU = SKU_M;
-                SKU = SKU_purchased;
+                // SKU = SKU_purchased;
                 break;
             case R.id.large:
                 SKU = SKU_L;
-                SKU = SKU_canceled;
+                // SKU = SKU_canceled;
                 break;
             default:
                 Log.d(TAG, "onClick: id not handled but received.");
@@ -262,6 +264,10 @@ public class Donate extends Activity implements
             // if we were disposed of in the meantime, quit.
             if (mHelper == null) return;
 
+            // todo:
+            // if Users cancels, we get here
+            // already owned
+            // todo: change message or remove
             if (result.isFailure()) {
                 complain("Finished listener: Error purchasing: " + result);
                 setWaitScreen(false);
@@ -277,17 +283,21 @@ public class Donate extends Activity implements
 
             if (purchase.getSku().equals(SKU_S)) {
                 // bought the premium upgrade!
-                Log.d(TAG, "PThank you for buying SKU_S");
-                alert("Thank you for buying SKU_S");
-                boughtS2 = true;
-                updateUi();
-                setWaitScreen(false);
+                // Log.d(TAG, "PThank you for buying SKU_S");
+                //alert("Thank you for buying SKU_S");
+                boughtS = true;
             }
             if (purchase.getSku().equals((SKU_M))) {
-
-                alert("Thank you for buying SKU_M");
-                setWaitScreen(false);
+                boughtM = true;
+                //alert("Thank you for buying SKU_M");
             }
+            if (purchase.getSku().equals((SKU_L))) {
+                boughtL = true;
+                //alert("Thank you for buying SKU_L");
+            }
+
+            setWaitScreen(false);
+            updateUi();
 
         }
     };
@@ -295,33 +305,22 @@ public class Donate extends Activity implements
 
     // updates UI to reflect model
     public void updateUi() {
+        Button S = (Button) findViewById(R.id.small);
+        Button M = (Button) findViewById(R.id.medium);
+        Button L = (Button) findViewById(R.id.large);
+
+        S.setText("SMALL: " + boughtS);
+        M.setText("MEDIUM p: " + boughtM);
+        L.setText("LARGE c: " + boughtL);
+
 //        // update the car color to reflect premium status or lack thereof
 //        ((ImageView)findViewById(R.id.free_or_premium)).setImageResource(boughtS2 ? R.drawable.premium : R.drawable.free);
 //
 //        // "Upgrade" button is only visible if the user is not premium
 //        findViewById(R.id.upgrade_button).setVisibility(boughtS2 ? View.GONE : View.VISIBLE);
-//
-//        ImageView infiniteGasButton = (ImageView) findViewById(R.id.infinite_gas_button);
-//        if (mSubscribedToInfiniteGas) {
-//            // If subscription is active, show "Manage Infinite Gas"
-//            infiniteGasButton.setImageResource(R.drawable.manage_infinite_gas);
-//        } else {
-//            // The user does not have infinite gas, show "Get Infinite Gas"
-//            infiniteGasButton.setImageResource(R.drawable.get_infinite_gas);
-//        }
-//
-//        // update gas gauge to reflect tank status
-//        if (mSubscribedToInfiniteGas) {
-//            ((ImageView)findViewById(R.id.gas_gauge)).setImageResource(R.drawable.gas_inf);
-//        }
-//        else {
-//            int index = mTank >= TANK_RES_IDS.length ? TANK_RES_IDS.length - 1 : mTank;
-//            ((ImageView)findViewById(R.id.gas_gauge)).setImageResource(TANK_RES_IDS[index]);
-//        }
     }
 
 
-    // Enables or disables the "please wait" screen.
     void setWaitScreen(boolean set) {
 //        findViewById(R.id.screen_main).setVisibility(set ? View.GONE : View.VISIBLE);
 //        findViewById(R.id.screen_wait).setVisibility(set ? View.VISIBLE : View.GONE);
@@ -330,7 +329,6 @@ public class Donate extends Activity implements
 
 
     void complain(String message) {
-        Log.e(TAG, "**** TrivialDrive Error: " + message);
         alert("Error: " + message);
     }
 
@@ -338,7 +336,6 @@ public class Donate extends Activity implements
         AlertDialog.Builder bld = new AlertDialog.Builder(this);
         bld.setMessage(message);
         bld.setNeutralButton("OK", null);
-        Log.d(TAG, "Showing alert dialog: " + message);
         bld.create().show();
     }
 
