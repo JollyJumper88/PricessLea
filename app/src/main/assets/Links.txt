@@ -1,3 +1,7 @@
+LISTPREFERENCE WITH ICONS:
+https://stackoverflow.com/questions/32226245/how-to-set-icon-in-listpreferences-item-in-android/41806449#41806449
+
+
 INAPP Billing:
 http://www.techotopia.com/index.php/An_Android_Studio_Google_Play_In-app_Billing_Tutorial
 https://abeshthakur.wordpress.com/2013/11/01/using-googles-in-app-billing-to-add-a-donate-feature-in-your-android-app/
@@ -14,15 +18,14 @@ CLEAR CACHE
 https://stackoverflow.com/questions/23908189/clear-cache-in-android-application-programmatically
 
 
-SLIDER:
-https://stackoverflow.com/questions/1974193/slider-on-my-preferencescreen
-
 CACHING:
 https://stackoverflow.com/questions/6927177/android-use-cache-for-saving-images
 https://stackoverflow.com/questions/7540386/android-saving-and-loading-a-bitmap-in-cache-from-different-activities
 
+
 LICENCE:
 https://softwareengineering.stackexchange.com/questions/284773/what-to-keep-in-mind-when-releasing-an-app-which-uses-libraries-licensed-under-t
+
 
 CROPPING:
 https://commonsware.com/blog/2013/01/23/no-android-does-not-have-crop-intent.html
@@ -35,12 +38,9 @@ https://stackoverflow.com/questions/6756975/draw-multi-line-text-to-canvas
 
 https://stackoverflow.com/questions/3624280/how-to-use-sharedpreferences-in-android-to-store-fetch-and-edit-values
 
-https://stackoverflow.com/questions/16867482/how-to-update-a-widget-periodically-say-after-every-5-seconds
-
 calclulate text size
 https://stackoverflow.com/questions/12166476/android-canvas-drawtext-set-font-size-from-width?rq=1
 https://stackoverflow.com/questions/4601758/draw-text-fitting-in-some-specified-rectangle
-
 
 arcs https://stackoverflow.com/questions/39206733/android-drawing-an-arc-inside-a-circle
 transparant box mulitline text https://stackoverflow.com/questions/6756975/draw-multi-line-text-to-canvas
