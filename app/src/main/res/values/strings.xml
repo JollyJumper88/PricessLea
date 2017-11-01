@@ -21,7 +21,7 @@
     <string name="birthdaybeforenow">Birthday must be set before now!</string>
     <string name="title_activity_libraries">Open Source Libraries</string>
     <string name="rate_app">Rate this Application</string>
-    <string name="contact_dev">Contact the Developer</string>
+    <string name="contact_dev">Contact the Developer (e-Mail)</string>
     <string name="support">Support</string>
     <string name="help">Help</string>
     <string name="send_mail">Send Email</string>
@@ -42,5 +42,28 @@
     <string name="settings_summary">Current gap is $1</string>
     <string name="settings_unit"></string>
     <string name="settings_title">Text Offset</string>
+    <string name="advanced">Advanced</string>
+    <string name="boot_summary">Love Bubble will be started when the phone starts</string>
+    <string name="boot_title">Start at boot</string>
+
+    <string name="tf0">\n%1$sm %2$sd %3$sh\n%4$sm %5$ss</string>
+    <string name="tf1">\n%1$s Week</string>
+    <string name="tf1_p">\n%1$s Weeks</string>
+    <string name="tf2">\n%1$s Month</string>
+    <string name="tf2_p">\n%1$s Month</string>
+    <string name="tf3">\n%1$s Month\n%2$s Week</string>
+    <string name="tf3_ps">\n%1$s Month\n%2$s Week</string>
+    <string name="tf3_sp">\n%1$s Month\n%2$s Weeks</string>
+    <string name="tf3_pp">\n%1$s Month\n%2$s Weeks</string>
+    <string name="tf4">\n%1$s Year\n%2$s Month</string>
+    <string name="tf4_ps">\n%1$s Years\n%2$s Month</string>
+    <string name="tf4_sp">\n%1$s Year\n%2$s Month</string>
+    <string name="tf4_pp">\n%1$s Years\n%2$s Month</string>
+    <string name="tf5">\n%1$sy %2$sm %3$sd\n%4$sh %5$sm %6$ss</string>
+    <string name="Donate">Donate</string>
+    <string name="NoThanks">No Thanks</string>
+    <string name="rate">Rate App</string>
+    <string name="donationDialogMessage">Love Bubble is FREE! Please consider a Donation to keep this project alive. A rating on the Google Play Store would also help me a lot.</string>
+    <string name="playStoreNotFound">Google Play store not found.</string>
 
 </resources>

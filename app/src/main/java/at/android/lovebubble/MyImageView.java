@@ -81,7 +81,7 @@ public class MyImageView extends ImageView {
         imageScale = Integer.parseInt(preferences.getString("size_list", "10"));
         imgUri = preferences.getString("imguri", null);
         maskName = preferences.getString("mask_list", "star");
-        y_offset = PreferenceManager.getDefaultSharedPreferences(context).getInt("y_offset", DEFAULT_Y_OFFSET);
+        y_offset = preferences.getInt("y_offset", DEFAULT_Y_OFFSET);
 
     }
     /*

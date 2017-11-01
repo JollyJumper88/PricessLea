@@ -2,13 +2,15 @@
 <resources>
 
     <string-array name="pref_size_titles">
-        <item>X-Small</item>
+        <item>XXS</item>
+        <item>XS</item>
         <item>Small</item>
         <item>Medium</item>
         <item>Large</item>
         <item>X-Large</item>
     </string-array>
     <string-array name="pref_size_values">
+        <item>8</item>
         <item>10</item>
         <item>12</item>
         <item>14</item>
@@ -22,12 +24,16 @@
         <item>1</item>
         <item>2</item>
         <item>3</item>
+        <item>4</item>
+        <item>5</item>
     </string-array>
     <string-array name="pref_timeformat" >
         <item>Detailed</item>
-        <item>Weeks</item>
-        <item>Months</item>
+        <item>Week</item>
+        <item>Month</item>
+        <item>Month and Week</item>
         <item>Year and Month</item>
+        <item>Detailed (with year)</item>
     </string-array>
 
 

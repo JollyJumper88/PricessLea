@@ -4,12 +4,14 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
+import android.content.ActivityNotFoundException;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
@@ -19,10 +21,13 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.widget.DatePicker;
 import android.widget.TimePicker;
+import android.widget.Toast;
 
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import org.joda.time.DateTime;
+import org.joda.time.Interval;
+import org.joda.time.Period;
 
 import java.util.Calendar;
 import java.util.Date;
@@ -33,10 +38,10 @@ import at.android.lovebubble.etc.SeekBarPreference;
 public class MyPreferenceFragment extends PreferenceFragment {
     private static final int RESULT_PICK_IMAGE = 99;
 
+    private SharedPreferences preferences;
+
     String TAG = "MyPreferenceFragment";
     Context context;
-
-    private SeekBarPreference seekBarPrefYoffset;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -44,6 +49,7 @@ public class MyPreferenceFragment extends PreferenceFragment {
         super.onCreate(savedInstanceState);
 
         context = getContext();
+
         addPreferencesFromResource(R.xml.pref_general);
 
         //general
@@ -51,12 +57,10 @@ public class MyPreferenceFragment extends PreferenceFragment {
         findPreference("donate").setOnPreferenceClickListener(clickListener);
         findPreference("exit").setOnPreferenceClickListener(clickListener);
 
-        seekBarPrefYoffset = (SeekBarPreference) this.findPreference("y_offset");
-        getPreferenceScreen().getSharedPreferences().registerOnSharedPreferenceChangeListener(sharedPrefChangeListener);
-
         //name
         findPreference("switch_name").setOnPreferenceChangeListener(changeListener);
         findPreference("name").setOnPreferenceChangeListener(changeListener);
+        findPreference("y_offset").setOnPreferenceChangeListener(changeListener);
 
         //Date Time
         findPreference("switch_time").setOnPreferenceChangeListener(changeListener);
@@ -86,7 +90,7 @@ public class MyPreferenceFragment extends PreferenceFragment {
     public void onResume() {
         super.onResume();
 
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
+        preferences = PreferenceManager.getDefaultSharedPreferences(context);
 
         // summary Size of Bubble
         ListPreference listPreference = (ListPreference) findPreference("size_list");
@@ -125,24 +129,15 @@ public class MyPreferenceFragment extends PreferenceFragment {
         }
 
         // summary seekbar
-        int value = PreferenceManager.getDefaultSharedPreferences(this.getActivity()).getInt("y_offset", MyImageView.DEFAULT_Y_OFFSET);
-        seekBarPrefYoffset.setSummary(this.getString(R.string.settings_summary).replace("$1", "" + value));
+        int yoffset = preferences.getInt("y_offset", MyImageView.DEFAULT_Y_OFFSET);
+        findPreference("y_offset").setSummary(this.getString(R.string.settings_summary).replace("$1", "" + yoffset));
+
+
+        if (!preferences.getBoolean("donationDone", false)) {// not yet donated
+            showDonationRequestDialog();
+        }
 
     }
-
-
-    SharedPreferences.OnSharedPreferenceChangeListener sharedPrefChangeListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
-        @Override
-        public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String s) {
-            // Set seekbar summary :
-            int value = PreferenceManager.getDefaultSharedPreferences(context).getInt("y_offset", MyImageView.DEFAULT_Y_OFFSET);
-            seekBarPrefYoffset.setSummary(context.getString(R.string.settings_summary).replace("$1", "" + value));
-
-            Intent i = new Intent("pref_broadcast");
-            i.putExtra("action", "updateYoffset");
-            getContext().sendBroadcast(i);
-        }
-    };
 
 
     Preference.OnPreferenceChangeListener changeListener = new Preference.OnPreferenceChangeListener() {
@@ -153,7 +148,11 @@ public class MyPreferenceFragment extends PreferenceFragment {
             Intent i;
 
             switch (preference.getKey()) {
-
+                case "y_offset":
+                    i = new Intent("pref_broadcast");
+                    i.putExtra("action", "updateYoffset");
+                    getContext().sendBroadcast(i);
+                    break;
                 case "switch_time":
                 case "switch_name":
                     i = new Intent("pref_broadcast");
@@ -194,9 +193,14 @@ public class MyPreferenceFragment extends PreferenceFragment {
                         index >= 0
                                 ? listPreference.getEntries()[index]
                                 : null);
+
             } else if (preference instanceof EditTextPreference) {
                 EditTextPreference etp = (EditTextPreference) preference;
                 etp.setSummary(stringValue);
+
+            } else if (preference instanceof SeekBarPreference) {
+                SeekBarPreference sbp = (SeekBarPreference) preference;
+                sbp.setSummary(context.getString(R.string.settings_summary).replace("$1", "" + stringValue));
             }
 
             // return True to update the state of the Preference with the new value.
@@ -236,26 +240,24 @@ public class MyPreferenceFragment extends PreferenceFragment {
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://skmobiledev.wordpress.com/lovebubble/user-manual/")));
                     break;
                 case "contact":
-                    /*
-                    Intent emailIntent = new Intent(Intent.ACTION_SEND);
-                    // emailIntent.setType("plain/text");
-                    // emailIntent.setType("message/rfc822");
-                    emailIntent.setType("vnd.android.cursor.item/email");
-                    emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{"action.jackson187@gmail.com"});
-                    emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, context.getPackageName());
-                    // emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, "My email content");
-                    startActivity(Intent.createChooser(emailIntent, getString(R.string.send_mail)));
-                    */
-
+                    String info = " (" +
+                            // android.os.Build.DEVICE + " " + // Device
+                            android.os.Build.MODEL + " " +  // Model
+                            // android.os.Build.PRODUCT + " " +// Product
+                            "Api:" + Build.VERSION.SDK_INT + ")";    // API Level
                     Intent emailIntent = new Intent(Intent.ACTION_VIEW);
-                    Uri data = Uri.parse("mailto:action.jackson187@gmail.com?subject=" + context.getPackageName()); // + "&body=");
+                    Uri data = Uri.parse("mailto:action.jackson187@gmail.com?subject=" + context.getPackageName() + info); // + "&body=");
                     emailIntent.setData(data);
                     startActivity(emailIntent);
 
                     break;
                 case "rate":
                     String uri = "market://details?id=" + context.getPackageName();
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uri)));
+                    try {
+                        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(uri)));
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(context, getString(R.string.playStoreNotFound), Toast.LENGTH_SHORT).show();
+                    }
                     break;
 
                 //help
@@ -355,7 +357,6 @@ public class MyPreferenceFragment extends PreferenceFragment {
     }
 
     private void showDevDialog() {
-        int year = new DateTime().getYear();
         String versionName = "";
         int versionCode = 0;
 
@@ -370,7 +371,7 @@ public class MyPreferenceFragment extends PreferenceFragment {
 
         aboutDialog.setTitle(R.string.about);
         aboutDialog.setMessage(getString(R.string.app_name) + " " + versionName + " (" + versionCode + ")" +
-                "\n\n\u00A9 SK Mobile Development 2011-" + year + "\nAll Rights Reserved.");
+                "\n\n\u00A9 SK Mobile Development 2011-" + new DateTime().getYear() + "\nAll Rights Reserved.");
 
         aboutDialog.setPositiveButton("Ok",
                 new DialogInterface.OnClickListener() {

@@ -12,7 +12,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.preference.PreferenceManager;
-import android.support.annotation.IntDef;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
@@ -31,6 +30,7 @@ import org.joda.time.Weeks;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Formatter;
 import java.util.Locale;
 
 public class FloatingFaceBubbleService extends Service {
@@ -38,7 +38,6 @@ public class FloatingFaceBubbleService extends Service {
     private String TAG = "FaceBubbleService";
     private String name = "";
     private String bubbleText = "";
-    // private String format = "";
 
     private int timeformat = 0;
 
@@ -60,6 +59,11 @@ public class FloatingFaceBubbleService extends Service {
 
     int month = 0, days = 0, hours = 0, min = 0, sec = 0, birthDay = 0/*13*/, birthMinOfDay = 0/*1142*/;
     private SharedPreferences preferences;
+
+    String tf0, tf1, tf1_p, tf2, tf2_p, tf3, tf4, tf5,
+            tf3_ps, tf3_sp, tf3_pp,
+            tf4_ps, tf4_sp, tf4_pp;
+
 
 /*    private Runnable mUpdateTimeTask = new Runnable() {
         public void run() {
@@ -95,6 +99,9 @@ public class FloatingFaceBubbleService extends Service {
         switch_name = preferences.getBoolean("switch_name", true);
         int posX = preferences.getInt("posX", 0);
         int posY = preferences.getInt("posY", 100);
+
+        // Load Formatter Resources
+        loadFormatterStrings();
 
 
         // Floating Bubble
@@ -163,13 +170,20 @@ public class FloatingFaceBubbleService extends Service {
             public void run() {
 
                 Log.d(TAG, "run: Post DELAYED  :" + new DateTime());
+                /*
+                0 Detailed</item>
+                1 Week</item>
+                2 Month</item>
+                3 Month and Week</item>
+                4 Year and Month</item>
+                5 Detailed (with year)</item>
+                */
 
                 if (switch_time) { /*Name and Time || Time only*/
 
                     delay = 1000;
 
                     currDt = new DateTime();
-
 
                     Interval interval = new Interval(birthDt, currDt);
                     Period period = interval.toPeriod();
@@ -193,7 +207,7 @@ public class FloatingFaceBubbleService extends Service {
                         if (days == 0) {
                             days = currDt.minusMonths(1).dayOfMonth().withMaximumValue().getDayOfMonth();
                         }
-                        // we add the days of  last month
+                        // we add the days of last month
                         else if (days < 0) {
                             days += currDt.minusMonths(1).dayOfMonth().withMaximumValue().getDayOfMonth() - 1;
                         }
@@ -206,7 +220,6 @@ public class FloatingFaceBubbleService extends Service {
                             days += currDt.minusMonths(1).dayOfMonth().withMaximumValue().getDayOfMonth();
                         }
                     }
-
 
                     month = diffMonth.negated().getMonths();
 
@@ -225,29 +238,46 @@ public class FloatingFaceBubbleService extends Service {
                     }
 
                     if (timeformat == 0) {
-                        bubbleText += "\n" + month + "m " +
-                                days + "d " +
-                                hours + "h \n" +
-                                min + "m " +
-                                sec + "s";
+                        bubbleText += String.format(tf0, month, days, hours, min, sec);
 
-                    } else if(timeformat == 1) {
+                    } else if (timeformat == 1) {
                         delay = 60000;
                         Weeks diffWeeks = Weeks.weeksBetween(currDt, birthDt);
                         int weeks = diffWeeks.negated().getWeeks();
-                        //period.getWeeks();
-                        bubbleText += "\n" + weeks + " Weeks";
+                        bubbleText += String.format(weeks == 1 ? tf1 : tf1_p, weeks);
 
-                    } else if(timeformat == 2) {
+                    } else if (timeformat == 2) {
                         delay = 60000;
-                        bubbleText += "\n" + month + " Months";
+                        bubbleText += String.format(month == 1 ? tf2 : tf2_p, month);
 
-                    }else if(timeformat == 3) {
+                    } else if (timeformat == 3) {
                         delay = 60000;
-                        bubbleText += "\n" + month/12 + " Years" + "\n"
-                                            + month%12 + " Months";
+                        int weeks = period.minusMonths(month).getWeeks();
+                        if (month != 1 && weeks != 1)
+                            bubbleText += String.format(tf3_pp, month, weeks);
+                        else if (month != 1)
+                            bubbleText += String.format(tf3_ps, month, weeks);
+                        else if (weeks != 1)
+                            bubbleText += String.format(tf3_sp, month, weeks);
+                        else
+                            bubbleText += String.format(tf3, month, weeks);
+
+                    } else if (timeformat == 4) {
+                        delay = 60000;
+                        int year = month / 12;
+                        if (year != 1 && month != 1)
+                            bubbleText += String.format(tf4_pp, year, month);
+                        else if (year != 1)
+                            bubbleText += String.format(tf4_ps, year, month);
+                        else if (month != 1)
+                            bubbleText += String.format(tf4_sp, year, month);
+                        else
+                            bubbleText += String.format(tf4, year, month);
+
+                    } else if (timeformat == 5) {
+                        bubbleText += String.format(tf5, month / 12, month, days, hours, min, sec);
+
                     }
-
                     floatingFaceBubble.setText(bubbleText);
                     floatingFaceBubble.invalidate();
 
@@ -452,24 +482,36 @@ public class FloatingFaceBubbleService extends Service {
                 } else if (extras.getInt("scale", -1) != -1) {
                     floatingFaceBubble.setImageScale(extras.getInt("scale"));
                     windowManager.updateViewLayout(floatingFaceBubble, myParams);
-                    //windowManager.updateViewLayout(layout, myParams);
+
                 } else if (extras.getLong("birthdatetime", -1) != -1) {
                     preferences.edit().putLong("birthdatetime", extras.getLong("birthdatetime")).apply();
                     Long mills = extras.getLong("birthdatetime");
                     setBirthDayInfoByMills(mills);
-                    // birthDt = new DateTime(x);
-                    // Log.d(TAG, "XXXXX " + birthDt.toString());
-                    //DateTime activity_privacy_policy = new DateTime(extras.getLong("birthdatetime"));
-                    //Log.d(TAG, "onReceive: "+ activity_privacy_policy.toString());
-                }
-//                else if (extras.getBoolean("service_switch") == false) {
-//                    stopMyService();
-//                }
-                else {
+
+                    h.removeCallbacksAndMessages(null);
+                    postDelayed();
+                } else {
                     Log.i(TAG, "onReceive: found data in bundle but was not handled.");
                 }
             }
         }
+    }
+
+    private void loadFormatterStrings() {
+        tf0 = getString(R.string.tf0);
+        tf1 = getString(R.string.tf1);
+        tf1_p = getString(R.string.tf1_p);
+        tf2 = getString(R.string.tf2);
+        tf2_p = getString(R.string.tf2_p);
+        tf3 = getString(R.string.tf3);
+        tf3_sp = getString(R.string.tf3_sp);
+        tf3_ps = getString(R.string.tf3_ps);
+        tf3_pp = getString(R.string.tf3_pp);
+        tf4 = getString(R.string.tf4);
+        tf4_sp = getString(R.string.tf4_sp);
+        tf4_ps = getString(R.string.tf4_ps);
+        tf4_pp = getString(R.string.tf4_pp);
+        tf5 = getString(R.string.tf5);
     }
 
     /*
