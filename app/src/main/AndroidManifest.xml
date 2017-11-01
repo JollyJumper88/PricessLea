@@ -3,11 +3,12 @@
           package="at.android.lovebubble">
 
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
-    <uses-permission android:name="android.permission.INTERNET"/>
+    <!--<uses-permission android:name="android.permission.INTERNET"/>-->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.MANAGE_DOCUMENTS"/>
     <uses-permission android:name="com.android.vending.BILLING"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -20,7 +21,6 @@
             android:theme="@android:style/Theme.Translucent.NoTitleBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
-
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
@@ -37,17 +37,12 @@
         <activity
             android:name="at.android.lovebubble.MyPreferenceActivity"
             android:label="@string/title_activity_settings"
+            android:excludeFromRecents="true"
             android:parentActivityName="at.android.lovebubble.MainActivity">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="at.android.lovebubble.MainActivity"/>
         </activity>
-
-        <!--
-        <activity
-            android:name=".etc.PrivacyPolicy"
-            android:label="@string/title_activity_privacy_policy"></activity>
-        -->
 
         <activity
             android:name="at.android.lovebubble.Donate"
@@ -57,6 +52,14 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="at.android.lovebubble.MyPreferenceActivity"/>
         </activity>
+
+        <receiver
+            android:name="at.android.lovebubble.etc.StartMyServiceAtBootReceiver"
+            android:label="StartMyServiceAtBootReceiver">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
     </application>
 
 </manifest>
