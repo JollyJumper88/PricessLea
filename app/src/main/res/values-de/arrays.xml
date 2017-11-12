@@ -18,22 +18,30 @@
         <item>18</item>
     </string-array>
 
-
+    <string-array name="pref_timeformat" >
+        <item>Detailed</item>
+        <item>Week</item>
+        <item>Month</item>
+        <item>Year and Month</item>
+        <item>Detailed (with year)</item>
+    </string-array>
     <string-array name="pref_timeformat_values">
         <item>0</item>
         <item>1</item>
         <item>2</item>
         <item>3</item>
         <item>4</item>
-        <item>5</item>
     </string-array>
-    <string-array name="pref_timeformat" >
-        <item>Detailed</item>
-        <item>Week</item>
-        <item>Month</item>
-        <item>Month and Week</item>
-        <item>Year and Month</item>
-        <item>Detailed (with year)</item>
+
+    <string-array name="orientation_titles" >
+        <item>Portrait and Landscape</item>
+        <item>Portrait</item>
+        <item>Landscape</item>
+    </string-array>
+    <string-array name="orientation_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
     </string-array>
 
 
@@ -53,10 +61,12 @@
         <item>crown</item>
         <item>princess</item>
         <item>circle</item>
+        <item>flame</item>
+        <item>cloverleaf</item>
         <item>cat</item>
         <item>cat2</item>
         <item>diamond</item>
-        <item>plant</item>
+        <item>leaf</item>
         <item>tortoise</item>
         <item>dinosaur</item>
         <item>horse</item>
@@ -78,10 +88,12 @@
         <item>Crown</item>
         <item>Princess</item>
         <item>Circle</item>
+        <item>Flame</item>
+        <item>Cloverleaf</item>
         <item>Cat</item>
         <item>Cat 2</item>
         <item>Diamond</item>
-        <item>Plant</item>
+        <item>Leaf</item>
         <item>Tortoise</item>
         <item>Dinosaur</item>
         <item>Horse</item>

@@ -1,14 +1,16 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
 
 
-    <PreferenceCategory android:title="General">
+    <PreferenceCategory
+        android:layout="@layout/preference_category"
+        android:title="@string/cat_general">
         <Preference
             android:key="guide"
             android:summary="@string/unmonitoredapp"
             android:title="Guides for Samsung Devices"/>
         <Preference
             android:key="donate"
-            android:summary="Support this free project and help a singe developer"
+            android:summary="Support this free project and help a single developer"
             android:title="@string/Donate"/>
         <Preference
             android:key="exit"
@@ -17,23 +19,27 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Name">
+    <PreferenceCategory
+        android:layout="@layout/preference_category"
+        android:title="@string/cat_name">
         <SwitchPreference
             android:defaultValue="true"
             android:enabled="true"
             android:key="switch_name"
-            android:summary="Show the name on the Bubble"
+            android:summary="@string/show_name_on_bubble"
             android:title="Name"/>
 
         <EditTextPreference
             android:capitalize="words"
-            android:defaultValue="@string/pref_default_display_name"
+            android:defaultValue="@string/putnamehere"
             android:dependency="switch_name"
+            android:dialogMessage="@string/name_dialog_message"
             android:inputType="textCapWords"
             android:key="name"
             android:maxLines="1"
             android:selectAllOnFocus="true"
             android:singleLine="true"
+            android:summary="@string/putnamehere"
             android:title="@string/pref_title_display_name"/>
 
         <at.android.lovebubble.etc.SeekBarPreference
@@ -47,7 +53,9 @@
 
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Date and Time">
+    <PreferenceCategory
+        android:layout="@layout/preference_category"
+        android:title="Date and Time">
         <SwitchPreference
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -55,14 +63,15 @@
             android:enabled="true"
             android:key="switch_time"
             android:summary="@string/showtimeonbubblesummery_switch"
-            android:title="Time"/>
+            android:title="Time Interval"/>
 
         <Preference
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:dependency="switch_time"
             android:key="birthdatetime"
-            android:title="@string/pref_title_birth"/>
+            android:summary="@string/date_summary"
+            android:title="@string/date"/>
 
         <ListPreference
             android:defaultValue="0"
@@ -75,13 +84,16 @@
             android:title="@string/pref_time_format_title"/>
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="Picture and Shape">
+    <PreferenceCategory
+        android:layout="@layout/preference_category"
+        android:title="Picture and Shape">
         <Preference
             android:id="@+id/preference"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:key="choosepic"
-            android:title="@string/choosepic"/>
+            android:summary="@string/choosepic"
+            android:title="@string/pic"/>
 
         <ListPreference
             android:defaultValue="10"
@@ -102,7 +114,9 @@
             android:title="@string/pref_mask_title"/>
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/advanced">
+    <PreferenceCategory
+        android:layout="@layout/preference_category"
+        android:title="@string/advanced">
         <SwitchPreference
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -111,9 +125,21 @@
             android:key="start_at_boot"
             android:summary="@string/boot_summary"
             android:title="@string/boot_title"/>
+
+        <ListPreference
+            android:defaultValue="0"
+            android:entries="@array/orientation_titles"
+            android:entryValues="@array/orientation_values"
+            android:key="orientation"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/orientation_title"/>
+
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/support">
+    <PreferenceCategory
+        android:layout="@layout/preference_category"
+        android:title="@string/support">
         <Preference
             android:key="help"
             android:title="@string/help"/>
@@ -125,7 +151,9 @@
             android:title="@string/rate_app"/>
     </PreferenceCategory>
 
-    <PreferenceCategory android:title="@string/more">
+    <PreferenceCategory
+        android:layout="@layout/preference_category"
+        android:title="@string/more">
         <Preference
             android:key="about"
             android:title="@string/about"/>

@@ -2,4 +2,10 @@
 <resources>
     <color name="transparentBlack">#64000000</color>
     <color name="white">#ffffff</color>
+    <color name="category1">#7B68EE</color>
+    <color name="category2">#4169E1</color>
+    <color name="category3">#4682B4</color> <!--good blue-->
+    <color name="category4">#009688</color> ´<!--stock green dark -->
+    <color name="category">#b9e0dc</color> ´<!--stock green light -->
+
 </resources>
