@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -305,19 +306,27 @@ public class Donate extends Activity implements
 
     // updates UI to reflect model
     public void updateUi() {
+
         Button S = (Button) findViewById(R.id.small);
         Button M = (Button) findViewById(R.id.medium);
         Button L = (Button) findViewById(R.id.large);
 
         S.setText("SMALL: " + boughtS);
-        M.setText("MEDIUM p: " + boughtM);
-        L.setText("LARGE c: " + boughtL);
+        M.setText("MEDIUM " + boughtM);
+        L.setText("LARGE " + boughtL);
 
 //        // update the car color to reflect premium status or lack thereof
 //        ((ImageView)findViewById(R.id.free_or_premium)).setImageResource(boughtS2 ? R.drawable.premium : R.drawable.free);
 //
 //        // "Upgrade" button is only visible if the user is not premium
 //        findViewById(R.id.upgrade_button).setVisibility(boughtS2 ? View.GONE : View.VISIBLE);
+
+
+        // non UI operation but a good place to write preference (called after querying and purchase finshed
+        if (boughtL||boughtM||boughtS) {
+            PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("donationDone", true).apply();
+        }
+
     }
 
 

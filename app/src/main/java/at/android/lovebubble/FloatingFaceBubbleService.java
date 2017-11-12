@@ -162,6 +162,18 @@ public class FloatingFaceBubbleService extends Service {
 
         addTouchListener();
 
+/*
+        DonationRequestDialog.showDonationRequestDialog(getBaseContext(), preferences);
+        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
+            @Override
+            public void run() {
+//                if (!preferences.getBoolean("donationDone", false)) {// not yet donated
+                    DonationRequestDialog.showDonationRequestDialog(getBaseContext(), preferences);
+                    //showDonationRequestDialog();
+//                }
+            }
+        }, 5000);
+*/
     }
 
     private void postDelayed() {

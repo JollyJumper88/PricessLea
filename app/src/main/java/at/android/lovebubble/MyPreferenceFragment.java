@@ -26,12 +26,12 @@ import android.widget.Toast;
 import com.theartofdev.edmodo.cropper.CropImage;
 
 import org.joda.time.DateTime;
-import org.joda.time.Interval;
-import org.joda.time.Period;
 
 import java.util.Calendar;
 import java.util.Date;
 
+import at.android.lovebubble.etc.DonationDialogFragment;
+import at.android.lovebubble.etc.DonationRequestDialog;
 import at.android.lovebubble.etc.SeekBarPreference;
 
 
@@ -116,6 +116,14 @@ public class MyPreferenceFragment extends PreferenceFragment {
                         ? listPreference.getEntries()[index]
                         : null);
 
+        // summary orientation
+        listPreference = (ListPreference) findPreference("orientation");
+        index = listPreference.findIndexOfValue(listPreference.getValue());
+        listPreference.setSummary(
+                index >= 0
+                        ? listPreference.getEntries()[index]
+                        : null);
+
         // summery birthday
         long mills = preferences.getLong("birthdatetime", -1);
         if (mills != -1) {
@@ -133,9 +141,16 @@ public class MyPreferenceFragment extends PreferenceFragment {
         findPreference("y_offset").setSummary(this.getString(R.string.settings_summary).replace("$1", "" + yoffset));
 
 
-        if (!preferences.getBoolean("donationDone", false)) {// not yet donated
-            showDonationRequestDialog();
+        if (DonationDialogFragment.donationDialogRequired(context)) {
+            if (getFragmentManager().findFragmentByTag("dialog") == null)
+                new DonationDialogFragment().show(getFragmentManager(), "dialog");
         }
+
+//        if (!preferences.getBoolean("donationDone", false)) {// not yet donated
+//            new DonationDialogFragment().show(getFragmentManager(), "tag"); // Optional tag name for the fragment, to later retrieve the fragment with FragmentManager.findFragmentByTag(String).
+////            DonationRequestDialog.showDonationRequestDialog(context, preferences);
+////            showDonationRequestDialog();
+//        }
 
     }
 
@@ -383,6 +398,9 @@ public class MyPreferenceFragment extends PreferenceFragment {
         aboutDialog.create().show();
     }
 
+
+
+/*
     private void showDonationRequestDialog() {
         // Todo: donation done not show dialog again
         long lastDonReq = preferences.getLong("lastDonReq", -1);
@@ -396,14 +414,8 @@ public class MyPreferenceFragment extends PreferenceFragment {
 
             AlertDialog.Builder bld = new AlertDialog.Builder(context);
             bld.setMessage(R.string.donationDialogMessage);
-            bld.setPositiveButton(R.string.Donate, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    startActivity(new Intent(context, Donate.class));
-                    dialog.dismiss();
-                }
-            });
 
+            // Left
             if (!preferences.getBoolean("ratedOnPlayStore", false)) // not rated yet
                 bld.setNeutralButton(R.string.rate, new DialogInterface.OnClickListener() {
                     @Override
@@ -419,14 +431,27 @@ public class MyPreferenceFragment extends PreferenceFragment {
                         dialog.dismiss();
                     }
                 });
-            bld.setNegativeButton(R.string.NoThanks, new DialogInterface.OnClickListener() {
+
+            // Middle
+            bld.setNegativeButton(R.string.Donate, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    startActivity(new Intent(context, Donate.class));
+                    dialog.dismiss();
+                }
+            });
+
+            // Right
+            bld.setPositiveButton(R.string.NoThanks, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int i) {
                     dialog.dismiss();
                 }
             });
+
             bld.create().show();
         }
 
     }
+    */
 }
