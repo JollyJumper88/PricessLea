@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Handler;
@@ -30,7 +31,6 @@ import org.joda.time.Weeks;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Formatter;
 import java.util.Locale;
 
 public class FloatingFaceBubbleService extends Service {
@@ -42,6 +42,7 @@ public class FloatingFaceBubbleService extends Service {
     private int timeformat = 0;
 
     private boolean switch_time, switch_name;
+    private boolean bubbleVisible = true;
 
     private WindowManager windowManager;
     private WindowManager.LayoutParams myParams;
@@ -115,31 +116,13 @@ public class FloatingFaceBubbleService extends Service {
         myParams.x = posX;
         myParams.y = posY;
 
+
         floatingFaceBubble = new MyImageView(this, myParams);
-
-
-        /* // TextView
-        textView = new TextView(this);
-        LayoutParams textViewLayout = new WindowManager.LayoutParams(
-                LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT, LayoutParams.FLAG_NOT_FOCUSABLE);
-        textView.setLayoutParams(textViewLayout);
-        textView.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
-        textView.setTextSize(30);
-        textView.setTextColor(Color.WHITE);
-        Paint p = new Paint();
-        p.setStyle(Paint.Style.FILL);
-        textView.setLayerPaint(p);
-        textView.setShadowLayer(10f, 1f, 1f, Color.BLACK); */
-        // RelativeLayout
-        // layout = new RelativeLayout(this);
-        // layout.addView(floatingFaceBubble);
-        //layout.addView(textView);
-
 
         // WindowManager
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        // windowManager.addView(layout, myParams);
         windowManager.addView(floatingFaceBubble, myParams);
+        bubbleVisible = true;
 
 
         Date birth;
@@ -260,34 +243,35 @@ public class FloatingFaceBubbleService extends Service {
 
                     } else if (timeformat == 2) {
                         delay = 60000;
-                        bubbleText += String.format(month == 1 ? tf2 : tf2_p, month);
+
+                        int weeks = period.minusMonths(month).getWeeks();
+
+                        String monthStr = month == 0 ? "" : String.valueOf(month);
+
+                        if (weeks == 1)
+                            monthStr += "\u00BC";
+                        else if (weeks == 2)
+                            monthStr += "\u00BD";
+                        else if (weeks >= 3)
+                            monthStr += "\u00BE";
+
+
+                        bubbleText += String.format(month == 1 && weeks == 0 ? tf2 : tf2_p, monthStr);
 
                     } else if (timeformat == 3) {
                         delay = 60000;
-                        int weeks = period.minusMonths(month).getWeeks();
-                        if (month != 1 && weeks != 1)
-                            bubbleText += String.format(tf3_pp, month, weeks);
-                        else if (month != 1)
-                            bubbleText += String.format(tf3_ps, month, weeks);
-                        else if (weeks != 1)
-                            bubbleText += String.format(tf3_sp, month, weeks);
-                        else
-                            bubbleText += String.format(tf3, month, weeks);
-
-                    } else if (timeformat == 4) {
-                        delay = 60000;
                         int year = month / 12;
                         if (year != 1 && month != 1)
-                            bubbleText += String.format(tf4_pp, year, month);
+                            bubbleText += String.format(tf3_pp, year, month);
                         else if (year != 1)
-                            bubbleText += String.format(tf4_ps, year, month);
+                            bubbleText += String.format(tf3_ps, year, month);
                         else if (month != 1)
-                            bubbleText += String.format(tf4_sp, year, month);
+                            bubbleText += String.format(tf3_sp, year, month);
                         else
-                            bubbleText += String.format(tf4, year, month);
+                            bubbleText += String.format(tf3, year, month);
 
-                    } else if (timeformat == 5) {
-                        bubbleText += String.format(tf5, month / 12, month, days, hours, min, sec);
+                    } else if (timeformat == 4) {
+                        bubbleText += String.format(tf4, month / 12, month, days, hours, min, sec);
 
                     }
                     floatingFaceBubble.setText(bubbleText);
