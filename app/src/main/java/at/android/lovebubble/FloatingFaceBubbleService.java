@@ -387,8 +387,10 @@ public class FloatingFaceBubbleService extends Service {
         preferences.edit().putInt("posY", myParams.y).apply();
 
         // remove view and stop the service
-        windowManager.removeView(floatingFaceBubble);
-        // windowManager.removeView(layout);
+        if (bubbleVisible) {
+            windowManager.removeView(floatingFaceBubble);
+            bubbleVisible = false;
+        }
 
         //Todo: check this part here if we can remove the stopservice member
         h.removeCallbacksAndMessages(null);
@@ -483,7 +485,9 @@ public class FloatingFaceBubbleService extends Service {
 
                 } else if (extras.getString("mask") != null) {
                     floatingFaceBubble.setMaskByName(extras.getString("mask"));
-                    windowManager.updateViewLayout(floatingFaceBubble, myParams);
+                    if (bubbleVisible) {
+                        windowManager.updateViewLayout(floatingFaceBubble, myParams);
+                    }
 
                 } else if (extras.getString("name") != null) {
                     name = extras.getString("name");
@@ -493,7 +497,9 @@ public class FloatingFaceBubbleService extends Service {
 
                 } else if (extras.getInt("scale", -1) != -1) {
                     floatingFaceBubble.setImageScale(extras.getInt("scale"));
-                    windowManager.updateViewLayout(floatingFaceBubble, myParams);
+                    if (bubbleVisible) {
+                        windowManager.updateViewLayout(floatingFaceBubble, myParams);
+                    }
 
                 } else if (extras.getLong("birthdatetime", -1) != -1) {
                     preferences.edit().putLong("birthdatetime", extras.getLong("birthdatetime")).apply();
@@ -520,26 +526,46 @@ public class FloatingFaceBubbleService extends Service {
         tf3_ps = getString(R.string.tf3_ps);
         tf3_pp = getString(R.string.tf3_pp);
         tf4 = getString(R.string.tf4);
-        tf4_sp = getString(R.string.tf4_sp);
-        tf4_ps = getString(R.string.tf4_ps);
-        tf4_pp = getString(R.string.tf4_pp);
-        tf5 = getString(R.string.tf5);
     }
 
-    /*
-    private void loadPreferences() {
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        String pref_orientation = preferences.getString("orientation", "0");
 
-        // for building the text on the bubble
-        //name = preferences.getString("name", "Put name here");
-        //textformat = (byte) Integer.parseInt(preferences.getString("textformat", "0"));
-
-
-        //imgUri = preferences.getString("imguri", null);
-        // timeformat = (byte) Integer.parseInt(preferences.getString("timeformat", "0"));
-        // Log.i(TAG, "loadOrUpdatePreferences: "  + timeformat + " " + textformat);
-
+        switch (pref_orientation) {
+            case "0": // Portrait + Landscape
+                showBubble(true);
+                break;
+            case "1": // Portrait
+                showBubble(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT);
+                break;
+            case "2": // Landscape
+                showBubble(newConfig.orientation != Configuration.ORIENTATION_PORTRAIT);
+                break;
+            default:
+                Log.d(TAG, "onConfigurationChanged: wrong orientation received");
+        }
     }
-    */
+
+
+    private void showBubble(boolean state) {
+        if (windowManager != null && myParams != null && floatingFaceBubble != null) {
+            if (state) { // Add View
+                if (!bubbleVisible) {
+                    windowManager.addView(floatingFaceBubble, myParams);
+                    bubbleVisible = true;
+                }
+            } else { // Remove View
+                if (bubbleVisible) {
+                    windowManager.removeView(floatingFaceBubble);
+                    bubbleVisible = false;
+                }
+            }
+        } else {
+            Log.d(TAG, "showBubble: windowManager or myParams or floatingFaceBubble => null");
+        }
+    }
 
 }
 
