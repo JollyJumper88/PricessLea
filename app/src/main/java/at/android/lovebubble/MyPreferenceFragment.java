@@ -31,7 +31,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import at.android.lovebubble.etc.DonationDialogFragment;
-import at.android.lovebubble.etc.DonationRequestDialog;
 import at.android.lovebubble.etc.SeekBarPreference;
 
 
@@ -39,6 +38,8 @@ public class MyPreferenceFragment extends PreferenceFragment {
     private static final int RESULT_PICK_IMAGE = 99;
 
     private SharedPreferences preferences;
+
+    DonationDialogFragment df = null;
 
     String TAG = "MyPreferenceFragment";
     Context context;
@@ -53,14 +54,15 @@ public class MyPreferenceFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.pref_general);
 
         //general
-        findPreference("guide").setOnPreferenceChangeListener(changeListener);
-        findPreference("donate").setOnPreferenceClickListener(clickListener);
         findPreference("exit").setOnPreferenceClickListener(clickListener);
+        findPreference("donate").setOnPreferenceClickListener(clickListener);
+        findPreference("guide").setOnPreferenceClickListener(clickListener);
 
         //name
         findPreference("switch_name").setOnPreferenceChangeListener(changeListener);
         findPreference("name").setOnPreferenceChangeListener(changeListener);
         findPreference("y_offset").setOnPreferenceChangeListener(changeListener);
+        findPreference("font_size_list").setOnPreferenceChangeListener(changeListener);
 
         //Date Time
         findPreference("switch_time").setOnPreferenceChangeListener(changeListener);
@@ -95,6 +97,14 @@ public class MyPreferenceFragment extends PreferenceFragment {
         // summary Size of Bubble
         ListPreference listPreference = (ListPreference) findPreference("size_list");
         int index = listPreference.findIndexOfValue(listPreference.getValue());
+        listPreference.setSummary(
+                index >= 0
+                        ? listPreference.getEntries()[index]
+                        : null);
+
+        // summary Font Size
+        listPreference = (ListPreference) findPreference("font_size_list");
+        index = listPreference.findIndexOfValue(listPreference.getValue());
         listPreference.setSummary(
                 index >= 0
                         ? listPreference.getEntries()[index]
@@ -142,15 +152,13 @@ public class MyPreferenceFragment extends PreferenceFragment {
 
 
         if (DonationDialogFragment.donationDialogRequired(context)) {
-            if (getFragmentManager().findFragmentByTag("dialog") == null)
+            // only create new dialog when fragment is null or hidden
+            DonationDialogFragment df = (DonationDialogFragment) getFragmentManager().findFragmentByTag("dialog");
+            if (df == null)
                 new DonationDialogFragment().show(getFragmentManager(), "dialog");
+            else if (df.isHidden())
+                df.show(getFragmentManager(), "dialog");
         }
-
-//        if (!preferences.getBoolean("donationDone", false)) {// not yet donated
-//            new DonationDialogFragment().show(getFragmentManager(), "tag"); // Optional tag name for the fragment, to later retrieve the fragment with FragmentManager.findFragmentByTag(String).
-////            DonationRequestDialog.showDonationRequestDialog(context, preferences);
-////            showDonationRequestDialog();
-//        }
 
     }
 
@@ -166,6 +174,11 @@ public class MyPreferenceFragment extends PreferenceFragment {
                 case "y_offset":
                     i = new Intent("pref_broadcast");
                     i.putExtra("action", "updateYoffset");
+                    getContext().sendBroadcast(i);
+                    break;
+                case "font_size_list":
+                    i = new Intent("pref_broadcast");
+                    i.putExtra("action", "updateFontSize");
                     getContext().sendBroadcast(i);
                     break;
                 case "switch_time":
@@ -235,9 +248,18 @@ public class MyPreferenceFragment extends PreferenceFragment {
                     i = new Intent("pref_broadcast");
                     i.putExtra("action", "exit");
                     getContext().sendBroadcast(i);
-
                     getActivity().finish();
                     break;
+
+                case "guide":
+                    try {
+                        Toast.makeText(context, R.string.unmonitoredappToast, Toast.LENGTH_LONG).show();
+                        startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
+                    } catch (ActivityNotFoundException e) {
+                        Toast.makeText(context, R.string.setting_not_found, Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+
                 case "choosepic":
                     Intent intent = new Intent(Intent.ACTION_PICK, android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
                     intent.setType("image/*");
@@ -246,26 +268,33 @@ public class MyPreferenceFragment extends PreferenceFragment {
                     startActivityForResult(Intent.createChooser(intent,
                             getString(R.string.selectpicture)), RESULT_PICK_IMAGE);
                     break;
+
                 case "birthdatetime":
                     showDateTimePicker();
                     break;
 
                 //support
                 case "help":
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://skmobiledev.wordpress.com/lovebubble/user-manual/")));
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://skmobiledev.wordpress.com/lovebubble/language-selector/")));
                     break;
+
                 case "contact":
-                    String info = " (" +
+                    String subject = "LOVE BUBBLE";
+                    if (preferences.getBoolean("donationDone", false))
+                        subject += " - DONATED";
+
+                    subject += " (" +
                             // android.os.Build.DEVICE + " " + // Device
                             android.os.Build.MODEL + " " +  // Model
                             // android.os.Build.PRODUCT + " " +// Product
                             "Api:" + Build.VERSION.SDK_INT + ")";    // API Level
+
                     Intent emailIntent = new Intent(Intent.ACTION_VIEW);
-                    Uri data = Uri.parse("mailto:action.jackson187@gmail.com?subject=" + context.getPackageName() + info); // + "&body=");
+                    Uri data = Uri.parse("mailto:action.jackson187@gmail.com?subject=" + subject); // + "&body=");
                     emailIntent.setData(data);
                     startActivity(emailIntent);
-
                     break;
+
                 case "rate":
                     String uri = "market://details?id=" + context.getPackageName();
                     try {
@@ -395,6 +424,7 @@ public class MyPreferenceFragment extends PreferenceFragment {
                         dialog.dismiss();
                     }
                 });
+
         aboutDialog.create().show();
     }
 
@@ -402,7 +432,6 @@ public class MyPreferenceFragment extends PreferenceFragment {
 
 /*
     private void showDonationRequestDialog() {
-        // Todo: donation done not show dialog again
         long lastDonReq = preferences.getLong("lastDonReq", -1);
         long currentMills = new DateTime().getMillis();
 

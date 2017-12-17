@@ -104,19 +104,21 @@ public class DonationDialogFragment extends DialogFragment {
     public static boolean donationDialogRequired(Context context) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
         if (!preferences.getBoolean("donationDone", false)) {// not yet donated
+
             long lastDonReq = preferences.getLong("lastDonReq", -1);
             long currentMills = new DateTime().getMillis();
-            int minutes = 1;
+            int minutes = 2;
 
             if (lastDonReq == -1) { // never requested
+                preferences.edit().putLong("lastDonReq", new DateTime().getMillis()).apply(); // initial set of dialog
                 return false;
 
             } else if (currentMills - lastDonReq > minutes * 60 * 1000) {// time exceeded
                 return true;
             }
+            // time not exceeded
             return false;
-            //DonationRequestDialog.showDonationRequestDialog(this, preferences);
-            //showDonationRequestDialog();
+
         } else {
             return false;
         }

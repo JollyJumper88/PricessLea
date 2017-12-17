@@ -7,9 +7,11 @@
         <item>Small</item>
         <item>Medium</item>
         <item>Large</item>
-        <item>X-Large</item>
+        <item>XL</item>
+        <item>XXL</item>
     </string-array>
     <string-array name="pref_size_values">
+        <item>6</item>
         <item>8</item>
         <item>10</item>
         <item>12</item>
@@ -18,10 +20,25 @@
         <item>18</item>
     </string-array>
 
+     <string-array name="pref_font_size_titles">
+        <item>X-Small</item>
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+        <item>X-Large</item>
+    </string-array>
+    <string-array name="pref_font_size_values">
+        <item>39</item>
+        <item>42</item>
+        <item>45</item>
+        <item>48</item>
+        <item>51</item>
+    </string-array>
+
     <string-array name="pref_timeformat" >
         <item>Detailed</item>
-        <item>Week</item>
-        <item>Month</item>
+        <item>Weeks</item>
+        <item>Months</item>
         <item>Year and Month</item>
         <item>Detailed (with year)</item>
     </string-array>
@@ -81,7 +98,7 @@
         <item>Flower 2</item>
         <item>Flower 3</item>
         <item>Butterfly</item>
-        <item>Butterfly2</item>
+        <item>Butterfly 2</item>
         <item>Bee</item>
         <item>Devil</item>
         <item>Devil 2</item>

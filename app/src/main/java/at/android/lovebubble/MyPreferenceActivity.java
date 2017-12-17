@@ -26,8 +26,6 @@ public class MyPreferenceActivity extends PreferenceActivity implements Donation
 
     private static String TAG = "pref_";
 
-    MyPreferenceFragment mpf;
-
     @Override
     protected void onCreate(final Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

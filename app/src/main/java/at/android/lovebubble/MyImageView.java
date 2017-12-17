@@ -11,9 +11,11 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -29,8 +31,13 @@ public class MyImageView extends ImageView {
     private String imgUri;
     private String maskName;
     private int imageScale;
-    private int y_offset;
-    public static final int DEFAULT_Y_OFFSET = 0;
+    private int y_offset; // vertical text position in Percent
+    private int y_init;
+    private float fontsize;
+    private Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private Rect bounds = new Rect();
+
+    public static final int DEFAULT_Y_OFFSET = 60;
 
     private Bitmap mask = null;
     private Bitmap image = null;
@@ -38,6 +45,7 @@ public class MyImageView extends ImageView {
     private WindowManager.LayoutParams mLayoutParams;
     private final String TAG = "MyImG";
     private Context context;
+
 
     public MyImageView(Context context, WindowManager.LayoutParams mLayoutParams) {
         super(context);
@@ -56,24 +64,7 @@ public class MyImageView extends ImageView {
         else
             setImageFromBitmap(null);
 
-
     }
-    /*
-    private void createDrawablesHashtable() {
-        Field[] drawables = R.drawable.class.getFields();
-        drawablesHashtable = new Hashtable<Integer, String>();
-        int index = 0;
-        for (Field f : drawables) {
-            //if the drawable name contains "pic" in the filename...
-            if (f.getName().startsWith("mask_")) {
-                drawablesHashtable.put(index, f.getName());
-                index++;
-            }
-        }
-        maskCount = index;
-        Log.d(TAG, "createDrawablesHashtable: Masks found = " + maskCount);
-    }
-    */
 
     private void loadPreferences() {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
@@ -82,19 +73,9 @@ public class MyImageView extends ImageView {
         imgUri = preferences.getString("imguri", null);
         maskName = preferences.getString("mask_list", "star");
         y_offset = preferences.getInt("y_offset", DEFAULT_Y_OFFSET);
+        fontsize = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getString("font_size_list", "45")) / 10f;
 
     }
-    /*
-    public void nextMask() {
-        // increase and save last image type
-        imageType++;
-        imageType %= maskCount;
-        preferences.edit().putInt("imagetype", imageType).apply();
-
-        updateMask();
-        setImageFromBitmap(null);
-    }
-    */
 
     public void setMaskByName(String mask) {
         this.maskName = mask;
@@ -108,18 +89,9 @@ public class MyImageView extends ImageView {
 
         mask = BitmapFactory.decodeResource(getResources(),
                 getResources().getIdentifier(maskName, "drawable", context.getPackageName()));
-        /*
-        switch (imageType %= 4) {
-            case 0: // Heart
-                mask = BitmapFactory.decodeResource(getResources(), R.drawable.heart_mask);
-                break;
-            default:
-                break;
-        }*/
-    }
 
-    public void updateYoffset() {
-        y_offset = PreferenceManager.getDefaultSharedPreferences(context).getInt("y_offset", DEFAULT_Y_OFFSET);
+        // mask = BitmapFactory.decodeResource(getResources(), R.drawable.heart_mask);
+
     }
 
     public void setImageScale(int imageScale) {
@@ -127,6 +99,17 @@ public class MyImageView extends ImageView {
         this.imageScale = imageScale;
 
         resizeMyImage();
+    }
+
+    public void updateYoffset() {
+        y_offset = PreferenceManager.getDefaultSharedPreferences(context).getInt("y_offset", DEFAULT_Y_OFFSET);
+
+    }
+
+    public void updateFontSize() {
+        // default size: 4.5f - stored as int 45
+        fontsize = Integer.valueOf(PreferenceManager.getDefaultSharedPreferences(context).getString("font_size_list", "45")) / 10f;
+
     }
 
 
@@ -201,45 +184,10 @@ public class MyImageView extends ImageView {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
 
-        //Resources resources = getContext().getResources();
-        //float scale = resources.getDisplayMetrics().density;
-
         drawTextOnImage(canvas);
 
-    }
-
-    private void drawTextOnImage(Canvas canvas) {
         //Resources resources = getContext().getResources();
         //float scale = resources.getDisplayMetrics().density;
-        //p.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "fonts/SouthernAire.ttf"));
-
-        int x;
-        int y = 19 * imageScale + y_offset; // 190
-        int y_offsetCorrection;
-
-        Rect bounds = new Rect();
-
-        String[] lines = text.split("\n");
-
-        Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
-
-        for (String line : lines) {
-            if (line.startsWith("name=")) {
-                line = line.replace("name=", "");
-                p.setTextSize(4.5f * imageScale);//68
-                y_offsetCorrection = (int) (1.6f * imageScale);
-            } else {
-                p.setTextSize(3.2f * imageScale);
-                y_offsetCorrection = 0;
-            }
-
-            // centered text
-            p.getTextBounds(line, 0, line.length(), bounds);
-            x = (this.getWidth() - bounds.width()) / 2;
-            drawFatText(line, x, y, p, canvas, 4);
-            y += p.descent() - p.ascent() - y_offsetCorrection;
-
-        }
     }
 
     private void drawFatText(String line, int x, int y, Paint p, Canvas canvas, int stroke) {
@@ -252,8 +200,125 @@ public class MyImageView extends ImageView {
         canvas.drawText(line, x, y, p);
     }
 
+    private void drawTextOnImage(Canvas canvas) {
+
+        int textpos_x;
+        int textpos_y = (int) ((((30 - fontsize) * imageScale * y_offset) / 100) + fontsize * imageScale); // initial y-position of the text (imageheight = 30*imagescale)
+        int y_offsetCorrection; // just needed because of different font sizes and resulting uneven gap
+
+        String[] lines = text.split("\n");
+
+        for (String line : lines) {
+            if (line.startsWith("name=")) {
+                line = line.replace("name=", "");
+                p.setTextSize(fontsize * imageScale); //4.5f * scale
+                y_offsetCorrection = (int) ((fontsize - 2.9f) * imageScale); // 1.6f * scale
+                // p.setTextSize(4.5f * imageScale);//68
+                // y_offsetCorrection = (int) (1.6f * imageScale);
+
+                // p.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "fonts/SouthernAire.ttf"));
+                // p.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "fonts/VarianeScript.ttf"));
+            } else {
+                p.setTextSize((fontsize - 1.3f) * imageScale);
+                // p.setTextSize(3.2f * imageScale);
+                y_offsetCorrection = 0;
+
+                // p.setTypeface(null);
+            }
+
+            // centered text
+            p.getTextBounds(line, 0, line.length(), bounds);
+            textpos_x = (this.getWidth() - bounds.width()) / 2;
+            drawFatText(line, textpos_x, textpos_y, p, canvas, 4);
+            textpos_y += p.descent() - p.ascent() - y_offsetCorrection;
+
+        }
+    }
+
+        /*
+        private void drawTextOnImage(Canvas canvas) {
+            //Resources resources = getContext().getResources();
+            //float scale = resources.getDisplayMetrics().density;
+            //p.setTypeface(Typeface.createFromAsset(getContext().getAssets(), "fonts/SouthernAire.ttf"));
+            int type = 1;
+            Typeface typeface = Typeface.createFromAsset(getContext().getAssets(), "fonts/SouthernAire.ttf");
+
+            int x;
+
+            // initial y-position of the text (imageheight = 30*imagescale)
+            // int y = 19 * imageScale + y_offset; // 190
+            int y = (int) ((((30-fontsize)*imageScale*y_offset)/100) + fontsize * imageScale);
+
+            // just needed because of different font sizes and resulting uneven gap
+            int y_offsetCorrection;
+
+            Rect bounds = new Rect();
+
+            String[] lines = text.split("\n");
+
+            Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+            for (String line : lines) {
+                if (line.startsWith("name=")) {
+                    line = line.replace("name=", "");
+                    switch (type) {
+                        case 0:
+                            p.setTextSize(fontsize * imageScale); //4.5f * scale
+                            y_offsetCorrection = (int) ((fontsize - 2.9f) * imageScale); // 1.6f * scale
+                            // p.setTextSize(4.5f * imageScale);//68
+                            // y_offsetCorrection = (int) (1.6f * imageScale);
+                            p.setTypeface(null);
+                            break;
+                        case 1:
+                            p.setTextSize((fontsize+4f) * imageScale); //4.5f * scale
+                            y_offsetCorrection = (int) ((fontsize + 0.5f) * imageScale); // 1.6f * scale
+
+                            p.setTypeface(typeface);
+                            break;
+                        default:
+                            Log.e(TAG, "drawTextOnImage: type empty - Should never happen");
+                            y_offsetCorrection = 0;
+                            break;
+                    }
+                } else {
+                    p.setTextSize((fontsize - 1.3f) * imageScale);
+                    // p.setTextSize(3.2f * imageScale);
+                    y_offsetCorrection = 0;
+
+                    p.setTypeface(null);
+                }
+
+                // centered text
+                p.getTextBounds(line, 0, line.length(), bounds);
+                x = (this.getWidth() - bounds.width()) / 2;
+                drawFatText(line, x, y, p, canvas, 4);
+                y += p.descent() - p.ascent() - y_offsetCorrection;
+
+            }
+        }
+    */
+
+
+
+    /*
+    private void createDrawablesHashtable() {
+        Field[] drawables = R.drawable.class.getFields();
+        drawablesHashtable = new Hashtable<Integer, String>();
+        int index = 0;
+        for (Field f : drawables) {
+            //if the drawable name contains "pic" in the filename...
+            if (f.getName().startsWith("mask_")) {
+                drawablesHashtable.put(index, f.getName());
+                index++;
+            }
+        }
+        maskCount = index;
+        Log.d(TAG, "createDrawablesHashtable: Masks found = " + maskCount);
+    }
+    */
 
     /////////////////////////////////////////////////////////////////////////////////////////
+    // Initial implementations :)
 
 /*
     private void drawHeartImage(Canvas canvas) {

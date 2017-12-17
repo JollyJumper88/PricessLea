@@ -1,23 +1,20 @@
 package at.android.lovebubble;
 
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.Preference;
-import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import org.joda.time.DateTime;
+import java.util.List;
 
 import at.android.lovebubble.etc.DonationDialogFragment;
-import at.android.lovebubble.etc.DonationRequestDialog;
 
 
 public class MainActivity extends Activity implements View.OnClickListener, DonationDialogFragment.DialogFragmentListener {
@@ -26,7 +23,6 @@ public class MainActivity extends Activity implements View.OnClickListener, Dona
     private static final String TAG = "MainActivity";
     private Button button;
     private TextView textViewTitle, textViewMain, textViewStatusbar;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,14 +44,23 @@ public class MainActivity extends Activity implements View.OnClickListener, Dona
             textViewStatusbar.setText("");
 
             if (DonationDialogFragment.donationDialogRequired(this)) {
-                if (getFragmentManager().findFragmentByTag("dialog") == null)
+                // only create new dialog when fragment is null or hidden
+                DonationDialogFragment df = (DonationDialogFragment) getFragmentManager().findFragmentByTag("dialog");
+                if (df == null)
                     new DonationDialogFragment().show(getFragmentManager(), "dialog");
+                else if (df.isHidden())
+                    df.show(getFragmentManager(), "dialog");
+
+                //if (getFragmentManager().findFragmentByTag("dialog") == null || getFragmentManager().findFragmentByTag("dialog").isHidden())
+                //    new DonationDialogFragment().show(getFragmentManager(), "dialog");
 
             } else {
-                startService(new Intent(MainActivity.this, FloatingFaceBubbleService.class));
+                // we come here if already donated or dialog was dismissed
+                if (!isServiceRunning(FloatingFaceBubbleService.class.getName())) {
+                    startService(new Intent(MainActivity.this, FloatingFaceBubbleService.class));
+                }
             }
-            // Toast.makeText(this, R.string.doubleTapSettings, Toast.LENGTH_LONG).show();
-            // finish();
+
 
         } else {
             textViewTitle.setText(R.string.textviewTitleWelcome);
@@ -68,11 +73,14 @@ public class MainActivity extends Activity implements View.OnClickListener, Dona
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        /* check if received result code is equal our requested code for draw permission */
+        // we come here when we return from the permissions system activity
+        // check if received result code is equal our requested code for draw permission
         if (requestCode == REQUEST_CODE) {
             if (Settings.canDrawOverlays(this)) {
 
-                startService(new Intent(MainActivity.this, FloatingFaceBubbleService.class));
+                if (!isServiceRunning(FloatingFaceBubbleService.class.getName())) {
+                    startService(new Intent(MainActivity.this, FloatingFaceBubbleService.class));
+                }
 
                 textViewTitle.setText(R.string.main_title_success);
                 textViewMain.setText(R.string.startup);
@@ -102,8 +110,24 @@ public class MainActivity extends Activity implements View.OnClickListener, Dona
 
     @Override
     public void onDialogFragmentClick(int button) {
-        // It does not matter which button was click, we start service in any case
-        startService(new Intent(MainActivity.this, FloatingFaceBubbleService.class));
+        // It does not matter which button was clicked, we start service in any case if it is not already
+        // running (dialog could be opened again if orientation changed and time ran expired)
+        if (!isServiceRunning(FloatingFaceBubbleService.class.getName())) {
+            startService(new Intent(MainActivity.this, FloatingFaceBubbleService.class));
+        }
+    }
+
+    // not sure if this is necessary because Services are natural singletons
+    public boolean isServiceRunning(String serviceClassName) {
+        final ActivityManager activityManager = (ActivityManager) this.getSystemService(Context.ACTIVITY_SERVICE);
+        final List<ActivityManager.RunningServiceInfo> services = activityManager.getRunningServices(Integer.MAX_VALUE);
+
+        for (ActivityManager.RunningServiceInfo runningServiceInfo : services) {
+            if (runningServiceInfo.service.getClassName().equals(serviceClassName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /*

@@ -16,6 +16,7 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MotionEvent;
+import android.view.Surface;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
@@ -42,7 +43,7 @@ public class FloatingFaceBubbleService extends Service {
     private int timeformat = 0;
 
     private boolean switch_time, switch_name;
-    private boolean bubbleVisible = true;
+    private boolean bubbleVisible;
 
     private WindowManager windowManager;
     private WindowManager.LayoutParams myParams;
@@ -58,7 +59,14 @@ public class FloatingFaceBubbleService extends Service {
 
     private MyBroadcastReceiver mBroadcastReceiver;
 
-    int month = 0, days = 0, hours = 0, min = 0, sec = 0, birthDay = 0/*13*/, birthMinOfDay = 0/*1142*/;
+    int year = 0;
+    int month = 0;
+    int days = 0;
+    int hours = 0;
+    int min = 0;
+    int sec = 0;
+    int birthDay = 0/*13*/;
+    int birthMinOfDay = 0/*1142*/;
     private SharedPreferences preferences;
 
     String tf0, tf1, tf1_p, tf2, tf2_p, tf3, tf4, tf5,
@@ -74,12 +82,12 @@ public class FloatingFaceBubbleService extends Service {
         }
     };*/
 
-    /*
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         return Service.START_STICKY;
     }
-    */
+
 
     public void onCreate() {
         super.onCreate();
@@ -119,10 +127,14 @@ public class FloatingFaceBubbleService extends Service {
 
         floatingFaceBubble = new MyImageView(this, myParams);
 
-        // WindowManager
+        // Only add the bubble if the orientation from settings matches the current orientation
+        bubbleVisible = false;
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-        windowManager.addView(floatingFaceBubble, myParams);
-        bubbleVisible = true;
+        showBubble(windowManager.getDefaultDisplay().getRotation() == Surface.ROTATION_0
+                ? Configuration.ORIENTATION_PORTRAIT : Configuration.ORIENTATION_LANDSCAPE);
+
+//        windowManager.addView(floatingFaceBubble, myParams);
+//        bubbleVisible = true;
 
 
         Date birth;
@@ -145,18 +157,7 @@ public class FloatingFaceBubbleService extends Service {
 
         addTouchListener();
 
-/*
-        DonationRequestDialog.showDonationRequestDialog(getBaseContext(), preferences);
-        new Handler(Looper.getMainLooper()).postDelayed(new Runnable() {
-            @Override
-            public void run() {
-//                if (!preferences.getBoolean("donationDone", false)) {// not yet donated
-                    DonationRequestDialog.showDonationRequestDialog(getBaseContext(), preferences);
-                    //showDonationRequestDialog();
-//                }
-            }
-        }, 5000);
-*/
+
     }
 
     private void postDelayed() {
@@ -232,15 +233,18 @@ public class FloatingFaceBubbleService extends Service {
                         bubbleText = "";
                     }
 
+                    // Detailed
                     if (timeformat == 0) {
                         bubbleText += String.format(tf0, month, days, hours, min, sec);
 
+                        // Weeks
                     } else if (timeformat == 1) {
                         delay = 60000;
                         Weeks diffWeeks = Weeks.weeksBetween(currDt, birthDt);
                         int weeks = diffWeeks.negated().getWeeks();
                         bubbleText += String.format(weeks == 1 ? tf1 : tf1_p, weeks);
 
+                        // Months
                     } else if (timeformat == 2) {
                         delay = 60000;
 
@@ -258,20 +262,23 @@ public class FloatingFaceBubbleService extends Service {
 
                         bubbleText += String.format(month == 1 && weeks == 0 ? tf2 : tf2_p, monthStr);
 
+                        // Year and Months
                     } else if (timeformat == 3) {
                         delay = 60000;
-                        int year = month / 12;
-                        if (year != 1 && month != 1)
-                            bubbleText += String.format(tf3_pp, year, month);
-                        else if (year != 1)
-                            bubbleText += String.format(tf3_ps, year, month);
-                        else if (month != 1)
-                            bubbleText += String.format(tf3_sp, year, month);
-                        else
-                            bubbleText += String.format(tf3, year, month);
+                        year = month / 12;
 
+                        if (year != 1 && month != 1)
+                            bubbleText += String.format(tf3_pp, year, month % 12);
+                        else if (year != 1)
+                            bubbleText += String.format(tf3_ps, year, month % 12);
+                        else if (month != 1)
+                            bubbleText += String.format(tf3_sp, year, month % 12);
+                        else
+                            bubbleText += String.format(tf3, year, month % 12);
+
+                        // Detailed with Year
                     } else if (timeformat == 4) {
-                        bubbleText += String.format(tf4, month / 12, month, days, hours, min, sec);
+                        bubbleText += String.format(tf4, month / 12, month % 12, days, hours, min, sec);
 
                     }
                     floatingFaceBubble.setText(bubbleText);
@@ -288,8 +295,6 @@ public class FloatingFaceBubbleService extends Service {
                     floatingFaceBubble.invalidate();
                 }
 
-
-                // if (!stopService)
                 h.postDelayed(this, delay);
 
             }
@@ -381,8 +386,6 @@ public class FloatingFaceBubbleService extends Service {
 
         stopSelf();
 
-        // stopService = true;
-
         Log.d(TAG, "stopMyService: " + "stopMyService");
     }
 
@@ -400,15 +403,9 @@ public class FloatingFaceBubbleService extends Service {
     }
 
 
-//    private void choosePicFromGallery() {
-//        Intent photoPickerIntent = new Intent(Intent.ACTION_PICK);
-//        photoPickerIntent.setType("image/*");
-//        startActivityforResult();
-//    }
-
-
     @Override
     public IBinder onBind(Intent intent) {
+        Log.d(TAG, "onBind: onbind called");
         // TODO: Return the communication channel to the service.
         throw new UnsupportedOperationException("Not yet implemented");
     }
@@ -455,6 +452,12 @@ public class FloatingFaceBubbleService extends Service {
 
                         } else if ("updateYoffset".equalsIgnoreCase(extras.getString("action"))) {
                             floatingFaceBubble.updateYoffset();
+
+                            h.removeCallbacksAndMessages(null);
+                            postDelayed();
+
+                        } else if ("updateFontSize".equalsIgnoreCase(extras.getString("action"))) {
+                            floatingFaceBubble.updateFontSize();
 
                             h.removeCallbacksAndMessages(null);
                             postDelayed();
@@ -515,25 +518,31 @@ public class FloatingFaceBubbleService extends Service {
     @Override
     public void onConfigurationChanged(Configuration newConfig) {
         super.onConfigurationChanged(newConfig);
+        // newConfig.orientation
+        // port: 1
+        // land: 2
+        showBubble(newConfig.orientation);
+    }
+
+    private void showBubble(int orientation) {
         String pref_orientation = preferences.getString("orientation", "0");
 
         switch (pref_orientation) {
             case "0": // Portrait + Landscape
-                showBubble(true);
+                showBubble2(true);
                 break;
             case "1": // Portrait
-                showBubble(newConfig.orientation == Configuration.ORIENTATION_PORTRAIT);
+                showBubble2(orientation == Configuration.ORIENTATION_PORTRAIT/*1*/);
                 break;
             case "2": // Landscape
-                showBubble(newConfig.orientation != Configuration.ORIENTATION_PORTRAIT);
+                showBubble2(orientation != Configuration.ORIENTATION_PORTRAIT/*1*/);
                 break;
             default:
                 Log.d(TAG, "onConfigurationChanged: wrong orientation received");
         }
     }
 
-
-    private void showBubble(boolean state) {
+    private void showBubble2(boolean state) {
         if (windowManager != null && myParams != null && floatingFaceBubble != null) {
             if (state) { // Add View
                 if (!bubbleVisible) {

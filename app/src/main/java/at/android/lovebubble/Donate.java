@@ -9,6 +9,10 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import java.util.ArrayList;
 
 import at.android.lovebubble.util.IabBroadcastReceiver;
 import at.android.lovebubble.util.IabBroadcastReceiver.IabBroadcastListener;
@@ -17,27 +21,39 @@ import at.android.lovebubble.util.IabHelper.IabAsyncInProgressException;
 import at.android.lovebubble.util.IabResult;
 import at.android.lovebubble.util.Inventory;
 import at.android.lovebubble.util.Purchase;
-import at.android.lovebubble.util.SkuDetails;
 
 public class Donate extends Activity implements
         IabBroadcastListener, View.OnClickListener {
 
     static final String TAG = "Donate";
 
-    // Does the user have the premium upgrade?
+    int clickcount = 0;
     boolean boughtS = false;
     boolean boughtM = false;
     boolean boughtL = false;
+    boolean boughtXL = false;
+    String priceS = "";
+    String priceM = "";
+    String priceL = "";
+    String priceXL = "";
+
+    Button ButtonS;
+    Button ButtonM;
+    Button ButtonL;
+    Button ButtonXL;
+    TextView TextviewMain;
 
     // SKUs for our products: the premium upgrade (non-consumable) and gas (consumable)
     //static final String SKU_PREMIUM = "premium";
     static final String SKU_S = "donate_small";
     static final String SKU_M = "donate_medium";
     static final String SKU_L = "donate_large";
-    static final String SKU_purchased = "android.test.purchased";
-    static final String SKU_canceled = "android.test.canceled";
-//            "android.test.refunded";
-//            "android.test.item_unavailable";
+    static final String SKU_XL = "donate_xlarge";
+    // Caution: if these values are used for testing, you might have to clear market cache
+    // static final String SKU_purchased = "android.test.purchased";
+    // static final String SKU_canceled = "android.test.canceled";
+    //            "android.test.refunded";
+    //            "android.test.item_unavailable";
 
     static final int RC_REQUEST = 10001;
 
@@ -54,9 +70,28 @@ public class Donate extends Activity implements
 
         setContentView(R.layout.activity_donate);
 
-        findViewById(R.id.small).setOnClickListener(this);
-        findViewById(R.id.medium).setOnClickListener(this);
-        findViewById(R.id.large).setOnClickListener(this);
+        ButtonS = (Button) findViewById(R.id.small);
+        ButtonM = (Button) findViewById(R.id.medium);
+        ButtonL = (Button) findViewById(R.id.large);
+        ButtonXL = (Button) findViewById(R.id.xlarge);
+        TextviewMain = (TextView) findViewById(R.id.textViewMainText);
+
+        TextviewMain.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                clickcount++;
+                if (clickcount == 10) {
+                    PreferenceManager.getDefaultSharedPreferences(view.getContext()).edit().putBoolean("donationDone", true).apply();
+                    Toast.makeText(view.getContext(), "Princess Lea: \u201EThe Force will be with you, always!\u201F", Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+
+        ButtonS.setOnClickListener(this);
+        ButtonM.setOnClickListener(this);
+        ButtonL.setOnClickListener(this);
+        ButtonXL.setOnClickListener(this);
+
 
         String base64EncodedPublicKey = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjfD4xypeFFHh7Hn0GdoF5HrHIHCIEH2FZ+q7dJXx3iURNIirDoIRKRhV6jteYN7/BHjvD6CFAtfbTizoI";
         String part2 = "RPzlJhdEBPgwxqT8vu5mFqh7IjQxT0u+zQ0cxMZ8GFPsVGFpK7K0lO5HWc/Qcr0qLWZXuVE4Yc9cAVq12m2HF95tlG+n+obnmqidYSlbg7E3G7EaB3xykXlm+Pfb3m+mPdtlGoCltgtJb5Eq178Y3";
@@ -69,22 +104,20 @@ public class Donate extends Activity implements
         Log.d(TAG, "Starting setup.");
         mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
             public void onIabSetupFinished(IabResult result) {
-                Log.d(TAG, "Setup finished.");
 
                 if (!result.isSuccess()) {
-                    // TODO: unavailable-disable donation?
-                    // Oh noes, there was a problem.
-                    complain("Problem setting up in-app billing: " + result);
+                    // complain("Problem setting up in-app billing: " + result);
+                    showToast(getString(R.string.billing_unavailable));
+                    disableButtons();
                     return;
                 }
 
                 // Have we been disposed of in the meantime? If so, quit.
                 if (mHelper == null) return;
 
-                // Todo: ?? hää? do I need this receiver? where to call getPurchaes -> query finished?
                 // Important: Dynamically register for broadcast messages about updated purchases.
                 // We register the receiver here instead of as a <receiver> in the Manifest
-                // because we always call getPurchases() at startup, so therefore we can ignore
+                // because we always call getPurchases() (-> query finished) at startup, so therefore we can ignore
                 // any broadcasts sent while the app isn't running.
                 // Note: registering this listener in an Activity is a bad idea, but is done here
                 // because this is a SAMPLE. Regardless, the receiver must be registered after
@@ -96,7 +129,16 @@ public class Donate extends Activity implements
                 // IAB is fully set up. Now, let's get an inventory of stuff we own.
                 Log.d(TAG, "Setup successful. Querying inventory.");
                 try {
-                    mHelper.queryInventoryAsync(mGotInventoryListener);
+                    ArrayList<String> skuList = new ArrayList<>();
+                    skuList.add(SKU_S);
+                    skuList.add(SKU_M);
+                    skuList.add(SKU_L);
+                    skuList.add(SKU_XL);
+
+                    // there is another query in receivedBroadcast()
+                    mHelper.queryInventoryAsync(true, skuList, null, mGotInventoryListener);
+                    // mHelper.queryInventoryAsync(mGotInventoryListener);
+
                 } catch (IabAsyncInProgressException e) {
                     Log.d(TAG, "onIabSetupFinished: Error querying inventory. Another async operation in progress.");
                 }
@@ -107,47 +149,50 @@ public class Donate extends Activity implements
     // Listener that's called when we finish querying the items and subscriptions we own
     IabHelper.QueryInventoryFinishedListener mGotInventoryListener = new IabHelper.QueryInventoryFinishedListener() {
         public void onQueryInventoryFinished(IabResult result, Inventory inventory) {
-            Log.d(TAG, "Query inventory finished.");
 
             // Have we been disposed of in the meantime? If so, quit.
             if (mHelper == null) return;
 
-            // Is it a failure?
+            // Query failed. No internet connection?
             if (result.isFailure()) {
-                complain("Failed to query inventory: " + result);
+                // complain("Failed to query inventory: " + result);
+                Log.d(TAG, "Failed to query inventory: " + result);
+                showToast(getString(R.string.failed_query_inapp_purchases));
+                disableButtons();
                 return;
             }
 
             Log.d(TAG, "Query inventory was successful.");
-
-            // how to get the price
-            // https://stackoverflow.com/questions/16502765/in-app-billing-getprice-android
 
             /*
              * Check for items we own. Notice that for each purchase, we check
              * the developer payload to see if it's correct! See
              * verifyDeveloperPayload().
              */
-            // TODO: check items we own and reflect on the button
 
             Purchase purchaseS = inventory.getPurchase(SKU_S); // returns null if no purchase
             Purchase purchaseM = inventory.getPurchase(SKU_M); // returns null if no purchase
             Purchase purchaseL = inventory.getPurchase(SKU_L); // returns null if no purchase
-            //boolean boughtS = inventory.hasPurchase(SKU_S);
-
-            // SkuDetails detailsS = inventory.getSkuDetails(SKU_S); // returns null if no purchase
-            // Log.d(TAG, "onQueryInventoryFinished: "+ detailsS.toString());
+            Purchase purchaseXL = inventory.getPurchase(SKU_XL); // returns null if no purchase
 
             boughtS = (purchaseS != null && verifyDeveloperPayload(purchaseS));
             boughtM = (purchaseM != null && verifyDeveloperPayload(purchaseM));
             boughtL = (purchaseL != null && verifyDeveloperPayload(purchaseL));
+            boughtXL = (purchaseXL != null && verifyDeveloperPayload(purchaseXL));
 
-            // Log.d(TAG, "User is " + (boughtS2 ? "purchaseS" : "NOT purchaseS"));
-            // alert(boughtS ? "purchaseS" : "NOT purchaseS");
+            try {
+                priceS = inventory.getSkuDetails(SKU_S).getPrice();
+                priceM = inventory.getSkuDetails(SKU_M).getPrice();
+                priceL = inventory.getSkuDetails(SKU_L).getPrice();
+                priceXL = inventory.getSkuDetails(SKU_XL).getPrice();
+
+            } catch (Exception e) {
+                Log.d(TAG, "onQueryInventoryFinished: could not get the price of SKUs");
+                showToast(getString(R.string.could_not_get_price));
+            }
 
             updateUi();
             setWaitScreen(false);
-            Log.d(TAG, "Initial inventory query finished; enabling main UI.");
         }
     };
 
@@ -156,7 +201,15 @@ public class Donate extends Activity implements
         // Received a broadcast notification that the inventory of items has changed
         Log.d(TAG, "Received broadcast notification. Querying inventory.");
         try {
-            mHelper.queryInventoryAsync(mGotInventoryListener);
+            ArrayList<String> skuList = new ArrayList<>();
+            skuList.add(SKU_S);
+            skuList.add(SKU_M);
+            skuList.add(SKU_L);
+            skuList.add(SKU_XL);
+
+            // there is another query in onCreate -> startSetup
+            mHelper.queryInventoryAsync(true, skuList, null, mGotInventoryListener);
+            // mHelper.queryInventoryAsync(mGotInventoryListener);
         } catch (IabAsyncInProgressException e) {
             complain("Error querying inventory. Another async operation in progress.");
         }
@@ -165,8 +218,6 @@ public class Donate extends Activity implements
 
     @Override
     public void onClick(View view) {
-        //public void onClick(DialogInterface dialog, int id) {
-
         String SKU = "";
 
         switch (view.getId()) {
@@ -175,11 +226,12 @@ public class Donate extends Activity implements
                 break;
             case R.id.medium:
                 SKU = SKU_M;
-                // SKU = SKU_purchased;
                 break;
             case R.id.large:
                 SKU = SKU_L;
-                // SKU = SKU_canceled;
+                break;
+            case R.id.xlarge:
+                SKU = SKU_XL;
                 break;
             default:
                 Log.d(TAG, "onClick: id not handled but received.");
@@ -230,7 +282,7 @@ public class Donate extends Activity implements
         String payload = p.getDeveloperPayload();
 
         /*
-         * TODO: verify that the developer payload of the purchase is correct. It will be
+         * verify that the developer payload of the purchase is correct. It will be
          * the same one that you sent when initiating the purchase.
          *
          * WARNING: Locally generating a random string when starting a purchase and
@@ -265,36 +317,33 @@ public class Donate extends Activity implements
             // if we were disposed of in the meantime, quit.
             if (mHelper == null) return;
 
-            // todo:
-            // if Users cancels, we get here
-            // already owned
-            // todo: change message or remove
+            // if Users cancels, already owned
             if (result.isFailure()) {
-                complain("Finished listener: Error purchasing: " + result);
+                // complain("Error purchasing: " + result);
+                showToast(getString(R.string.purchase_cancelled));
                 setWaitScreen(false);
                 return;
             }
             if (!verifyDeveloperPayload(purchase)) {
-                complain("Finished listener: Error purchasing. Authenticity verification failed. (Payload)");
+                complain("Authenticity verification failed. (Payload)");
                 setWaitScreen(false);
                 return;
             }
 
             Log.d(TAG, "Purchase successful.");
 
+
             if (purchase.getSku().equals(SKU_S)) {
-                // bought the premium upgrade!
-                // Log.d(TAG, "PThank you for buying SKU_S");
-                //alert("Thank you for buying SKU_S");
                 boughtS = true;
             }
             if (purchase.getSku().equals((SKU_M))) {
                 boughtM = true;
-                //alert("Thank you for buying SKU_M");
             }
             if (purchase.getSku().equals((SKU_L))) {
                 boughtL = true;
-                //alert("Thank you for buying SKU_L");
+            }
+            if (purchase.getSku().equals((SKU_XL))) {
+                boughtXL = true;
             }
 
             setWaitScreen(false);
@@ -307,23 +356,46 @@ public class Donate extends Activity implements
     // updates UI to reflect model
     public void updateUi() {
 
-        Button S = (Button) findViewById(R.id.small);
-        Button M = (Button) findViewById(R.id.medium);
-        Button L = (Button) findViewById(R.id.large);
-
-        S.setText("SMALL: " + boughtS);
-        M.setText("MEDIUM " + boughtM);
-        L.setText("LARGE " + boughtL);
-
-//        // update the car color to reflect premium status or lack thereof
-//        ((ImageView)findViewById(R.id.free_or_premium)).setImageResource(boughtS2 ? R.drawable.premium : R.drawable.free);
-//
-//        // "Upgrade" button is only visible if the user is not premium
-//        findViewById(R.id.upgrade_button).setVisibility(boughtS2 ? View.GONE : View.VISIBLE);
+        if (priceS != null)
+            ButtonS.setText(priceS);
+        if (priceM != null)
+            ButtonM.setText(priceM);
+        if (priceL != null)
+            ButtonL.setText(priceL);
+        if (priceXL != null)
+            ButtonXL.setText(priceXL);
 
 
-        // non UI operation but a good place to write preference (called after querying and purchase finshed
-        if (boughtL||boughtM||boughtS) {
+        if (boughtS) {
+            ButtonS.setEnabled(false);
+            ButtonS.setText(R.string.donated);
+        } else {
+            ButtonS.setEnabled(true);
+        }
+        if (boughtM) {
+            ButtonM.setEnabled(false);
+            ButtonM.setText(R.string.donated);
+        } else {
+            ButtonM.setEnabled(true);
+        }
+        if (boughtL) {
+            ButtonL.setEnabled(false);
+            ButtonL.setText(R.string.donated);
+        } else {
+            ButtonL.setEnabled(true);
+        }
+        if (boughtXL) {
+            ButtonXL.setEnabled(false);
+            ButtonXL.setText(R.string.donated);
+        } else {
+            ButtonXL.setEnabled(true);
+        }
+
+
+        if (boughtL || boughtM || boughtS | boughtXL) {
+            TextviewMain.setText(R.string.donation_main_thank_you);
+
+            // non UI operation but a good place to write preference (called after querying and purchase finshed
             PreferenceManager.getDefaultSharedPreferences(this).edit().putBoolean("donationDone", true).apply();
         }
 
@@ -331,9 +403,21 @@ public class Donate extends Activity implements
 
 
     void setWaitScreen(boolean set) {
-//        findViewById(R.id.screen_main).setVisibility(set ? View.GONE : View.VISIBLE);
-//        findViewById(R.id.screen_wait).setVisibility(set ? View.VISIBLE : View.GONE);
         findViewById(R.id.wait).setVisibility(set ? View.VISIBLE : View.INVISIBLE);
+
+    }
+
+    void showToast(String msg) {
+        Toast.makeText(this, msg, Toast.LENGTH_SHORT).show();
+    }
+
+    private void disableButtons() {
+        if (ButtonS != null) {
+            ButtonS.setEnabled(false);
+            ButtonM.setEnabled(false);
+            ButtonL.setEnabled(false);
+            ButtonXL.setEnabled(false);
+        }
     }
 
 

@@ -5,17 +5,17 @@
         android:layout="@layout/preference_category"
         android:title="@string/cat_general">
         <Preference
-            android:key="guide"
-            android:summary="@string/unmonitoredapp"
-            android:title="Guides for Samsung Devices"/>
+            android:key="exit"
+            android:summary="@string/ExitPrefSummary"
+            android:title="@string/pref_exit"/>
         <Preference
             android:key="donate"
-            android:summary="Support this free project and help a single developer"
+            android:summary="@string/DonatePrefSummary"
             android:title="@string/Donate"/>
         <Preference
-            android:key="exit"
-            android:summary="This will stop the application and remove the bubble from your screen"
-            android:title="@string/pref_exit"/>
+            android:key="guide"
+            android:summary="@string/unmonitoredapp"
+            android:title="@string/GuidesSamsungDevices"/>
 
     </PreferenceCategory>
 
@@ -43,7 +43,7 @@
             android:title="@string/pref_title_display_name"/>
 
         <at.android.lovebubble.etc.SeekBarPreference
-            android:defaultValue="0"
+            android:defaultValue="60"
             android:dialogMessage="@string/settings_dialog_message"
             android:key="y_offset"
             android:max="100"
@@ -51,11 +51,20 @@
             android:text="@string/settings_unit"
             android:title="@string/settings_title"/>
 
+        <ListPreference
+            android:defaultValue="45"
+            android:entries="@array/pref_font_size_titles"
+            android:entryValues="@array/pref_font_size_values"
+            android:key="font_size_list"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null"
+            android:title="@string/pref_font_size"/>
+
     </PreferenceCategory>
 
     <PreferenceCategory
         android:layout="@layout/preference_category"
-        android:title="Date and Time">
+        android:title="@string/date_and_time">
         <SwitchPreference
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -63,7 +72,7 @@
             android:enabled="true"
             android:key="switch_time"
             android:summary="@string/showtimeonbubblesummery_switch"
-            android:title="Time Interval"/>
+            android:title="@string/time_interval"/>
 
         <Preference
             android:layout_width="wrap_content"
@@ -86,7 +95,7 @@
 
     <PreferenceCategory
         android:layout="@layout/preference_category"
-        android:title="Picture and Shape">
+        android:title="@string/Picture_shape">
         <Preference
             android:id="@+id/preference"
             android:layout_width="wrap_content"
@@ -96,7 +105,7 @@
             android:title="@string/pic"/>
 
         <ListPreference
-            android:defaultValue="10"
+            android:defaultValue="12"
             android:entries="@array/pref_size_titles"
             android:entryValues="@array/pref_size_values"
             android:key="size_list"
@@ -142,13 +151,16 @@
         android:title="@string/support">
         <Preference
             android:key="help"
-            android:title="@string/help"/>
+            android:title="@string/help"
+            android:summary="@string/help_summary"/>
         <Preference
             android:key="contact"
-            android:title="@string/contact_dev"/>
+            android:title="@string/contact_dev"
+            android:summary="@string/contact_summary"/>
         <Preference
             android:key="rate"
-            android:title="@string/rate_app"/>
+            android:title="@string/rate_app"
+            android:summary="@string/rate_summary"/>
     </PreferenceCategory>
 
     <PreferenceCategory
@@ -159,9 +171,11 @@
             android:title="@string/about"/>
         <Preference
             android:key="privpol"
-            android:title="@string/title_activity_privacy_policy"/>
+            android:title="@string/title_activity_privacy_policy"
+            android:summary="@string/default_browser"/>
         <Preference
             android:key="libraries"
-            android:title="@string/title_activity_libraries"/>
+            android:title="@string/title_activity_libraries"
+            android:summary="@string/default_browser"/>
     </PreferenceCategory>
 </PreferenceScreen>
