@@ -165,7 +165,7 @@ public class FloatingFaceBubbleService extends Service {
         h.postDelayed(new Runnable() {
             public void run() {
 
-                Log.d(TAG, "run: Post DELAYED  :" + new DateTime());
+                //Log.d(TAG, "run: Post DELAYED  :" + new DateTime());
                 /*
                 0 Detailed</item>
                 1 Week</item>
