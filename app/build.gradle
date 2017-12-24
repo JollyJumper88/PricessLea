@@ -8,8 +8,8 @@ android {
         applicationId "at.android.lovebubble"
         minSdkVersion 24
         targetSdkVersion 24
-        versionCode 19
-        versionName "1.0"
+        versionCode 21
+        versionName "1.0.1"
     }
     buildTypes {
         release {

@@ -11,11 +11,9 @@ import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -32,7 +30,6 @@ public class MyImageView extends ImageView {
     private String maskName;
     private int imageScale;
     private int y_offset; // vertical text position in Percent
-    private int y_init;
     private float fontsize;
     private Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
     private Rect bounds = new Rect();
@@ -138,7 +135,6 @@ public class MyImageView extends ImageView {
 
         // update the size
         resizeMyImage();
-
     }
 
     public void setImageFromUri(String selectedImageUriString) {
@@ -148,10 +144,28 @@ public class MyImageView extends ImageView {
             FileDescriptor fileDescriptor;
             if (parcelFileDescriptor != null) {
                 fileDescriptor = parcelFileDescriptor.getFileDescriptor();
-                Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+
+                // reduce size and save memory
+                int scale = 1;
+                int preferredImageSize = 1200; // e.g. pic with 2400px will be decoded with scale factor 2 ...
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inJustDecodeBounds = true;
+                // just determine size
+                BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+
+                // if scaling is necessary we calculate the scale (for divide)
+                if (options.outWidth > preferredImageSize) {
+                    scale = options.outWidth/preferredImageSize;
+                }
+                options.inSampleSize = scale;
+                options.inJustDecodeBounds = false;
+                Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor, null, options);
+                //Bitmap image = BitmapFactory.decodeFileDescriptor(fileDescriptor);
+
                 parcelFileDescriptor.close();
 
                 setImageFromBitmap(image);
+
             } else {
                 Toast.makeText(context, R.string.errorcache1, Toast.LENGTH_SHORT).show();
             }

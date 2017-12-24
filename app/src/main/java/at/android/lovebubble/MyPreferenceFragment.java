@@ -340,22 +340,23 @@ public class MyPreferenceFragment extends PreferenceFragment {
                         CropIntent.setDataAndType(selectedImageUri, "image*//*");
                         startActivityForResult(CropIntent, RESULT_CROP_IMAGE);
                         */
+                        // TODO: scale down image before croping? Out of memory issue...
                         Uri selectedImageUri = data.getData();
                         CropImage.activity(selectedImageUri).setFixAspectRatio(true).start(getContext(), this);
                         break;
 
                     case CropImage.CROP_IMAGE_ACTIVITY_REQUEST_CODE:
-
                         CropImage.ActivityResult result = CropImage.getActivityResult(data);
-                        //if (resultCode == RESULT_OK) {
-                        Uri resultUri = result.getUri();
-
-                        //} else if (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE) {
-                        //    Exception error = result.getError();
-                        //}
-                        Intent i = new Intent("pref_broadcast");
-                        i.putExtra("choosepic", resultUri.toString());
-                        getContext().sendBroadcast(i);
+                        if (resultCode == Activity.RESULT_OK) {
+                            Uri resultUri = result.getUri();
+                            Intent i = new Intent("pref_broadcast");
+                            i.putExtra("choosepic", resultUri.toString());
+                            getContext().sendBroadcast(i);
+                        } else { // (resultCode == CropImage.CROP_IMAGE_ACTIVITY_RESULT_ERROR_CODE)
+                            Toast.makeText(context, R.string.error_croping, Toast.LENGTH_SHORT).show();
+                            Exception error = result.getError();
+                            Log.e(TAG, "onActivityResult: Error cropping Image " + error.toString());
+                        }
                         break;
 
                     default:

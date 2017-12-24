@@ -93,6 +93,7 @@
     <string name="contact_summary">Die e-Mail App wird dafür gestartet</string>
     <string name="help_summary">Bedienungsanleitung mit Fragen und Antworten</string>
     <string name="rate_summary">Der Google Play Store wird geöffnet. Dort kannst du die App bewerten</string>
+    <string name="error_croping">Zuschneiden fehlgeschlagen</string>
 
 
 </resources>

@@ -54,7 +54,6 @@ public class FloatingFaceBubbleService extends Service {
     private SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.GERMANY);
     private DateTime birthDt, currDt;
 
-    // private boolean stopService = false;
     private int delay;
 
     private MyBroadcastReceiver mBroadcastReceiver;
@@ -69,9 +68,8 @@ public class FloatingFaceBubbleService extends Service {
     int birthMinOfDay = 0/*1142*/;
     private SharedPreferences preferences;
 
-    String tf0, tf1, tf1_p, tf2, tf2_p, tf3, tf4, tf5,
-            tf3_ps, tf3_sp, tf3_pp,
-            tf4_ps, tf4_sp, tf4_pp;
+    String tf0, tf1, tf1_p, tf2, tf2_p, tf3, tf4,
+            tf3_ps, tf3_sp, tf3_pp;
 
 
 /*    private Runnable mUpdateTimeTask = new Runnable() {
@@ -102,7 +100,7 @@ public class FloatingFaceBubbleService extends Service {
         // Load Preferences
         preferences = PreferenceManager.getDefaultSharedPreferences(this);
         name = preferences.getString("name", getString(R.string.putnamehere));
-        timeformat = Integer.parseInt(preferences.getString("timeformat", "0"));
+        timeformat = Integer.parseInt(preferences.getString("timeformat", "4"));
         Long mills = preferences.getLong("birthdatetime", -1);
         switch_time = preferences.getBoolean("switch_time", true);
         switch_name = preferences.getBoolean("switch_name", true);
@@ -165,7 +163,7 @@ public class FloatingFaceBubbleService extends Service {
         h.postDelayed(new Runnable() {
             public void run() {
 
-                //Log.d(TAG, "run: Post DELAYED  :" + new DateTime());
+                // Log.d(TAG, "run: Post DELAYED  :" + new DateTime());
                 /*
                 0 Detailed</item>
                 1 Week</item>
@@ -381,7 +379,6 @@ public class FloatingFaceBubbleService extends Service {
             bubbleVisible = false;
         }
 
-        //Todo: check this part here if we can remove the stopservice member
         h.removeCallbacksAndMessages(null);
 
         stopSelf();
@@ -415,7 +412,6 @@ public class FloatingFaceBubbleService extends Service {
         if (mBroadcastReceiver != null)
             unregisterReceiver(mBroadcastReceiver);
 
-        //Todo:
         h.removeCallbacksAndMessages(null);
 
         Log.d(TAG, "onDestroy: " + "DESTROY");

@@ -103,5 +103,6 @@
     <string name="contact_summary">The default e-Mail App will be opened</string>
     <string name="rate_summary">The Google Play Store will be opened. You can leave a rating there</string>
     <string name="default_browser">Will be opened in the default Browser App</string>
+    <string name="error_croping">Error cropping Image</string>
 
 </resources>
