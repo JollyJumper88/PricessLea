@@ -1,30 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-            xmlns:app="http://schemas.android.com/apk/res-auto"
-            xmlns:tools="http://schemas.android.com/tools"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@android:color/holo_blue_light"
-            tools:context=".Donate">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@android:color/holo_blue_light"
+    tools:context=".Donate">
 
     <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-                                                 xmlns:app="http://schemas.android.com/apk/res-auto"
-                                                 xmlns:tools="http://schemas.android.com/tools"
-                                                 android:layout_width="match_parent"
-                                                 android:layout_height="match_parent"
-                                                 tools:context=".MainActivity"
-                                                 tools:layout_editor_absoluteX="0dp"
-                                                 tools:layout_editor_absoluteY="25dp">
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        tools:context=".MainActivity"
+        tools:layout_editor_absoluteX="0dp"
+        tools:layout_editor_absoluteY="25dp">
 
 
         <ImageView
             android:id="@+id/imageView"
             android:layout_width="0dp"
             android:layout_height="200dp"
-            android:layout_marginLeft="0dp"
-            android:layout_marginRight="0dp"
-            android:layout_marginTop="0dp"
+            android:contentDescription="img"
             android:scaleType="fitXY"
             android:src="@drawable/funktionsgrafik"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -33,7 +31,7 @@
             tools:layout_conversion_absoluteHeight="200dp"
             tools:layout_conversion_absoluteWidth="360dp"
             tools:layout_conversion_absoluteX="0dp"
-            tools:layout_conversion_absoluteY="0dp"/>
+            tools:layout_conversion_absoluteY="0dp" />
 
         <TextView
             android:id="@+id/textViewTitle"
@@ -52,7 +50,7 @@
             tools:layout_conversion_absoluteHeight="28dp"
             tools:layout_conversion_absoluteWidth="41dp"
             tools:layout_conversion_absoluteX="159dp"
-            tools:layout_conversion_absoluteY="211dp"/>
+            tools:layout_conversion_absoluteY="211dp" />
 
         <TextView
             android:id="@+id/textViewMain"
@@ -72,7 +70,7 @@
             tools:layout_conversion_absoluteHeight="21dp"
             tools:layout_conversion_absoluteWidth="30dp"
             tools:layout_conversion_absoluteX="164dp"
-            tools:layout_conversion_absoluteY="264dp"/>
+            tools:layout_conversion_absoluteY="264dp" />
 
         <Button
             android:id="@+id/buttonMain"
@@ -90,27 +88,26 @@
             tools:layout_conversion_absoluteHeight="48dp"
             tools:layout_conversion_absoluteWidth="150dp"
             tools:layout_conversion_absoluteX="105dp"
-            tools:layout_conversion_absoluteY="313dp"/>
+            tools:layout_conversion_absoluteY="313dp" />
 
         <TextView
             android:id="@+id/textViewStatusbar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="15dp"
             android:layout_marginLeft="8dp"
             android:layout_marginRight="8dp"
+            android:layout_marginTop="8dp"
             android:gravity="top|center"
             android:text="text"
             android:textColor="@android:color/white"
             android:textSize="18sp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintHorizontal_bias="0.501"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/buttonMain"
             tools:layout_conversion_absoluteHeight="21dp"
             tools:layout_conversion_absoluteWidth="30dp"
             tools:layout_conversion_absoluteX="164dp"
-            tools:layout_conversion_absoluteY="517dp"/>
+            tools:layout_conversion_absoluteY="517dp" />
 
     </android.support.constraint.ConstraintLayout>
 </ScrollView>
