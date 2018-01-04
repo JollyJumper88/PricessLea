@@ -68,7 +68,7 @@ public class FloatingFaceBubbleService extends Service {
     int birthMinOfDay = 0/*1142*/;
     private SharedPreferences preferences;
 
-    String tf0, tf1, tf1_p, tf2, tf2_p, tf3, tf4,
+    String tf0, tf1, tf1_p, tf2, tf2_p, tf3, tf4, tf5,
             tf3_ps, tf3_sp, tf3_pp;
 
 
@@ -277,6 +277,11 @@ public class FloatingFaceBubbleService extends Service {
                         // Detailed with Year
                     } else if (timeformat == 4) {
                         bubbleText += String.format(tf4, month / 12, month % 12, days, hours, min, sec);
+
+                        // Year Month Day (y m d)
+                    } else if (timeformat == 5) {
+                        delay = 60000;
+                        bubbleText += String.format(tf5, month / 12, month % 12, days);
 
                     }
                     floatingFaceBubble.setText(bubbleText);
@@ -509,6 +514,8 @@ public class FloatingFaceBubbleService extends Service {
         tf3_ps = getString(R.string.tf3_ps);
         tf3_pp = getString(R.string.tf3_pp);
         tf4 = getString(R.string.tf4);
+        tf5 = getString(R.string.tf5);
+
     }
 
     @Override

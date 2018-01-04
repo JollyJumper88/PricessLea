@@ -89,6 +89,8 @@
     <string name="tf3_sp">\n%1$s Jahr\n%2$s Monate</string>
     <string name="tf3_pp">\n%1$s Jahre\n%2$s Monate</string>
     <string name="tf4">\n%1$sj %2$sm %3$st\n%4$ss %5$sm %6$ss</string>
+    <string name="tf5">\n%1$sj %2$sm %3$st</string>
+
     <string name="default_browser">Wird in der Browser App geöffnet</string>
     <string name="contact_summary">Die e-Mail App wird dafür gestartet</string>
     <string name="help_summary">Bedienungsanleitung mit Fragen und Antworten</string>

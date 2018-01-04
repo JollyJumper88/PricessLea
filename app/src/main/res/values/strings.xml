@@ -66,6 +66,7 @@
     <string name="tf3_sp">\n%1$s Year\n%2$s Months</string>
     <string name="tf3_pp">\n%1$s Years\n%2$s Months</string>
     <string name="tf4">\n%1$sy %2$sm %3$sd\n%4$sh %5$sm %6$ss</string>
+    <string name="tf5">\n%1$sy %2$sm %3$sd</string>
 
     <string name="Donate">Donate</string>
     <string name="NoThanks">No Thanks</string>
