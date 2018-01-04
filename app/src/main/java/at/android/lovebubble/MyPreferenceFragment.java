@@ -79,6 +79,9 @@ public class MyPreferenceFragment extends PreferenceFragment {
         findPreference("contact").setOnPreferenceClickListener(clickListener);
         findPreference("rate").setOnPreferenceClickListener(clickListener);
 
+        //advanced
+        findPreference("orientation").setOnPreferenceChangeListener(changeListener);
+
         //more
         findPreference("about").setOnPreferenceClickListener(clickListener);
         findPreference("privpol").setOnPreferenceClickListener(clickListener);
@@ -207,6 +210,8 @@ public class MyPreferenceFragment extends PreferenceFragment {
                     i.putExtra("action", "timeformat");
                     getContext().sendBroadcast(i);
                     break;
+                case "orientation": // just the update the summary (below) and not run into default switch-case
+                    break;
                 default:
                     Log.d(TAG, "onPreferenceChange: received event but was not handled.");
                     break;
@@ -227,6 +232,7 @@ public class MyPreferenceFragment extends PreferenceFragment {
                 etp.setSummary(stringValue);
 
             } else if (preference instanceof SeekBarPreference) {
+                // Attention if another seekbar is used!! will result in wrong summary because this is not general
                 SeekBarPreference sbp = (SeekBarPreference) preference;
                 sbp.setSummary(context.getString(R.string.settings_summary).replace("$1", "" + stringValue));
             }
