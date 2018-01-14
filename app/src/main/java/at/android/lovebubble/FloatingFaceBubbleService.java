@@ -14,11 +14,11 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.GestureDetector;
 import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Toast;
@@ -53,6 +53,10 @@ public class FloatingFaceBubbleService extends Service {
 
     private SimpleDateFormat formater = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.GERMANY);
     private DateTime birthDt, currDt;
+
+    private GestureDetector mDetector;
+    private int initialX, initialY/*, lastX, lastY, screenWidth, screenHeight*/;
+    private float initialTouchX, initialTouchY;
 
     private int delay;
 
@@ -166,8 +170,8 @@ public class FloatingFaceBubbleService extends Service {
 
         postDelayed();
 
-        addTouchListener();
-
+        // addTouchListener();
+        addGestureListener();
 
     }
 
@@ -305,6 +309,116 @@ public class FloatingFaceBubbleService extends Service {
         }, 100);
     }
 
+    private void addGestureListener() {
+
+        floatingFaceBubble.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View view, MotionEvent motionEvent) {
+                return mDetector.onTouchEvent(motionEvent);
+            }
+        });
+
+        mDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDown(MotionEvent event) {
+                // Log.d("TAG","onDown: ");
+                initialX = myParams.x;
+                initialY = myParams.y;
+                initialTouchX = event.getRawX();
+                initialTouchY = event.getRawY();
+                return true; // don't return false here or else none of the other gestures will work
+            }
+
+            @Override
+            public boolean onSingleTapConfirmed(MotionEvent e) {
+                // Log.i("TAG", "onSingleTapConfirmed: ");
+                return true;
+            }
+
+            @Override
+            public void onLongPress(MotionEvent e) {
+                // Log.i("TAG", "onLongPress: ");
+                if (preferences.getBoolean("quick_hide", false)) {
+                    preferences.edit().putBoolean("hiddenByLongpress", true).apply();
+                    showBubble2(false);
+                }
+            }
+
+            @Override
+            public boolean onDoubleTap(MotionEvent e) {
+                // Log.i("TAG", "onDoubleTap: ");
+
+                Intent prefActivity = new Intent(getBaseContext(),
+                        MyPreferenceActivity.class);
+                startActivity(prefActivity);
+
+                return true;
+            }
+
+            @Override
+            public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+                // Log.i("TAG", "onScroll: ");
+
+                myParams.x = Math.max(initialX + (int) (e2.getRawX() - initialTouchX), 0);
+                myParams.y = Math.max(initialY + (int) (e2.getRawY() - initialTouchY), 0);
+
+                //myParams.x = lastX = Math.max(initialX + (int) (e2.getRawX() - initialTouchX), 0);
+                //myParams.y = lastY = Math.max(initialY + (int) (e2.getRawY() - initialTouchY), 0);
+                // Log.d(TAG, "onScroll: "+myParams.y + " " + screenHeight + " " + e1.getRawY() + " " + e2.getY());
+                // Log.d(TAG, "onScroll: "+myParams.x + " " + screenWidth + " " + e1.getRawX() + " " + e2.getX());
+
+                windowManager.updateViewLayout(floatingFaceBubble, myParams);
+                return true;
+            }
+            /*
+            @Override
+            public boolean onFling(MotionEvent event1, MotionEvent event2,
+                                   float velocityX, float velocityY) {
+                // Log.d("TAG", "onFling: velX=" + velocityX + "/velY=" + velocityY);
+
+                //FloatValueHolder floatValueHolder = new FloatValueHolder(0);
+                //FloatValueHolder floatValueHolder2 = new FloatValueHolder(0);
+
+                //FlingAnimation flingX = new FlingAnimation(floatValueHolder);
+
+                FlingAnimation flingX = new FlingAnimation(floatingFaceBubble, DynamicAnimation.TRANSLATION_X);
+                //                flingX.addUpdateListener(new DynamicAnimation.OnAnimationUpdateListener() {
+                //                    @Override
+                //                    public void onAnimationUpdate(DynamicAnimation animation, float value, float velocity) {
+                //                        myParams.x = (int) (lastX + value);
+                //                        windowManager.updateViewLayout(floatingFaceBubble, myParams);
+                //                    }
+                //                });
+                flingX.setStartVelocity(velocityX)
+                        .setMinValue(-1000) // minimum translationX property
+                        .setMaxValue(1000)  // maximum translationX property
+                        .setFriction(1)
+                        .start();
+
+                ////////////////////
+                //FlingAnimation flingY = new FlingAnimation(floatValueHolder2);
+                FlingAnimation flingY = new FlingAnimation(floatingFaceBubble, DynamicAnimation.TRANSLATION_Y);
+                //                flingY.addUpdateListener(new DynamicAnimation.OnAnimationUpdateListener() {
+                //                    @Override
+                //                    public void onAnimationUpdate(DynamicAnimation animation, float value, float velocity) {
+                //                        Log.d(TAG, "onAnimationUpdate: "+ value);
+                //                        myParams.y = (int) (lastY + value);
+                //                        windowManager.updateViewLayout(floatingFaceBubble, myParams);
+                //                    }
+                //                });
+                flingY.setStartVelocity(velocityY)
+                        .setMinValue(-1000) // minimum translationX property
+                        .setMaxValue(1000)  // maximum translationX property
+                        .setFriction(1)
+                        .start();
+
+                return true;
+            }
+            */
+        });
+    }
+
+    /*
     private void addTouchListener() {
         try {
             //for moving the picture on touch and slide
