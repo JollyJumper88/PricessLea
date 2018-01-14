@@ -8,8 +8,8 @@ android {
         applicationId "at.android.lovebubble"
         minSdkVersion 24
         targetSdkVersion 24
-        versionCode 24
-        versionName "1.0.4"
+        versionCode 26
+        versionName "1.1.1"
     }
     buildTypes {
         release {
@@ -28,4 +28,5 @@ dependencies {
     compile 'com.theartofdev.edmodo:android-image-cropper:2.4.+'
     compile 'com.android.billingclient:billing:1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.+'
+    // compile "com.android.support:support-dynamic-animation:27.0.2"
 }
