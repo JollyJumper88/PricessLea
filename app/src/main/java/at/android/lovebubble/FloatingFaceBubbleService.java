@@ -177,14 +177,6 @@ public class FloatingFaceBubbleService extends Service {
             public void run() {
 
                 // Log.d(TAG, "run: Post DELAYED  :" + new DateTime());
-                /*
-                0 Detailed</item>
-                1 Week</item>
-                2 Month</item>
-                3 Month and Week</item>
-                4 Year and Month</item>
-                5 Detailed (with year)</item>
-                */
 
                 if (switch_time) { /*Name and Time || Time only*/
 
@@ -229,12 +221,8 @@ public class FloatingFaceBubbleService extends Service {
                     }
 
                     month = diffMonth.negated().getMonths();
-
-                    // hours = diffHours.minus(diffDay.toStandardHours()).negated().getHours();
                     hours = period.getHours();
-                    // min = diffMinute.minus(diffHours.toStandardMinutes()).negated().getMinutes();
                     min = period.getMinutes();
-                    // sec = diffSecond.minus(diffMinute.toStandardSeconds()).negated().getSeconds();
                     sec = period.getSeconds();
 
 
@@ -324,7 +312,6 @@ public class FloatingFaceBubbleService extends Service {
                 //layout.setOnTouchListener(new View.OnTouchListener() {
                 private int initialX, initialY;
                 private float initialTouchX, initialTouchY;
-                // private long touchStartTime, touchEndTime = 0;
                 boolean firstTouch = false;
 
                 long time = 0;
@@ -334,7 +321,6 @@ public class FloatingFaceBubbleService extends Service {
 
                     switch (event.getAction()) {
                         case MotionEvent.ACTION_DOWN:
-                            // touchStartTime = System.currentTimeMillis();
                             initialX = myParams.x;
                             initialY = myParams.y;
                             initialTouchX = event.getRawX();
@@ -358,17 +344,7 @@ public class FloatingFaceBubbleService extends Service {
                             }
                             // break;
                         case MotionEvent.ACTION_UP:
-                            // touchEndTime = System.currentTimeMillis();
-
-                            // LONG press
-                            /*
-                            if (touchEndTime - touchStartTime > ViewConfiguration.getLongPressTimeout()
-                                    && Math.abs(initialTouchX - event.getRawX()) <= dragThreshold) {
-
-                                stopMyService();
-                                firstTouch = false;
-                            }
-                            */
+                            Log.d(TAG, "onTouch: x=" + event.getRawX() + "/y=" + event.getRawY());
                             return true;
                         // break;
                         case MotionEvent.ACTION_MOVE:
@@ -385,6 +361,7 @@ public class FloatingFaceBubbleService extends Service {
             e.printStackTrace();
         }
     }
+    */
 
     private void stopMyService() {
         // Save last Bubble position
@@ -427,12 +404,13 @@ public class FloatingFaceBubbleService extends Service {
 
     @Override
     public void onDestroy() {
+
         if (mBroadcastReceiver != null)
             unregisterReceiver(mBroadcastReceiver);
 
         h.removeCallbacksAndMessages(null);
 
-        Log.d(TAG, "onDestroy: " + "DESTROY");
+        // Log.d(TAG, "onDestroy: " + "DESTROY");
 
         super.onDestroy();
     }
