@@ -96,6 +96,8 @@
     <string name="help_summary">Bedienungsanleitung mit Fragen und Antworten</string>
     <string name="rate_summary">Der Google Play Store wird geöffnet. Dort kannst du die App bewerten</string>
     <string name="error_croping">Zuschneiden fehlgeschlagen</string>
+    <string name="quick_hide_summary">Langes Drücken versteckt deine Bubble vorübergehend bis zum nächsten Mal wenn du dein Telefon entsperrst</string>
+    <string name="quick_hide_title">Verstecken</string>
 
 
 </resources>

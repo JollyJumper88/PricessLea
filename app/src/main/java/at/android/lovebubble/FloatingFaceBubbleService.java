@@ -93,7 +93,9 @@ public class FloatingFaceBubbleService extends Service {
         // Receiver registration
         if (mBroadcastReceiver == null)
             mBroadcastReceiver = new MyBroadcastReceiver();
-        IntentFilter intentFilter = new IntentFilter("pref_broadcast");
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("pref_broadcast");
+        intentFilter.addAction(Intent.ACTION_SCREEN_ON);
         registerReceiver(mBroadcastReceiver, intentFilter);
 
 
@@ -115,25 +117,36 @@ public class FloatingFaceBubbleService extends Service {
         myParams = new WindowManager.LayoutParams(
                 LayoutParams.WRAP_CONTENT,
                 LayoutParams.WRAP_CONTENT,
-                LayoutParams.TYPE_PHONE,
-                LayoutParams.FLAG_NOT_FOCUSABLE,
+                LayoutParams.TYPE_PHONE, // deprecated in 26 use TYPE_APPLICATION_OVERLAY
+                LayoutParams.FLAG_NOT_FOCUSABLE
+                // | LayoutParams.FLAG_LAYOUT_IN_SCREEN // draw over status bar
+                // | LayoutParams.FLAG_LAYOUT_IN_OVERSCAN
+                // | LayoutParams.FLAG_LAYOUT_NO_LIMITS
+                ,
                 PixelFormat.TRANSLUCENT);
         myParams.gravity = Gravity.TOP | Gravity.START;
+        // myParams.gravity = Gravity.CENTER | Gravity.CENTER;
         myParams.x = posX;
         myParams.y = posY;
 
 
         floatingFaceBubble = new MyImageView(this, myParams);
 
+
         // Only add the bubble if the orientation from settings matches the current orientation
         bubbleVisible = false;
+        preferences.edit().putBoolean("hiddenByLongpress", false).apply(); // reset hiddenByLongpress when service starts
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         showBubble(windowManager.getDefaultDisplay().getRotation() == Surface.ROTATION_0
                 ? Configuration.ORIENTATION_PORTRAIT : Configuration.ORIENTATION_LANDSCAPE);
 
-//        windowManager.addView(floatingFaceBubble, myParams);
-//        bubbleVisible = true;
-
+        /*
+        // get screen size in pixel
+        Point size = new Point();
+        windowManager.getDefaultDisplay().getRealSize(size);
+        screenWidth = size.x;
+        screenHeight = size.y;
+        */
 
         Date birth;
         if (mills != -1) { // found in preferences
@@ -428,77 +441,91 @@ public class FloatingFaceBubbleService extends Service {
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d(TAG, "onReceive: " + "MyBroadcastReceiver" + intent.getAction());
+            // Log.d(TAG, "onReceive: " + "MyBroadcastReceiver=" + intent.getAction());
 
-            //if (intent.getAction().equals("pref_broadcast")) {
-            Bundle extras = intent.getExtras();
-            if (extras != null) {
-                if (extras.getString("action") != null) {
-                    try {
-                        if ("exit".equalsIgnoreCase(extras.getString("action"))) {
-                            stopMyService();
+            if (intent.getAction().equals("pref_broadcast")) {
+                Bundle extras = intent.getExtras();
+                if (extras != null) {
+                    if (extras.getString("action") != null) {
+                        try {
+                            if ("exit".equalsIgnoreCase(extras.getString("action"))) {
+                                stopMyService();
 
-                        } else if ("timeformat".equalsIgnoreCase(extras.getString("action"))) {
-                            timeformat = Integer.parseInt(preferences.getString("timeformat", "0"));
+                            } else if ("timeformat".equalsIgnoreCase(extras.getString("action"))) {
+                                timeformat = Integer.parseInt(preferences.getString("timeformat", "0"));
 
-                            h.removeCallbacksAndMessages(null);
-                            postDelayed();
+                                h.removeCallbacksAndMessages(null);
+                                postDelayed();
 
-                        } else if ("switch_datetime".equalsIgnoreCase(extras.getString("action"))) {
-                            switch_time = preferences.getBoolean("switch_time", true);
-                            switch_name = preferences.getBoolean("switch_name", true);
+                            } else if ("switch_datetime".equalsIgnoreCase(extras.getString("action"))) {
+                                switch_time = preferences.getBoolean("switch_time", true);
+                                switch_name = preferences.getBoolean("switch_name", true);
 
-                            h.removeCallbacksAndMessages(null);
-                            postDelayed();
+                                h.removeCallbacksAndMessages(null);
+                                postDelayed();
 
-                        } else if ("updateYoffset".equalsIgnoreCase(extras.getString("action"))) {
-                            floatingFaceBubble.updateYoffset();
+                            } else if ("updateYoffset".equalsIgnoreCase(extras.getString("action"))) {
+                                floatingFaceBubble.updateYoffset();
 
-                            h.removeCallbacksAndMessages(null);
-                            postDelayed();
+                                h.removeCallbacksAndMessages(null);
+                                postDelayed();
 
-                        } else if ("updateFontSize".equalsIgnoreCase(extras.getString("action"))) {
-                            floatingFaceBubble.updateFontSize();
+                            } else if ("updateFontSize".equalsIgnoreCase(extras.getString("action"))) {
+                                floatingFaceBubble.updateFontSize();
 
-                            h.removeCallbacksAndMessages(null);
-                            postDelayed();
+                                h.removeCallbacksAndMessages(null);
+                                postDelayed();
 
+                            }
+                        } catch (NullPointerException e) {
+                            Log.e(TAG, "onReceive: ", e);
                         }
-                    } catch (NullPointerException e) {
-                        Log.e(TAG, "onReceive: ", e);
+                    } else if (extras.getString("choosepic") != null) {
+                        preferences.edit().putString("imguri", extras.getString("choosepic")).apply();
+                        floatingFaceBubble.setImageFromUri(extras.getString("choosepic"));
+
+                    } else if (extras.getString("mask") != null) {
+                        floatingFaceBubble.setMaskByName(extras.getString("mask"));
+                        if (bubbleVisible) {
+                            windowManager.updateViewLayout(floatingFaceBubble, myParams);
+                        }
+
+                    } else if (extras.getString("name") != null) {
+                        name = extras.getString("name");
+
+                        h.removeCallbacksAndMessages(null);
+                        postDelayed();
+
+                    } else if (extras.getInt("scale", -1) != -1) {
+                        floatingFaceBubble.setImageScale(extras.getInt("scale"));
+                        if (bubbleVisible) {
+                            windowManager.updateViewLayout(floatingFaceBubble, myParams);
+                        }
+
+                    } else if (extras.getLong("birthdatetime", -1) != -1) {
+                        preferences.edit().putLong("birthdatetime", extras.getLong("birthdatetime")).apply();
+                        Long mills = extras.getLong("birthdatetime");
+                        setBirthDayInfoByMills(mills);
+
+                        h.removeCallbacksAndMessages(null);
+                        postDelayed();
+                    } else {
+                        Log.i(TAG, "onReceive: found data in bundle but was not handled.");
                     }
-                } else if (extras.getString("choosepic") != null) {
-                    preferences.edit().putString("imguri", extras.getString("choosepic")).apply();
-                    floatingFaceBubble.setImageFromUri(extras.getString("choosepic"));
-
-                } else if (extras.getString("mask") != null) {
-                    floatingFaceBubble.setMaskByName(extras.getString("mask"));
-                    if (bubbleVisible) {
-                        windowManager.updateViewLayout(floatingFaceBubble, myParams);
-                    }
-
-                } else if (extras.getString("name") != null) {
-                    name = extras.getString("name");
-
-                    h.removeCallbacksAndMessages(null);
-                    postDelayed();
-
-                } else if (extras.getInt("scale", -1) != -1) {
-                    floatingFaceBubble.setImageScale(extras.getInt("scale"));
-                    if (bubbleVisible) {
-                        windowManager.updateViewLayout(floatingFaceBubble, myParams);
-                    }
-
-                } else if (extras.getLong("birthdatetime", -1) != -1) {
-                    preferences.edit().putLong("birthdatetime", extras.getLong("birthdatetime")).apply();
-                    Long mills = extras.getLong("birthdatetime");
-                    setBirthDayInfoByMills(mills);
-
-                    h.removeCallbacksAndMessages(null);
-                    postDelayed();
-                } else {
-                    Log.i(TAG, "onReceive: found data in bundle but was not handled.");
                 }
+
+            } else if (intent.getAction().equals(Intent.ACTION_SCREEN_ON)) {
+                // Toast.makeText(context, "Screen on", Toast.LENGTH_SHORT).show();
+
+                preferences.edit().putBoolean("hiddenByLongpress", false).apply(); // reset hiddenByLongpress when screen turns on
+
+                // windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
+                if (windowManager != null)
+                    showBubble(windowManager.getDefaultDisplay().getRotation() == Surface.ROTATION_0
+                            ? Configuration.ORIENTATION_PORTRAIT : Configuration.ORIENTATION_LANDSCAPE);
+
+            } else {
+                Log.d(TAG, "onReceive: Received Unknown Broadcast");
             }
         }
     }
@@ -548,7 +575,7 @@ public class FloatingFaceBubbleService extends Service {
     private void showBubble2(boolean state) {
         if (windowManager != null && myParams != null && floatingFaceBubble != null) {
             if (state) { // Add View
-                if (!bubbleVisible) {
+                if (!bubbleVisible && !preferences.getBoolean("hiddenByLongpress", false)) {
                     windowManager.addView(floatingFaceBubble, myParams);
                     bubbleVisible = true;
                 }
