@@ -107,5 +107,6 @@
     <string name="error_croping">Error cropping Image</string>
     <string name="quick_hide_summary">A long-press will temporarily hide your Bubble until the next time you unlock your phone</string>
     <string name="quick_hide_title">Quick Hide</string>
+    <string name="startup_hiddenbubble">\u2764 Your Love Bubble was hidden by long-press. The next time you unlock your phone, it will become visible again.\n\u2764 You can change this behavior in Settings -> Quick Hide.</string>
 
 </resources>

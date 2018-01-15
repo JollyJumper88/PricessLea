@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -37,7 +38,6 @@ public class MainActivity extends Activity implements View.OnClickListener, Dona
         textViewStatusbar = (TextView) findViewById(R.id.textViewStatusbar);
 
         if (Settings.canDrawOverlays(this)) {
-
             textViewTitle.setText(R.string.textviewTitleWelcome);
             textViewMain.setText(R.string.startup);
             button.setText(R.string.gotIt);
@@ -69,6 +69,17 @@ public class MainActivity extends Activity implements View.OnClickListener, Dona
             textViewStatusbar.setText(R.string.status_step1);
         }
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        // this is just to change the main text when the
+        if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hiddenByLongpress", false))
+            textViewMain.setText(R.string.startup_hiddenbubble);
+        else
+            textViewMain.setText(R.string.startup);
     }
 
     @Override

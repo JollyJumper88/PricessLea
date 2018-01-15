@@ -98,6 +98,7 @@
     <string name="error_croping">Zuschneiden fehlgeschlagen</string>
     <string name="quick_hide_summary">Langes Drücken versteckt deine Bubble vorübergehend bis zum nächsten Mal wenn du dein Telefon entsperrst</string>
     <string name="quick_hide_title">Verstecken</string>
+    <string name="startup_hiddenbubble">\u2764 Deine Love Bubble wurde durch langes Drücken versteckt. Das nächste Mal wenn du dein Telefon entsperrst, wird sie wieder sichtbar.\n\u2764 Dieses Verhalten änderst du in Einstellungen -> Verstecken.</string>
 
 
 </resources>

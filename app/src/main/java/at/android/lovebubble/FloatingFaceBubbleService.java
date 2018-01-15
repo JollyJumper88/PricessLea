@@ -478,6 +478,8 @@ public class FloatingFaceBubbleService extends Service {
     */
 
     private void stopMyService() {
+        // Log.d(TAG, "stopMyService: " + "stopMyService");
+
         // Save last Bubble position
         preferences.edit().putInt("posX", myParams.x).apply();
         preferences.edit().putInt("posY", myParams.y).apply();
@@ -488,11 +490,15 @@ public class FloatingFaceBubbleService extends Service {
             bubbleVisible = false;
         }
 
+        // reset Hidden flag
+        preferences.edit().putBoolean("hiddenByLongpress", false).apply();
+
+        // remove all callbacks from handler
         h.removeCallbacksAndMessages(null);
 
+        // stop service
         stopSelf();
 
-        Log.d(TAG, "stopMyService: " + "stopMyService");
     }
 
     private void setBirthDayInfoByMills(Long mills) {
