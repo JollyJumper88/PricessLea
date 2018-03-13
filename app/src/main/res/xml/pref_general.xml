@@ -43,7 +43,6 @@
             android:title="@string/pref_title_display_name"/>
 
         <at.android.lovebubble.etc.SeekBarPreference
-            android:dependency="switch_name"
             android:defaultValue="60"
             android:dialogMessage="@string/settings_dialog_message"
             android:key="y_offset"
@@ -53,7 +52,6 @@
             android:title="@string/settings_title"/>
 
         <ListPreference
-            android:dependency="switch_name"
             android:defaultValue="45"
             android:entries="@array/pref_font_size_titles"
             android:entryValues="@array/pref_font_size_values"
