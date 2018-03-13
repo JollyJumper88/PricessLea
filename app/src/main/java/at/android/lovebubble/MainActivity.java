@@ -75,7 +75,7 @@ public class MainActivity extends Activity implements View.OnClickListener, Dona
     protected void onResume() {
         super.onResume();
 
-        // this is just to change the main text when the
+        // this is just to change the main text when the bubble was hidden
         if (PreferenceManager.getDefaultSharedPreferences(this).getBoolean("hiddenByLongpress", false))
             textViewMain.setText(R.string.startup_hiddenbubble);
         else

@@ -484,10 +484,9 @@ public class FloatingFaceBubbleService extends Service {
         preferences.edit().putInt("posX", myParams.x).apply();
         preferences.edit().putInt("posY", myParams.y).apply();
 
-        // remove view and stop the service
-        if (bubbleVisible) {
+        // remove view if attached
+        if (floatingFaceBubble.isAttachedToWindow()) {
             windowManager.removeView(floatingFaceBubble);
-            bubbleVisible = false;
         }
 
         // reset Hidden flag
@@ -505,13 +504,11 @@ public class FloatingFaceBubbleService extends Service {
         birthDt = new DateTime(mills);
         if (birthDt.isBeforeNow()) {
             birthDay = birthDt.getDayOfMonth();
-            birthMinOfDay = birthDt.getMinuteOfDay();
-            Log.d(TAG, "setBirthDayInfoByMills: " + birthDay + " " + birthMinOfDay);
+            birthSecondOfDay = birthDt.getSecondOfDay();
         } else {
             Toast.makeText(this, R.string.birthdaybeforenow, Toast.LENGTH_SHORT).show();
             birthDt = new DateTime();
         }
-
     }
 
 
@@ -584,7 +581,7 @@ public class FloatingFaceBubbleService extends Service {
 
                     } else if (extras.getString("mask") != null) {
                         floatingFaceBubble.setMaskByName(extras.getString("mask"));
-                        if (bubbleVisible) {
+                        if (floatingFaceBubble.isAttachedToWindow()) {
                             windowManager.updateViewLayout(floatingFaceBubble, myParams);
                         }
 
@@ -596,7 +593,7 @@ public class FloatingFaceBubbleService extends Service {
 
                     } else if (extras.getInt("scale", -1) != -1) {
                         floatingFaceBubble.setImageScale(extras.getInt("scale"));
-                        if (bubbleVisible) {
+                        if (floatingFaceBubble.isAttachedToWindow()) {
                             windowManager.updateViewLayout(floatingFaceBubble, myParams);
                         }
 
@@ -617,10 +614,10 @@ public class FloatingFaceBubbleService extends Service {
 
                 preferences.edit().putBoolean("hiddenByLongpress", false).apply(); // reset hiddenByLongpress when screen turns on
 
-                // windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
-                if (windowManager != null)
+                if (windowManager != null) {
                     showBubble(windowManager.getDefaultDisplay().getRotation() == Surface.ROTATION_0
                             ? Configuration.ORIENTATION_PORTRAIT : Configuration.ORIENTATION_LANDSCAPE);
+                }
 
             } else {
                 Log.d(TAG, "onReceive: Received Unknown Broadcast");
@@ -672,22 +669,28 @@ public class FloatingFaceBubbleService extends Service {
 
     private void showBubble2(boolean state) {
         if (windowManager != null && myParams != null && floatingFaceBubble != null) {
-            if (state) { // Add View
-                if (!bubbleVisible && !preferences.getBoolean("hiddenByLongpress", false)) {
+            if (state) { // Show Bubble
+                Log.d(TAG, "showBubble2: HERE3.2 "+!floatingFaceBubble.isAttachedToWindow()+" "+!preferences.getBoolean("hiddenByLongpress", false));
+                if (!floatingFaceBubble.isAttachedToWindow() && !preferences.getBoolean("hiddenByLongpress", false)) {
+
+                    //floatingFaceBubble.setAlpha(0f);
                     windowManager.addView(floatingFaceBubble, myParams);
-                    bubbleVisible = true;
+                    //floatingFaceBubble.animate().setDuration(800).alpha(1f).start();
+                    //floatingFaceBubble.setAlpha(1f);
+
                 }
-            } else { // Remove View
-                if (bubbleVisible) {
+            } else { // Hide Bubble
+                if (floatingFaceBubble.isAttachedToWindow()) {
+
+                    //floatingFaceBubble.setAlpha(0f);
                     windowManager.removeView(floatingFaceBubble);
-                    bubbleVisible = false;
+                    floatingFaceBubble.setAlpha(1f); // just in case alpha was set to 0 by long-press hide
                 }
             }
         } else {
             Log.d(TAG, "showBubble: windowManager or myParams or floatingFaceBubble => null");
         }
     }
-
 }
 
 
