@@ -1,5 +1,6 @@
 package at.android.lovebubble;
 
+import android.animation.Animator;
 import android.app.Service;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -19,6 +20,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.Surface;
 import android.view.View;
+import android.view.ViewPropertyAnimator;
 import android.view.WindowManager;
 import android.view.WindowManager.LayoutParams;
 import android.widget.Toast;
@@ -43,7 +45,6 @@ public class FloatingFaceBubbleService extends Service {
     private int timeformat = 0;
 
     private boolean switch_time, switch_name;
-    private boolean bubbleVisible;
 
     private WindowManager windowManager;
     private WindowManager.LayoutParams myParams;
@@ -69,7 +70,7 @@ public class FloatingFaceBubbleService extends Service {
     int min = 0;
     int sec = 0;
     int birthDay = 0/*13*/;
-    int birthMinOfDay = 0/*1142*/;
+    int birthSecondOfDay = 0;
     private SharedPreferences preferences;
 
     String tf0, tf1, tf1_p, tf2, tf2_p, tf3, tf4, tf5,
@@ -138,7 +139,6 @@ public class FloatingFaceBubbleService extends Service {
 
 
         // Only add the bubble if the orientation from settings matches the current orientation
-        bubbleVisible = false;
         preferences.edit().putBoolean("hiddenByLongpress", false).apply(); // reset hiddenByLongpress when service starts
         windowManager = (WindowManager) getSystemService(WINDOW_SERVICE);
         showBubble(windowManager.getDefaultDisplay().getRotation() == Surface.ROTATION_0
@@ -160,7 +160,7 @@ public class FloatingFaceBubbleService extends Service {
                 birth = formater.parse("2017-06-13 19:02:00");
                 birthDt = new DateTime(birth);
                 birthDay = 13;
-                birthMinOfDay = 1142;
+                birthSecondOfDay = 68520; // (19h*60 + 2s)*60 => 19:02
             } catch (ParseException e) {
                 birth = new Date();
                 birthDt = new DateTime(birth);
@@ -170,7 +170,6 @@ public class FloatingFaceBubbleService extends Service {
 
         postDelayed();
 
-        // addTouchListener();
         addGestureListener();
 
     }
@@ -180,32 +179,18 @@ public class FloatingFaceBubbleService extends Service {
         h.postDelayed(new Runnable() {
             public void run() {
 
-                // Log.d(TAG, "run: Post DELAYED  :" + new DateTime());
+                //Log.d(TAG, "run: Post DELAYED  :" + new DateTime());
 
                 if (switch_time) { /*Name and Time || Time only*/
 
-                    delay = 1000;
-
                     currDt = new DateTime();
-
-                    Interval interval = new Interval(birthDt, currDt);
-                    Period period = interval.toPeriod();
-
-                    Months diffMonth = Months.monthsBetween(currDt, birthDt);
-
-                    // Days diffDay = Days.daysBetween(currDt, birthDt);
-                    // Hours diffHours = Hours.hoursBetween(currDt, birthDt);
-                    // Minutes diffMinute = Minutes.minutesBetween(currDt, birthDt);
-                    ///Seconds diffSecond = Seconds.secondsBetween(currDt, birthDt);
-
                     int currDay = currDt.getDayOfMonth();
-                    int currMinOfDay = currDt.getMinuteOfDay();
-
-                    // birthMinOfDay = 15 * 60 + 6;
+                    int currSecondOfDay = currDt.getSecondOfDay();
                     days = currDay - birthDay;
 
+                    // DAY calculation
                     // day not fully completed
-                    if (currMinOfDay <= birthMinOfDay) {
+                    if (currSecondOfDay < birthSecondOfDay) {
                         // if birthday we take the last day of the last month
                         if (days == 0) {
                             days = currDt.minusMonths(1).dayOfMonth().withMaximumValue().getDayOfMonth();
@@ -218,11 +203,15 @@ public class FloatingFaceBubbleService extends Service {
                         else {
                             days--;
                         }
-                    } else {
+                    } else { // day fully completed
                         if (days < 0) {
                             days += currDt.minusMonths(1).dayOfMonth().withMaximumValue().getDayOfMonth();
                         }
                     }
+
+                    // Interval interval = new Interval(birthDt, currDt);
+                    Period period = new Interval(birthDt, currDt).toPeriod();
+                    Months diffMonth = Months.monthsBetween(currDt, birthDt);
 
                     month = diffMonth.negated().getMonths();
                     hours = period.getHours();
@@ -238,6 +227,7 @@ public class FloatingFaceBubbleService extends Service {
 
                     // Detailed
                     if (timeformat == 0) {
+                        delay = 1000;
                         bubbleText += String.format(tf0, month, days, hours, min, sec);
 
                         // Weeks
@@ -250,9 +240,7 @@ public class FloatingFaceBubbleService extends Service {
                         // Months
                     } else if (timeformat == 2) {
                         delay = 60000;
-
                         int weeks = period.minusMonths(month).getWeeks();
-
                         String monthStr = month == 0 ? "" : String.valueOf(month);
 
                         if (weeks == 1)
@@ -261,7 +249,6 @@ public class FloatingFaceBubbleService extends Service {
                             monthStr += "\u00BD";
                         else if (weeks >= 3)
                             monthStr += "\u00BE";
-
 
                         bubbleText += String.format(month == 1 && weeks == 0 ? tf2 : tf2_p, monthStr);
 
@@ -281,6 +268,7 @@ public class FloatingFaceBubbleService extends Service {
 
                         // Detailed with Year
                     } else if (timeformat == 4) {
+                        delay = 1000;
                         bubbleText += String.format(tf4, month / 12, month % 12, days, hours, min, sec);
 
                         // Year Month Day (y m d)
@@ -338,9 +326,15 @@ public class FloatingFaceBubbleService extends Service {
             @Override
             public void onLongPress(MotionEvent e) {
                 // Log.i("TAG", "onLongPress: ");
+
                 if (preferences.getBoolean("quick_hide", false)) {
-                    preferences.edit().putBoolean("hiddenByLongpress", true).apply();
-                    showBubble2(false);
+
+                    floatingFaceBubble.animate().setDuration(800).alpha(0f).withEndAction(new Runnable() {
+                        public void run() {
+                            preferences.edit().putBoolean("hiddenByLongpress", true).apply();
+                            showBubble2(false);
+                        }
+                    }).start();
                 }
             }
 
@@ -417,65 +411,6 @@ public class FloatingFaceBubbleService extends Service {
             */
         });
     }
-
-    /*
-    private void addTouchListener() {
-        try {
-            //for moving the picture on touch and slide
-            floatingFaceBubble.setOnTouchListener(new View.OnTouchListener() {
-                //layout.setOnTouchListener(new View.OnTouchListener() {
-                private int initialX, initialY;
-                private float initialTouchX, initialTouchY;
-                boolean firstTouch = false;
-
-                long time = 0;
-
-                @Override
-                public boolean onTouch(View v, MotionEvent event) {
-
-                    switch (event.getAction()) {
-                        case MotionEvent.ACTION_DOWN:
-                            initialX = myParams.x;
-                            initialY = myParams.y;
-                            initialTouchX = event.getRawX();
-                            initialTouchY = event.getRawY();
-
-                            if (firstTouch && (System.currentTimeMillis() - time) <= ViewConfiguration.getDoubleTapTimeout()) {
-                                //DOUBLE tap
-
-                                Intent prefActivity = new Intent(getBaseContext(),
-                                        MyPreferenceActivity.class);
-                                startActivity(prefActivity);
-
-                                firstTouch = false;
-                                return true; // event consumed
-
-                            } else {
-                                // SINGLE tap (do nothing)
-                                firstTouch = true;
-                                time = System.currentTimeMillis();
-                                return false;
-                            }
-                            // break;
-                        case MotionEvent.ACTION_UP:
-                            Log.d(TAG, "onTouch: x=" + event.getRawX() + "/y=" + event.getRawY());
-                            return true;
-                        // break;
-                        case MotionEvent.ACTION_MOVE:
-                            myParams.x = initialX + (int) (event.getRawX() - initialTouchX);
-                            myParams.y = initialY + (int) (event.getRawY() - initialTouchY);
-
-                            windowManager.updateViewLayout(v, myParams);
-                            break;
-                    }
-                    return false;
-                }
-            });
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-    */
 
     private void stopMyService() {
         // Log.d(TAG, "stopMyService: " + "stopMyService");
